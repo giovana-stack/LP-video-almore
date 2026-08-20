@@ -148,24 +148,17 @@
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--rule-dark);
 }
-.brand { display: flex; align-items: baseline; gap: .7rem; text-decoration: none; }
-.brand .mark {
-  font-family: "Instrument Serif", Georgia, serif;
-  font-size: 1.6rem;
-  letter-spacing: .1em;
-  color: var(--cream);
-}
-.brand .sub {
-  font-size: .68rem;
-  letter-spacing: .2em;
-  text-transform: uppercase;
-  color: var(--dim);
-}
+/* A marca e o logo do Manual, nao texto: um lockup horizontal de 4:1 com o
+   triangulo, ALMORE e a assinatura. A altura manda; a largura acompanha. */
+.brand { display: flex; align-items: center; text-decoration: none; }
+.brand img { height: 46px; width: auto; }
+.brand--foot img { height: 58px; }
+
 .lp-almore header.top .btn { padding: .6rem 1.15rem; font-size: var(--step--1); white-space: nowrap; }
-/* No celular o topo não tem espaço para os dois textos da marca. */
+/* No celular o topo e apertado: logo menor e botao sem a seta. */
 @media (max-width: 560px) {
   .lp-almore header.top { padding: .75rem 1rem; }
-  .brand .sub { display: none; }
+  .brand img { height: 34px; }
   .lp-almore header.top .btn { padding: .55rem .9rem; }
   .lp-almore header.top .btn::after { content: none; }
 }
@@ -597,7 +590,7 @@
 }
 .foot-grid { display: grid; gap: 2rem; }
 @media (min-width: 800px) { .foot-grid { grid-template-columns: 1.2fr .8fr auto; align-items: start; } }
-.lp-almore footer .legal { display: grid; gap: .3rem; }
+.lp-almore footer .legal { display: grid; gap: .3rem; font-style: normal; }
 .lp-almore footer nav { display: flex; gap: 1.5rem; flex-wrap: wrap; }
 .lp-almore footer a { text-decoration: none; }
 .lp-almore footer a:hover { color: var(--cream); text-decoration: underline; }

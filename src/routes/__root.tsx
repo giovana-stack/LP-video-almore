@@ -42,14 +42,20 @@ const LD_ORGANIZACAO = {
   description:
     "Contabilidade 100% digital, consultiva e ágil. Apuração de impostos, folha de pagamento, DRE, conciliação bancária e planejamento tributário para empresas do MEI ao Lucro Real.",
   slogan: "Rápido. Consultivo. Sempre.",
+  logo: `${SITE.url}almore-logo.png`,
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Rua Benedita Nogueira, 425",
+    addressLocality: "Araras",
+    addressRegion: "SP",
+    addressCountry: "BR",
+  },
   taxID: "67.132.226/0001-17",
   vatID: "67.132.226/0001-17",
   areaServed: { "@type": "Country", name: "Brasil" },
   availableLanguage: "pt-BR",
-  sameAs: [
-    "https://www.instagram.com/almorecontabilidade/",
-    "https://linktr.ee/almorecontabilidade",
-  ],
+  // Acrescentar a URL do LinkedIn aqui também quando ela existir.
+  sameAs: ["https://www.instagram.com/almorecontabilidade/"],
   knowsAbout: [
     "MEI",
     "Simples Nacional",

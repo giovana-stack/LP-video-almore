@@ -12,12 +12,26 @@ import type { CSSProperties } from 'react'
  *
  * FALTA PREENCHER (marcado na tela com sublinhado tracejado):
  *   1. CTA      — a constante abaixo, num lugar só
- *   2. Endereço — no rodapé
+ *   2. LinkedIn — a URL do perfil, na constante LINKEDIN
  * Os campos sem dado ficam em branco de propósito: nada inventado no ar.
  */
 
 // O único lugar onde o destino dos botões é definido.
 const CTA = 'CTA_LINK'
+
+/** FALTA: a URL do perfil da Almore no LinkedIn. */
+const LINKEDIN = 'LINKEDIN_URL'
+
+/**
+ * Logo da Almore, versão branca do Manual de Marca, recortado na caixa do
+ * desenho e reduzido a 600px de largura (~10 kb). Entra como imagem, e não
+ * como máscara: é branco sobre transparente e tanto o cabeçalho quanto o
+ * rodapé são escuros, então o desenho original se mantém intacto.
+ *
+ * width e height vão na tag para o navegador reservar o espaço antes de
+ * baixar o arquivo — sem isso o cabeçalho pula quando o logo carrega.
+ */
+const LOGO = { src: '/almore-logo.png', w: 600, h: 148 }
 
 /**
  * Clientes da faixa de prova.
@@ -67,8 +81,12 @@ export default function LandingAlmore() {
       
       <header className="top">
         <a className="brand" href="#topo">
-          <span className="mark">ALMORE</span>
-          <span className="sub">Inteligência Contábil</span>
+          <img
+            src={LOGO.src}
+            alt="Almore Inteligência Contábil"
+            width={LOGO.w}
+            height={LOGO.h}
+          />
         </a>
         <a className="btn" href={CTA}>Quero meu diagnóstico</a>
       </header>
@@ -356,19 +374,25 @@ export default function LandingAlmore() {
         <div className="wrap foot-grid">
           <div>
             <a className="brand brand--foot" href="#topo">
-              <span className="mark">ALMORE</span>
-              <span className="sub">Inteligência Contábil</span>
+              <img
+                src={LOGO.src}
+                alt="Almore Inteligência Contábil"
+                width={LOGO.w}
+                height={LOGO.h}
+              />
             </a>
             <p className="foot-claim">Contabilidade 100% digital, consultiva e ágil. Rápido. Consultivo. Sempre.</p>
           </div>
-          <div className="legal">
+          <address className="legal">
             <span>CNPJ 67.132.226/0001-17</span>
-            <span className="todo">endereço</span>
+            <span>Rua Benedita Nogueira, 425 · Centro</span>
+            <span>Araras · SP</span>
             <span><a href="https://almorecontabilidade.com.br">almorecontabilidade.com.br</a></span>
-          </div>
+          </address>
           <nav aria-label="Redes sociais da Almore">
             <a href="https://www.instagram.com/almorecontabilidade/" rel="me noopener">Instagram</a>
-            <a href="https://linktr.ee/almorecontabilidade" rel="me noopener">Linktree</a>
+            {/* FALTA a URL do LinkedIn — não inventei, link morto no ar é pior. */}
+            <a className="todo" href={LINKEDIN} rel="me noopener">LinkedIn</a>
           </nav>
         </div>
         <div className="wrap copy">
