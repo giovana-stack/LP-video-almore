@@ -253,70 +253,68 @@ export default function LandingAlmore() {
       {/* 5. PROVA SOCIAL ====================================================== */}
       <section className="band band--dark2">
         <div className="wrap">
-          <p className="eyebrow"><span className="n">04</span> Prova</p>
-          <h2 className="rise h2-lead h2-lead--w24">Mais de <span className="todo">[N]</span> empresas com a rotina contábil em ordem</h2>
-      
+          <p className="eyebrow"><span className="n">04</span> A carteira</p>
           {/*
-            Os logos entram como máscara, não como imagem: cada um é pintado
-            em champanhe a partir do próprio recorte. Isso resolve o problema
-            de os seis não serem do mesmo tipo — três são brancos (Laba,
-            Eroika, Sunfit) e três são escuros (Mexicatti marrom, ViCor azul,
-            Mymion prata). Como imagem colorida, metade desapareceria nesta
-            faixa escura; como máscara, todos leem igual.
+            O numero 54 e pequeno para um argumento de volume — e por isso ele
+            e o argumento. Uma carteira enxuta e o que permite atender pelo
+            nome, e isso um escritorio de mil clientes nao consegue prometer.
           */}
-          <div className="logos rise">
-            {CLIENTES.map((c) => {
-              const h = alturaDoLogo(c.prop)
-              return (
-                <div key={c.marca}>
-                  <span
-                    className="logo-marca"
-                    role="img"
-                    aria-label={c.marca}
-                    style={
-                      {
-                        '--logo': `url(${c.logo})`,
-                        '--logo-h': `${h}px`,
-                        '--logo-w': `${Math.round(h * c.prop)}px`,
-                      } as CSSProperties
-                    }
-                  />
-                </div>
-              )
-            })}
+          <h2 className="rise h2-lead">54 empresas na carteira. Nenhuma atendida por protocolo.</h2>
+          <p className="narrow narrow--dim">A conta é simples: carteira enxuta é o que permite responder no mesmo dia e conhecer a empresa pelo nome. Crescer a lista sem crescer o time seria trocar exatamente aquilo que você está contratando.</p>
+
+          {/*
+            Esteira contínua de logos. A trilha tem a lista duplicada e desliza
+            -50%, então o laço fecha sem salto. Os logos entram como máscara,
+            não como imagem: cada um é pintado em champanhe a partir do próprio
+            recorte. Isso resolve o problema de os seis não serem do mesmo tipo
+            — três são brancos (Laba, Eroika, Sunfit) e três são escuros
+            (Mexicatti marrom, ViCor azul, Mymion prata). Como imagem colorida,
+            metade desapareceria nesta faixa escura.
+          */}
+          <div className="logos-esteira rise" aria-label="Clientes da Almore">
+            <div className="logos-trilha">
+              {[0, 1].map((volta) =>
+                CLIENTES.map((c) => {
+                  const h = alturaDoLogo(c.prop)
+                  return (
+                    <div key={`${volta}-${c.marca}`} aria-hidden={volta === 1 || undefined}>
+                      <span
+                        className="logo-marca"
+                        role="img"
+                        aria-label={c.marca}
+                        style={
+                          {
+                            '--logo': `url(${c.logo})`,
+                            '--logo-h': `${h}px`,
+                            '--logo-w': `${Math.round(h * c.prop)}px`,
+                          } as CSSProperties
+                        }
+                      />
+                    </div>
+                  )
+                }),
+              )}
+            </div>
           </div>
-      
-          <div className="quotes rise">
-            <div className="quote">
-              <span className="label">Desafio</span>
-              <p className="desafio todo">o que a empresa vivia antes</p>
-              <span className="label">Resultado</span>
-              <p className="resultado todo">o número que mudou</p>
-              <div className="quem">
-                <strong className="todo">nome do cliente</strong>
-                <span className="todo">cargo · empresa</span>
-              </div>
-            </div>
-            <div className="quote">
-              <span className="label">Desafio</span>
-              <p className="desafio todo">o que a empresa vivia antes</p>
-              <span className="label">Resultado</span>
-              <p className="resultado todo">o número que mudou</p>
-              <div className="quem">
-                <strong className="todo">nome do cliente</strong>
-                <span className="todo">cargo · empresa</span>
-              </div>
-            </div>
-            <div className="quote">
-              <span className="label">Desafio</span>
-              <p className="desafio todo">o que a empresa vivia antes</p>
-              <span className="label">Resultado</span>
-              <p className="resultado todo">o número que mudou</p>
-              <div className="quem">
-                <strong className="todo">nome do cliente</strong>
-                <span className="todo">cargo · empresa</span>
-              </div>
-            </div>
+
+          {/*
+            No lugar dos depoimentos: os setores da carteira. Depoimento exige
+            frase e numero que so o cliente pode dar; setor e fato verificavel,
+            tirado da propria lista de clientes — e responde a pergunta que o
+            visitante realmente faz, que e "eles entendem do meu negocio?".
+          */}
+          <div className="setores rise">
+            <h3>Do sorvete ao seguro</h3>
+            <p>Seis ramos com regras fiscais que não se parecem: alíquota de alimento não é a de serviço, comissão de corretagem não é receita de software, e folha de restaurante não é folha de laboratório. A carteira cobre todos eles.</p>
+            <ul>
+              <li>Alimentação e sorveteria</li>
+              <li>Restaurante e churrascaria</li>
+              <li>Corretagem de seguros</li>
+              <li>Tecnologia e software</li>
+              <li>Cosméticos</li>
+              <li>Moda e fitness</li>
+            </ul>
+            <p className="regimes">Do MEI ao Lucro Real</p>
           </div>
         </div>
       </section>
