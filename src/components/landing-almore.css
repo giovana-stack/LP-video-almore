@@ -59,7 +59,8 @@
   font-weight: 400;
   line-height: 1.04;
   letter-spacing: -.01em;
-  text-wrap: balance;
+  /* Sem text-wrap: balance — ele iguala o comprimento das linhas quebrando
+     antes do fim, que era exatamente o sintoma. O padrão preenche a linha. */
   margin: 0;
 }
 
@@ -79,7 +80,7 @@
 .band--light { background: var(--paper);  color: var(--ink); }
 .band--bordo { background: var(--bordo);  color: var(--paper-2); }
 .wrap { max-width: var(--measure); margin-inline: auto; }
-.narrow { max-width: 64ch; }
+.narrow { /* sem limite: o texto vai até a borda da faixa de conteúdo */ }
 
 /* -- rótulo de linha (motivo de balancete) --------------------------- */
 .eyebrow {
@@ -177,50 +178,45 @@
   padding: clamp(4rem, 8vw, 7rem) 1.5rem clamp(3rem, 6vw, 5rem);
   border-bottom: 1px solid var(--rule-dark);
 }
-/* Texto à esquerda, vídeo à direita. Empilha no celular. */
-.hero-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: clamp(2.5rem, 5vw, 4rem);
-  align-items: center;
-}
-@media (min-width: 980px) {
-  .hero-grid { grid-template-columns: 1.05fr .95fr; }
-}
-
 /*
- * Espaço reservado do vídeo. Para trocar pelo vídeo de verdade, ponha um
- * <iframe> ou <video> como filho e apague os dois <span> — a proporção 16:9
- * já está fixa, então a página não salta quando ele entrar.
+ * O vídeo é a peça principal do herói: título em linha cheia, subtítulo
+ * menor, e o vídeo em largura total logo abaixo.
+ *
+ * Para colocar o vídeo, ponha um <iframe> ou <video> dentro de .hero-video
+ * e apague os dois <span>. A proporção 16:9 está fixa, então a página não
+ * salta quando ele entrar.
  */
 .hero-video {
   position: relative;
   aspect-ratio: 16 / 9;
+  margin-top: clamp(2rem, 4vw, 3rem);
   border: 1px dashed rgba(235, 224, 201, 0.32);
-  border-radius: 2px;
+  border-radius: 3px;
   background:
     radial-gradient(120% 120% at 50% 0%, rgba(124, 22, 56, 0.38), rgba(20, 10, 15, 0) 72%),
     var(--ink-2);
   display: grid;
   justify-items: center;
   align-content: center;
-  gap: 1rem;
+  gap: 1.25rem;
   color: var(--dim);
 }
 .hero-video .play {
-  width: 56px;
-  height: 56px;
+  width: clamp(64px, 7vw, 96px);
+  aspect-ratio: 1;
   border: 1px solid rgba(235, 224, 201, 0.42);
   border-radius: 50%;
   display: grid;
   place-items: center;
+  transition: border-color .25s ease, background-color .25s ease;
 }
+.hero-video:hover .play { border-color: var(--sand); background: rgba(235, 224, 201, 0.06); }
 .hero-video .play::before {
   content: "";
-  margin-left: 4px;
-  border-left: 13px solid var(--sand);
-  border-top: 8px solid transparent;
-  border-bottom: 8px solid transparent;
+  margin-left: 6px;
+  border-left: clamp(16px, 1.6vw, 22px) solid var(--sand);
+  border-top: clamp(10px, 1vw, 14px) solid transparent;
+  border-bottom: clamp(10px, 1vw, 14px) solid transparent;
 }
 .hero-video .rotulo {
   font-size: .68rem;
@@ -240,14 +236,12 @@
 
 .hero h1 {
   font-size: var(--step-4);
-  max-width: 20ch;
   margin-bottom: 1.5rem;
 }
 .hero h1 em { font-style: italic; color: var(--sand); }
-.hero p.lead {
-  font-size: var(--step-1);
+.hero p.lead { /* subtítulo: menor que o título, que agora ocupa a linha cheia */
+  font-size: var(--step-0);
   color: var(--dim);
-  max-width: 54ch;
   margin: 0 0 2.25rem;
 }
 .hero .tag {
@@ -292,11 +286,7 @@
 }
 
 /* -- proposta -------------------------------------------------------- */
-.prop { display: grid; gap: clamp(2rem, 5vw, 4rem); grid-template-columns: 1fr; }
-@media (min-width: 900px) { .prop { grid-template-columns: 1.25fr .75fr; align-items: center; } }
-.prop h2 { font-size: var(--step-3); max-width: 34ch; }
-.prop p { color: var(--dim-ink); max-width: 46ch; margin: 1.25rem 0 0; }
-.benefits { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.benefits { list-style: none; margin: clamp(2rem, 4vw, 2.75rem) 0 0; padding: 0; display: grid; gap: 0; }
 .benefits li {
   display: flex;
   align-items: baseline;
@@ -335,7 +325,7 @@
   color: var(--gold);
   font-variant-numeric: tabular-nums;
 }
-.stat p { margin: 0; color: var(--dim); max-width: 48ch; font-size: var(--step-1); }
+.stat p { margin: 0; color: var(--dim); font-size: var(--step-1); }
 /* Crédito da fonte: presente para dar lastro ao dado, discreto para não competir. */
 .stat .src {
   margin-top: 1rem;
@@ -443,21 +433,10 @@
 }
 .plan--bronze { --metal: #8A5A2B; }
 .plan--prata  { --metal: #6E6E73; }
-.plan--ouro   { --metal: #8A6100; background: var(--paper-2); }
+.plan--ouro   { --metal: #8A6100; }
 
 .plan .tier { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
 .plan h3 { font-size: var(--step-3); line-height: .95; color: var(--metal); }
-.plan .flag {
-  font-size: .62rem;
-  font-weight: 700;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: var(--paper);
-  background: var(--metal);
-  padding: .3rem .55rem;
-  border-radius: 2px;
-  white-space: nowrap;
-}
 .plan .claim {
   font-family: "Instrument Serif", Georgia, serif;
   font-style: italic;
@@ -506,6 +485,14 @@
  * <small> virava item próprio e caía na coluna de 0,5rem — o texto descia
  * uma letra por linha. Ele precisa ficar na coluna do conteúdo.
  */
+/* Os três planos são visualmente iguais: nenhum recebe destaque. A única
+   diferença é o metal do nome, que é identidade, não hierarquia. O realce
+   acontece só no hover. */
+@media (hover: hover) {
+  .plan:hover { background: var(--paper-2); }
+  .plan:hover h3 { letter-spacing: .005em; }
+}
+
 .plan .items small {
   grid-column: 2;
   display: block;
@@ -544,10 +531,70 @@
 .quote .quem strong { display: block; letter-spacing: .06em; text-transform: uppercase; font-size: var(--step--1); }
 .quote .quem span { font-size: var(--step--1); color: var(--dim); }
 
-/* -- time ------------------------------------------------------------ */
-.team { display: grid; gap: 1px; background: var(--rule-light); border: 1px solid var(--rule-light); margin-top: 2.5rem; }
-@media (min-width: 760px) { .team { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1080px) { .team { grid-template-columns: repeat(3, 1fr); } }
+/* -- time: carrossel de arrastar -------------------------------------- *
+ * Trilha horizontal com scroll-snap. O arraste é nativo — dedo no celular,
+ * trackpad no notebook, barra de rolagem no mouse — então funciona mesmo se
+ * o JavaScript das setas não rodar. As setas são atalho, não a única via.
+ * -------------------------------------------------------------------- */
+.team-carrossel { margin-top: 2.5rem; }
+.team {
+  display: flex;
+  gap: 1px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  /*
+   * Sem scroll-behavior: smooth aqui. Declarado no CSS ele sequestra toda
+   * rolagem programatica do container e as setas paravam de funcionar
+   * (medido: scrollLeft voltava a 0). A suavidade vem do behavior "smooth"
+   * na chamada do scrollBy, que anima so o clique das setas.
+   */
+  background: var(--rule-light);
+  border: 1px solid var(--rule-light);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(104, 17, 47, .35) transparent;
+}
+.team::-webkit-scrollbar { height: 8px; }
+.team::-webkit-scrollbar-track { background: transparent; }
+.team::-webkit-scrollbar-thumb { background: rgba(104, 17, 47, .3); border-radius: 99px; }
+.team::-webkit-scrollbar-thumb:hover { background: rgba(104, 17, 47, .5); }
+
+.team .person {
+  flex: 0 0 clamp(250px, 31%, 330px);
+  scroll-snap-align: start;
+}
+
+/* Controles do carrossel */
+.team-nav {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  margin-top: 1.25rem;
+}
+.team-nav button {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  font: inherit;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--bordo);
+  background: transparent;
+  border: 1px solid var(--rule-light);
+  border-radius: 50%;
+  transition: background-color .2s ease, border-color .2s ease, color .2s ease;
+}
+.team-nav button:hover { background: var(--bordo); border-color: var(--bordo); color: var(--paper); }
+.team-nav .dica {
+  margin-left: .5rem;
+  font-size: var(--step--1);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--dim-ink);
+}
+
 .person { background: var(--paper); padding: clamp(1.4rem, 3vw, 2rem); display: flex; flex-direction: column; gap: .9rem; }
 .person .photo {
   aspect-ratio: 4 / 5;
@@ -576,7 +623,7 @@
 /* -- fechamento ------------------------------------------------------ */
 .closing { text-align: left; }
 .closing h2 { font-size: var(--step-4); margin-bottom: 1.5rem; }
-.closing p { font-size: var(--step-1); color: var(--dim); max-width: 58ch; margin: 0 0 2.25rem; }
+.closing p { font-size: var(--step-1); color: var(--dim); margin: 0 0 2.25rem; }
 
 /* -- faq ------------------------------------------------------------- */
 .faq { margin-top: 2.5rem; border-top: 1px solid var(--rule-light); }
@@ -602,7 +649,7 @@
   color: var(--dim-ink);
 }
 .faq details[open] summary::after { content: "–"; }
-.faq .answer { padding: 0 0 1.6rem; color: var(--dim-ink); max-width: 68ch; }
+.faq .answer { padding: 0 0 1.6rem; color: var(--dim-ink); }
 .faq .answer p { margin: 0 0 .8rem; }
 .faq .answer p:last-child { margin-bottom: 0; }
 
@@ -628,10 +675,7 @@
  * limpa e igual entre a versão HTML e a versão React.
  * -------------------------------------------------------------------- */
 .cta-row { margin-top: clamp(2rem, 4vw, 3rem); }
-.h2-lead { font-size: var(--step-3); max-width: 42ch; }
-.h2-lead--w30 { max-width: 54ch; }
-.h2-lead--w24 { max-width: 36ch; }
-.h2-lead--w22 { max-width: 30ch; }
+.h2-lead { font-size: var(--step-3); }
 .h2-lead--full { max-width: none; }
 .h2-lead--paper { color: var(--paper); }
 .narrow--dim { color: var(--dim); }
@@ -639,7 +683,7 @@
 .eyebrow--bordo-band { color: rgba(251,248,241,.8); }
 .em-sand { font-style: italic; color: var(--sand); }
 .brand--foot { margin-bottom: 1rem; }
-.foot-claim { margin: 1rem 0 0; max-width: 38ch; }
+.foot-claim { margin: 1rem 0 0; }
 
 /* -- marcador de conteúdo a preencher -------------------------------- */
 .todo {
@@ -670,7 +714,8 @@
 }
 .plan .items li::before { transition: transform .22s ease; }
 
-.logos > div, .quote, .person { transition: background-color .22s ease; }
+.logos > div, .quote, .person, .plan { transition: background-color .22s ease; }
+.plan h3 { transition: letter-spacing .22s ease; }
 
 /* Só onde existe mouse de verdade: no toque o :hover fica preso na tela. */
 @media (hover: hover) {

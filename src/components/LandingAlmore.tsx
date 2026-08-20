@@ -1,12 +1,15 @@
+import { useRef } from 'react'
+
 /**
  * Landing page da Almore Inteligência Contábil.
  *
  * Tudo vive dentro de .lp-almore, então os estilos não vazam para o resto
  * do app e não brigam com o reset do Tailwind.
  *
- * A revelação no scroll é 100% CSS (animation-timeline: view()), então este
- * componente não tem estado nem efeito: é marcação pura. O conteúdo é
- * visível por padrão — nenhuma seção depende de JavaScript para aparecer.
+ * A revelação no scroll é 100% CSS (animation-timeline: view()): o conteúdo
+ * é visível por padrão e nenhuma seção depende de JavaScript para aparecer.
+ * O único JS aqui são as setas do carrossel do time, e mesmo elas são
+ * dispensáveis — o arraste é nativo.
  *
  * FALTA PREENCHER (marcado na tela com sublinhado tracejado):
  *   1. CTA          — a constante abaixo, num lugar só
@@ -23,6 +26,28 @@
 const CTA = 'CTA_LINK'
 
 export default function LandingAlmore() {
+  const trilhaDoTime = useRef<HTMLDivElement>(null)
+
+  /*
+   * Avança ou volta ~80% da largura visível da trilha.
+   *
+   * O 'smooth' é enfeite e não pode ser o mecanismo: ele depende do relógio
+   * de animação, que congela em aba oculta e em contexto throttled — e ali a
+   * rolagem simplesmente não acontecia (medido: scrollLeft ficava em 0,
+   * enquanto 'auto' chegava ao fim da trilha). Quando não há relógio para
+   * animar, rola instantâneo. Também respeita quem pediu menos movimento.
+   */
+  const desliza = (direcao: number) => {
+    const trilha = trilhaDoTime.current
+    if (!trilha) return
+    const podeAnimar =
+      !document.hidden && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    trilha.scrollBy({
+      left: direcao * trilha.clientWidth * 0.8,
+      behavior: podeAnimar ? 'smooth' : 'auto',
+    })
+  }
+
   return (
     <div className="lp-almore">
       <a className="skip" href="#conteudo">Ir para o conteúdo</a>
@@ -40,24 +65,22 @@ export default function LandingAlmore() {
       {/* 1. HERO ============================================================== */}
       <section className="hero" id="topo">
         <div className="wrap">
-          <div className="hero-grid">
-            <div>
-              <span className="tag">Rápido · Consultivo · Sempre</span>
-              <h1>Contabilidade consultiva<br /><em>do MEI ao Lucro Real</em></h1>
-              <p className="lead">A contabilidade que traduz número em direção — e responde no dia em que você precisa decidir, não no mês seguinte.</p>
-              <a className="btn" href={CTA}>Quero meu diagnóstico</a>
-            </div>
+          <span className="tag">Rápido · Consultivo · Sempre</span>
+          <h1>Contabilidade consultiva do MEI ao Lucro Real</h1>
+          <p className="lead">A contabilidade que traduz número em direção — e responde no dia em que você precisa decidir, não no mês seguinte.</p>
 
-            {/*
-              Espaço do vídeo. Para colocar o vídeo, troque os dois <span> por
-              um <iframe> (YouTube/Vimeo) ou um <video> — o CSS já posiciona
-              qualquer um dos dois preenchendo o quadro em 16:9.
-            */}
-            <div className="hero-video">
-              <span className="play" aria-hidden="true"></span>
-              <span className="rotulo">Espaço do vídeo · 16:9</span>
-            </div>
+          {/*
+            Espaço do vídeo — a peça principal do herói, em largura cheia.
+            Para colocar o vídeo, troque os dois <span> por um <iframe>
+            (YouTube/Vimeo) ou um <video>: o CSS já posiciona qualquer um dos
+            dois preenchendo o quadro em 16:9.
+          */}
+          <div className="hero-video">
+            <span className="play" aria-hidden="true"></span>
+            <span className="rotulo">Espaço do vídeo · 16:9</span>
           </div>
+
+          <p className="cta-row"><a className="btn" href={CTA}>Quero meu diagnóstico</a></p>
 
           <div className="pillars">
             <div><span className="k">01</span><span className="v">Rotina fiscal blindada</span></div>
@@ -72,17 +95,16 @@ export default function LandingAlmore() {
       <section className="band band--light">
         <div className="wrap">
           <p className="eyebrow"><span className="n">01</span> O método</p>
-          <div className="prop">
-            <div className="rise">
-              <h2>O método que tira a contabilidade do arquivo morto e coloca no centro da sua decisão.</h2>
-              <p>O mesmo aplicado em empresas de todos os regimes — MEI, Simples Nacional, Lucro Presumido e Lucro Real —, do primeiro CNPJ à operação com folha e sócios.</p>
-            </div>
-            <ul className="benefits rise">
-              <li><span className="k">A</span> Pagando o imposto certo</li>
-              <li><span className="k">B</span> Sem perder prazo</li>
-              <li><span className="k">C</span> Sabendo quanto sobra</li>
-            </ul>
-          </div>
+          {/* Título em linha cheia; tabela abaixo, e o texto de apoio embaixo dela. */}
+          <h2 className="rise h2-lead">O método que tira a contabilidade do arquivo morto e coloca no centro da sua decisão.</h2>
+
+          <ul className="benefits rise">
+            <li><span className="k">A</span> Pagando o imposto certo</li>
+            <li><span className="k">B</span> Sem perder prazo</li>
+            <li><span className="k">C</span> Sabendo quanto sobra</li>
+          </ul>
+
+          <p className="narrow narrow--ink">O mesmo aplicado em empresas de todos os regimes — MEI, Simples Nacional, Lucro Presumido e Lucro Real —, do primeiro CNPJ à operação com folha e sócios.</p>
           <p className="cta-row"><a className="btn" href={CTA}>Quero meu diagnóstico</a></p>
         </div>
       </section>
@@ -179,7 +201,7 @@ export default function LandingAlmore() {
             </article>
       
             <article className="plan plan--ouro rise">
-              <div className="tier"><h3>Ouro</h3><span className="flag">Mais completo</span></div>
+              <div className="tier"><h3>Ouro</h3></div>
               <p className="claim">Tudo do Prata + camada estratégica + I.A.</p>
               <p className="herda"><b>Traz junto</b><span>Todo o plano Prata</span></p>
               <ul className="items">
@@ -257,7 +279,13 @@ export default function LandingAlmore() {
           <h2 className="rise h2-lead h2-lead--w24">Quem vai cuidar da sua contabilidade</h2>
           <p className="narrow narrow--ink">Você fala com gente que conhece a sua empresa pelo nome — não com um protocolo. Estes são os profissionais que vão acompanhar a sua operação.</p>
       
-          <div className="team rise">
+          {/*
+            Carrossel de arrastar, como na referência. O arraste é nativo
+            (dedo, trackpad, barra de rolagem) — as setas são só um atalho,
+            então some o JavaScript e o carrossel continua funcionando.
+          */}
+          <div className="team-carrossel rise">
+            <div className="team" ref={trilhaDoTime}>
             <article className="person">
               <div className="photo todo">foto</div>
               <h3 className="todo">nome</h3>
@@ -293,8 +321,15 @@ export default function LandingAlmore() {
               <p className="todo">trajetória: anos de experiência, especialidade e onde atuou antes.</p>
               <span className="at todo">@perfil</span>
             </article>
+            </div>
+
+            <div className="team-nav">
+              <button type="button" aria-label="Ver anteriores" onClick={() => desliza(-1)}>‹</button>
+              <button type="button" aria-label="Ver próximos" onClick={() => desliza(1)}>›</button>
+              <span className="dica">Arraste para ver o time</span>
+            </div>
           </div>
-      
+
           <p className="cta-row"><a className="btn" href={CTA}>Quero esse time cuidando da minha empresa</a></p>
         </div>
       </section>
