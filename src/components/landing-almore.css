@@ -51,8 +51,8 @@
 }
 
 /* Filhos de grid/flex não empurram a página para o lado. */
-.wrap > *, .pillars > *, .ledger > *, .plans > *, .flow > *, .team > *,
-.audience > *, .setores > ul, .foot-grid > * { min-width: 0; }
+.wrap > *, .ledger > *, .plans > *, .flow > *, .team > *,
+.audience > *, .setores > li, .foot-grid > * { min-width: 0; }
 
 .lp-almore h1, .lp-almore h2, .lp-almore h3 {
   font-family: "Instrument Serif", Georgia, serif;
@@ -175,8 +175,13 @@
   background:
     radial-gradient(120% 90% at 12% 0%, rgba(124,22,56,.5) 0%, rgba(20,10,15,0) 62%),
     var(--ink);
-  padding: clamp(4rem, 8vw, 7rem) 1.5rem clamp(3rem, 6vw, 5rem);
-  border-bottom: 1px solid var(--rule-dark);
+  /* Sem padding lateral: a esteira de logos precisa correr de borda a borda.
+     Quem devolve a margem e a .wrap logo abaixo. */
+  padding: clamp(4rem, 8vw, 7rem) 0 clamp(2.5rem, 5vw, 4rem);
+}
+.hero > .wrap {
+  padding-inline: 1.5rem;
+  max-width: calc(var(--measure) + 3rem);
 }
 /*
  * O vídeo é a peça principal do herói: título em linha cheia, subtítulo
@@ -255,34 +260,6 @@
   border-radius: 2px;
   padding: .4rem .85rem;
   margin-bottom: 2rem;
-}
-.pillars {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1px;
-  margin-top: clamp(3rem, 6vw, 4.5rem);
-  background: var(--rule-dark);
-  border: 1px solid var(--rule-dark);
-}
-.pillars div {
-  background: var(--ink);
-  padding: 1.4rem 1.3rem 1.6rem;
-  display: flex;
-  flex-direction: column;
-  gap: .5rem;
-}
-.pillars .k {
-  font-size: .7rem;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: .18em;
-  /* Bordo puro nao le sobre o fundo escuro (1,88:1). O cinza com vies de
-     bordo mantem o tom da marca e passa de 4,5:1. */
-  color: var(--dim);
-}
-.pillars .v {
-  font-family: "Instrument Serif", Georgia, serif;
-  font-size: var(--step-1);
-  line-height: 1.15;
 }
 
 /* -- proposta -------------------------------------------------------- */
@@ -513,11 +490,10 @@
  * conjunto — falha aberta, os logos continuam visíveis.
  * -------------------------------------------------------------------- */
 .logos-esteira {
+  /* Largura total: mora fora da .wrap, entao nao pega padding lateral. */
   margin-top: clamp(2.5rem, 5vw, 3.5rem);
   overflow: hidden;
   padding: .5rem 0;
-  border-top: 1px solid var(--rule-dark);
-  border-bottom: 1px solid var(--rule-dark);
   /* esmaece as pontas para o corte não parecer erro de layout */
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
   mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
@@ -570,24 +546,23 @@
   .logos-trilha > div:hover .logo-marca { background-color: #FFFFFF; opacity: 1; }
 }
 
-/* -- setores da carteira (no lugar dos depoimentos) ------------------- */
+/* -- setores atendidos ------------------------------------------------ *
+ * Tres colunas fixas no desktop, nao auto-fit: com seis itens, o auto-fit
+ * punha cinco numa linha e deixava um orfao sozinho na segunda. Tres por
+ * linha fecha em 3x2 exato.
+ * -------------------------------------------------------------------- */
 .setores {
-  margin-top: clamp(2.5rem, 5vw, 3.5rem);
-  padding-top: clamp(2rem, 4vw, 3rem);
-  border-top: 1px solid var(--rule-dark);
-}
-.setores h3 { font-size: var(--step-2); color: var(--sand); }
-.setores > p { margin: 1rem 0 0; color: var(--dim); }
-.setores ul {
   list-style: none;
-  margin: clamp(1.5rem, 3vw, 2rem) 0 0;
+  margin: clamp(2.5rem, 5vw, 3.5rem) 0 0;
   padding: 0;
   display: grid;
   gap: 1px;
   background: var(--rule-dark);
   border: 1px solid var(--rule-dark);
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  grid-template-columns: 1fr;
 }
+@media (min-width: 620px) { .setores { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 900px) { .setores { grid-template-columns: repeat(3, 1fr); } }
 .setores li {
   background: var(--ink-2);
   padding: 1.1rem 1.25rem;
@@ -599,7 +574,7 @@
 @media (hover: hover) {
   .setores li:hover { background: var(--ink-3); color: #FFFFFF; }
 }
-.setores .regimes {
+.regimes {
   margin: 1.25rem 0 0;
   font-size: var(--step--1);
   font-weight: 600;
@@ -608,6 +583,11 @@
   color: var(--sand);
   opacity: .8;
 }
+
+/* Com poucas pessoas o carrossel nao faz sentido: os cartoes crescem para
+   ocupar a linha e nao ha o que arrastar. */
+.team--poucos { overflow-x: visible; }
+.team--poucos .person { flex: 1 1 300px; }
 
 /* -- time: carrossel de arrastar -------------------------------------- *
  * Trilha horizontal com scroll-snap. O arraste é nativo — dedo no celular,
@@ -775,7 +755,6 @@
  * (número, letra ou travessão) acende. Nada se move, então nenhuma
  * linha empurra a de baixo.
  * -------------------------------------------------------------------- */
-.pillars > div,
 .benefits li,
 .col li,
 .flow li,
@@ -783,7 +762,6 @@
 .faq summary {
   transition: background-color .22s ease, color .22s ease;
 }
-.pillars .k, .pillars .v,
 .benefits .k,
 .col li::before,
 .flow .k,
@@ -797,11 +775,6 @@
 
 /* Só onde existe mouse de verdade: no toque o :hover fica preso na tela. */
 @media (hover: hover) {
-  /* pilares do herói — sobre escuro */
-  .pillars > div:hover { background: var(--ink-3); }
-  .pillars > div:hover .v { color: #FFFFFF; }
-  .pillars > div:hover .k { color: var(--sand); }
-
   /* benefícios — sobre claro */
   .benefits li:hover { color: var(--bordo); background: rgba(104,17,47,.045); }
   .benefits li:hover .k { opacity: 1; }
@@ -874,7 +847,6 @@
   /* Precisa do .lp-almore para vencer as regras de hover, que também
      são escopadas — sem isso o "transition: none" não pegava. */
   .lp-almore .btn,
-  .lp-almore .pillars > div,
   .lp-almore .benefits li,
   .lp-almore .col li,
   .lp-almore .flow li,

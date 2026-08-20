@@ -12,14 +12,11 @@ import { useRef, type CSSProperties } from 'react'
  * dispensáveis — o arraste é nativo.
  *
  * FALTA PREENCHER (marcado na tela com sublinhado tracejado):
- *   1. CTA          — a constante abaixo, num lugar só
- *   2. [N] empresas — seção "Prova"
- *   3. Logos        — seção "Prova"
- *   4. Depoimentos  — nome, cargo, desafio e resultado reais
- *   5. Time         — nome, cargo, trajetória, @ e foto
- *   6. Endereço     — rodapé
- * Os campos sem dado estão em branco de propósito: nada de depoimento
- * ou número inventado no ar.
+ *   1. CTA      — a constante abaixo, num lugar só
+ *   2. Time     — cargo, trajetória e @ de Diego e Larissa
+ *   3. Fotos    — do time, em public/ (os logos já estão em public/logos/)
+ *   4. Endereço — no rodapé
+ * Os campos sem dado ficam em branco de propósito: nada inventado no ar.
  */
 
 // O único lugar onde o destino dos botões é definido.
@@ -52,6 +49,13 @@ const CLIENTES = [
  */
 const AREA_DO_LOGO = 5200
 const alturaDoLogo = (prop: number) => Math.round(Math.sqrt(AREA_DO_LOGO / prop))
+
+/**
+ * Quem aparece na seção do time. Acrescentar pessoa aqui basta: acima de
+ * três, o bloco volta a ser carrossel e as setas reaparecem.
+ * Cargo, trajetória e @ seguem em branco — falta o dado.
+ */
+const EQUIPE = [{ nome: 'Diego' }, { nome: 'Larissa' }]
 
 export default function LandingAlmore() {
   const trilhaDoTime = useRef<HTMLDivElement>(null)
@@ -109,12 +113,44 @@ export default function LandingAlmore() {
           </div>
 
           <p className="cta-row"><a className="btn" href={CTA}>Quero meu diagnóstico</a></p>
+        </div>
 
-          <div className="pillars">
-            <div><span className="k">01</span><span className="v">Rotina fiscal blindada</span></div>
-            <div><span className="k">02</span><span className="v">Planejamento tributário</span></div>
-            <div><span className="k">03</span><span className="v">Relatório consultivo mensal</span></div>
-            <div><span className="k">04</span><span className="v">Decisão com número na mão</span></div>
+        {/*
+          Esteira de clientes, em largura total — fora da .wrap de propósito,
+          para não pegar o padding lateral e correr de borda a borda.
+
+          A trilha carrega a lista duas vezes e desliza -50%: no fim do
+          primeiro conjunto o segundo está exatamente na posição inicial,
+          então o laço fecha sem salto.
+
+          Os logos entram como máscara, não como imagem, porque os seis não
+          são do mesmo tipo — três são brancos (Laba, Eroika, Sunfit) e três
+          escuros (Mexicatti marrom, ViCor azul, Mymion prata). Como imagem
+          colorida, metade desapareceria neste fundo escuro.
+        */}
+        <div className="logos-esteira" aria-label="Clientes da Almore">
+          <div className="logos-trilha">
+            {[0, 1].map((volta) =>
+              CLIENTES.map((c) => {
+                const h = alturaDoLogo(c.prop)
+                return (
+                  <div key={`${volta}-${c.marca}`} aria-hidden={volta === 1 || undefined}>
+                    <span
+                      className="logo-marca"
+                      role="img"
+                      aria-label={c.marca}
+                      style={
+                        {
+                          '--logo': `url(${c.logo})`,
+                          '--logo-h': `${h}px`,
+                          '--logo-w': `${Math.round(h * c.prop)}px`,
+                        } as CSSProperties
+                      }
+                    />
+                  </div>
+                )
+              }),
+            )}
           </div>
         </div>
       </section>
@@ -250,72 +286,22 @@ export default function LandingAlmore() {
         </div>
       </section>
       
-      {/* 5. PROVA SOCIAL ====================================================== */}
+      {/* 5. SETORES =========================================================== */}
       <section className="band band--dark2">
         <div className="wrap">
-          <p className="eyebrow"><span className="n">04</span> A carteira</p>
-          {/*
-            O numero 54 e pequeno para um argumento de volume — e por isso ele
-            e o argumento. Uma carteira enxuta e o que permite atender pelo
-            nome, e isso um escritorio de mil clientes nao consegue prometer.
-          */}
-          <h2 className="rise h2-lead">54 empresas na carteira. Nenhuma atendida por protocolo.</h2>
-          <p className="narrow narrow--dim">A conta é simples: carteira enxuta é o que permite responder no mesmo dia e conhecer a empresa pelo nome. Crescer a lista sem crescer o time seria trocar exatamente aquilo que você está contratando.</p>
+          <p className="eyebrow"><span className="n">04</span> Setores</p>
+          <h2 className="rise h2-lead">A apuração muda conforme a atividade da empresa.</h2>
+          <p className="narrow narrow--dim">A alíquota de um alimento não é a de um serviço, a comissão de corretagem não entra como receita de software e a folha de um restaurante não segue as regras da folha de um laboratório. Estes são os setores que a Almore atende hoje.</p>
 
-          {/*
-            Esteira contínua de logos. A trilha tem a lista duplicada e desliza
-            -50%, então o laço fecha sem salto. Os logos entram como máscara,
-            não como imagem: cada um é pintado em champanhe a partir do próprio
-            recorte. Isso resolve o problema de os seis não serem do mesmo tipo
-            — três são brancos (Laba, Eroika, Sunfit) e três são escuros
-            (Mexicatti marrom, ViCor azul, Mymion prata). Como imagem colorida,
-            metade desapareceria nesta faixa escura.
-          */}
-          <div className="logos-esteira rise" aria-label="Clientes da Almore">
-            <div className="logos-trilha">
-              {[0, 1].map((volta) =>
-                CLIENTES.map((c) => {
-                  const h = alturaDoLogo(c.prop)
-                  return (
-                    <div key={`${volta}-${c.marca}`} aria-hidden={volta === 1 || undefined}>
-                      <span
-                        className="logo-marca"
-                        role="img"
-                        aria-label={c.marca}
-                        style={
-                          {
-                            '--logo': `url(${c.logo})`,
-                            '--logo-h': `${h}px`,
-                            '--logo-w': `${Math.round(h * c.prop)}px`,
-                          } as CSSProperties
-                        }
-                      />
-                    </div>
-                  )
-                }),
-              )}
-            </div>
-          </div>
-
-          {/*
-            No lugar dos depoimentos: os setores da carteira. Depoimento exige
-            frase e numero que so o cliente pode dar; setor e fato verificavel,
-            tirado da propria lista de clientes — e responde a pergunta que o
-            visitante realmente faz, que e "eles entendem do meu negocio?".
-          */}
-          <div className="setores rise">
-            <h3>Do sorvete ao seguro</h3>
-            <p>Seis ramos com regras fiscais que não se parecem: alíquota de alimento não é a de serviço, comissão de corretagem não é receita de software, e folha de restaurante não é folha de laboratório. A carteira cobre todos eles.</p>
-            <ul>
-              <li>Alimentação e sorveteria</li>
-              <li>Restaurante e churrascaria</li>
-              <li>Corretagem de seguros</li>
-              <li>Tecnologia e software</li>
-              <li>Cosméticos</li>
-              <li>Moda e fitness</li>
-            </ul>
-            <p className="regimes">Do MEI ao Lucro Real</p>
-          </div>
+          <ul className="setores rise">
+            <li>Alimentação e sorveteria</li>
+            <li>Restaurante e churrascaria</li>
+            <li>Corretagem de seguros</li>
+            <li>Tecnologia e software</li>
+            <li>Cosméticos</li>
+            <li>Moda e fitness</li>
+          </ul>
+          <p className="regimes">Todos os regimes, do MEI ao Lucro Real</p>
         </div>
       </section>
       
@@ -323,58 +309,38 @@ export default function LandingAlmore() {
       <section className="band band--light">
         <div className="wrap">
           <p className="eyebrow"><span className="n">05</span> Seu novo time</p>
-          <h2 className="rise h2-lead h2-lead--w24">Quem vai cuidar da sua contabilidade</h2>
+          <h2 className="rise h2-lead">Quem construiu a contabilidade consultiva</h2>
           <p className="narrow narrow--ink">Você fala com gente que conhece a sua empresa pelo nome — não com um protocolo. Estes são os profissionais que vão acompanhar a sua operação.</p>
       
           {/*
-            Carrossel de arrastar, como na referência. O arraste é nativo
-            (dedo, trackpad, barra de rolagem) — as setas são só um atalho,
-            então some o JavaScript e o carrossel continua funcionando.
+            Carrossel de arrastar. Com duas pessoas os cartões crescem para
+            ocupar a linha e as setas não aparecem — seta que não leva a
+            lugar nenhum parece defeito. Ao passar de três, o carrossel e as
+            setas voltam sozinhos, sem mexer no código.
           */}
           <div className="team-carrossel rise">
-            <div className="team" ref={trilhaDoTime}>
-            <article className="person">
-              <div className="photo todo">foto</div>
-              <h3 className="todo">nome</h3>
-              <span className="role todo">cargo na Almore</span>
-              <p className="todo">trajetória: anos de experiência, especialidade e onde atuou antes.</p>
-              <span className="at todo">@perfil</span>
-            </article>
-            <article className="person">
-              <div className="photo todo">foto</div>
-              <h3 className="todo">nome</h3>
-              <span className="role todo">cargo na Almore</span>
-              <p className="todo">trajetória: anos de experiência, especialidade e onde atuou antes.</p>
-              <span className="at todo">@perfil</span>
-            </article>
-            <article className="person">
-              <div className="photo todo">foto</div>
-              <h3 className="todo">nome</h3>
-              <span className="role todo">cargo na Almore</span>
-              <p className="todo">trajetória: anos de experiência, especialidade e onde atuou antes.</p>
-              <span className="at todo">@perfil</span>
-            </article>
-            <article className="person">
-              <div className="photo todo">foto</div>
-              <h3 className="todo">nome</h3>
-              <span className="role todo">cargo na Almore</span>
-              <p className="todo">trajetória: anos de experiência, especialidade e onde atuou antes.</p>
-              <span className="at todo">@perfil</span>
-            </article>
-            <article className="person">
-              <div className="photo todo">foto</div>
-              <h3 className="todo">nome</h3>
-              <span className="role todo">cargo na Almore</span>
-              <p className="todo">trajetória: anos de experiência, especialidade e onde atuou antes.</p>
-              <span className="at todo">@perfil</span>
-            </article>
+            <div
+              className={EQUIPE.length > 3 ? 'team' : 'team team--poucos'}
+              ref={trilhaDoTime}
+            >
+              {EQUIPE.map((p) => (
+                <article className="person" key={p.nome}>
+                  <div className="photo todo">foto</div>
+                  <h3>{p.nome}</h3>
+                  <span className="role todo">cargo na Almore</span>
+                  <p className="todo">trajetória: anos de experiência, especialidade e onde atuou antes.</p>
+                  <span className="at todo">@perfil</span>
+                </article>
+              ))}
             </div>
 
-            <div className="team-nav">
-              <button type="button" aria-label="Ver anteriores" onClick={() => desliza(-1)}>‹</button>
-              <button type="button" aria-label="Ver próximos" onClick={() => desliza(1)}>›</button>
-              <span className="dica">Arraste para ver o time</span>
-            </div>
+            {EQUIPE.length > 3 && (
+              <div className="team-nav">
+                <button type="button" aria-label="Ver anteriores" onClick={() => desliza(-1)}>‹</button>
+                <button type="button" aria-label="Ver próximos" onClick={() => desliza(1)}>›</button>
+                <span className="dica">Arraste para ver o time</span>
+              </div>
+            )}
           </div>
 
           <p className="cta-row"><a className="btn" href={CTA}>Quero esse time cuidando da minha empresa</a></p>
@@ -403,7 +369,7 @@ export default function LandingAlmore() {
       {/* 8. FECHAMENTO ======================================================== */}
       <section className="band band--dark closing">
         <div className="wrap">
-          <h2 className="rise">Almore, a contabilidade<br /><em className="em-sand">para quem decide</em></h2>
+          <h2 className="rise">Almore, a contabilidade <em className="em-sand">para quem decide</em></h2>
           <p className="rise">É a contabilidade criada para empresas que não querem depender de achismo, prazo perdido ou balanço que ninguém lê para crescer. Se você quer uma rotina fiscal em ordem e um número em que dá para confiar na hora de decidir, comece pelo diagnóstico.</p>
           <a className="btn rise" href={CTA}>Quero meu diagnóstico</a>
         </div>
