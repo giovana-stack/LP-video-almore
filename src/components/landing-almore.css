@@ -604,30 +604,8 @@
  * -------------------------------------------------------------------- */
 .cta-row { margin-top: clamp(2rem, 4vw, 3rem); }
 
-/*
- * Linha do CTA do heroi: o botao fica no tamanho natural e divide a linha
- * com uma frase de apoio na outra ponta. Quem ocupa os 1140px e a LINHA,
- * nao o botao — antes eu tinha esticado o proprio botao, e 1140px de bordo
- * solido viram uma faixa, nao um botao.
- *
- * No celular a linha quebra e a frase desce, ainda alinhada a esquerda.
- */
-.cta-linha {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.25rem 2rem;
-  margin-top: clamp(2rem, 4vw, 3rem);
-}
-.cta-linha .apoio {
-  margin: 0;
-  max-width: 34ch;
-  font-size: var(--step--1);
-  line-height: 1.5;
-  color: var(--dim);
-}
-.cta-linha .apoio strong { color: var(--sand); font-weight: 600; }
+/* Botao centralizado — usado sob o video do heroi. */
+.cta-row--centro { text-align: center; }
 .h2-lead { font-size: var(--step-3); }
 .h2-lead--full { max-width: none; }
 .h2-lead--paper { color: var(--paper); }
