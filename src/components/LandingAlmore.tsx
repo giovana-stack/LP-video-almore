@@ -12,9 +12,7 @@ import type { CSSProperties } from 'react'
  *
  * FALTA PREENCHER (marcado na tela com sublinhado tracejado):
  *   1. CTA      — a constante abaixo, num lugar só
- *   2. Time     — cargo, trajetória e @ de Diego e Larissa
- *   3. Fotos    — do time, em public/ (os logos já estão em public/logos/)
- *   4. Endereço — no rodapé
+ *   2. Endereço — no rodapé
  * Os campos sem dado ficam em branco de propósito: nada inventado no ar.
  */
 
@@ -61,13 +59,6 @@ const DURACAO_DA_ESTEIRA = `${CLIENTES.length * 7}s`
  */
 const AREA_DO_LOGO = 5200
 const alturaDoLogo = (prop: number) => Math.round(Math.sqrt(AREA_DO_LOGO / prop))
-
-/**
- * Quem aparece na seção do time. Acrescentar pessoa aqui basta: o grid se
- * reorganiza sozinho, e sobrando um na última fileira ele ocupa a linha
- * inteira. Cargo, trajetória e @ seguem em branco — falta o dado.
- */
-const EQUIPE = [{ nome: 'Diego' }, { nome: 'Larissa' }]
 
 export default function LandingAlmore() {
   return (
@@ -280,45 +271,10 @@ export default function LandingAlmore() {
         </div>
       </section>
       
-      {/* 6. TIME ============================================================== */}
-      <section className="band band--light">
-        <div className="wrap">
-          <p className="eyebrow"><span className="n">05</span> Seu novo time</p>
-          <h2 className="rise h2-lead">Quem construiu a contabilidade consultiva</h2>
-          <p className="narrow narrow--ink">Você fala com gente que conhece a sua empresa pelo nome — não com um protocolo. Estes são os profissionais que vão acompanhar a sua operação.</p>
-      
-          {/*
-            Cartão horizontal: retrato à esquerda, dados à direita. Com duas
-            pessoas, dois cartões preenchem a linha inteira em colunas
-            iguais — o carrossel saiu porque com duas fotos não havia o que
-            arrastar, e a trilha dimensionada para cinco deixava um vazio.
-
-            O grid acompanha a quantidade de gente sozinho: três pessoas dão
-            duas colunas e o terceiro cartão ocupa a linha toda, então nunca
-            sobra meia fileira vazia.
-          */}
-          <div className="equipe rise">
-            {EQUIPE.map((p) => (
-              <article className="person" key={p.nome}>
-                <div className="photo todo">foto</div>
-                <div className="dados">
-                  <h3>{p.nome}</h3>
-                  <span className="role todo">cargo na Almore</span>
-                  <p className="todo">trajetória: anos de experiência, especialidade e onde atuou antes.</p>
-                  <span className="at todo">@perfil</span>
-                </div>
-              </article>
-            ))}
-          </div>
-
-          <p className="cta-row"><a className="btn" href={CTA}>Quero esse time cuidando da minha empresa</a></p>
-        </div>
-      </section>
-      
-      {/* 7. PARA QUEM É ======================================================= */}
+      {/* 5. PARA QUEM É ======================================================= */}
       <section className="band band--bordo">
         <div className="wrap">
-          <p className="eyebrow eyebrow--bordo-band"><span className="n">06</span> Para quem é</p>
+          <p className="eyebrow eyebrow--bordo-band"><span className="n">04</span> Para quem é</p>
           <h2 className="rise h2-lead h2-lead--w22 h2-lead--paper">Para quem é a Almore?</h2>
       
           <div className="audience rise">
@@ -334,7 +290,7 @@ export default function LandingAlmore() {
         </div>
       </section>
       
-      {/* 8. FECHAMENTO ======================================================== */}
+      {/* 6. FECHAMENTO ======================================================== */}
       <section className="band band--dark closing">
         <div className="wrap">
           <h2 className="rise">Almore, a contabilidade <em className="em-sand">para quem decide</em></h2>
@@ -343,10 +299,10 @@ export default function LandingAlmore() {
         </div>
       </section>
       
-      {/* 9. FAQ =============================================================== */}
+      {/* 7. FAQ =============================================================== */}
       <section className="band band--light">
         <div className="wrap">
-          <p className="eyebrow"><span className="n">07</span> Dúvidas</p>
+          <p className="eyebrow"><span className="n">05</span> Dúvidas</p>
           <h2 className="rise h2-lead h2-lead--full">Tire suas dúvidas</h2>
       
           <div className="faq">
