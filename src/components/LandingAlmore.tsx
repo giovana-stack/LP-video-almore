@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, type CSSProperties } from 'react'
 
 /**
  * Landing page da Almore Inteligência Contábil.
@@ -26,19 +26,32 @@ import { useRef } from 'react'
 const CTA = 'CTA_LINK'
 
 /**
- * Clientes da faixa de prova. `marca` é o nome, `ramo` é o descritor que
- * aparece pequeno embaixo — deixe vazio quando o nome já se explica.
- * Para incluir ou tirar um cliente, é só editar esta lista: a faixa se
- * reorganiza sozinha.
+ * Clientes da faixa de prova.
+ *
+ * Os arquivos em public/logos/ foram recortados na caixa do conteúdo, então
+ * `prop` é a proporção real de cada um (largura ÷ altura). Ela é usada para
+ * igualar a ÁREA de todos os logos, não a altura: sem isso o Laba, que é uma
+ * faixa 4:1, ficaria três vezes maior que o Eroika, que é quase quadrado.
+ *
+ * Para incluir cliente: recorte o PNG nas bordas do desenho, salve em
+ * public/logos/ e acrescente aqui com a proporção. A faixa se reorganiza.
  */
 const CLIENTES = [
-  { marca: 'Mexicatti', ramo: 'Sorvetes' },
-  { marca: 'Laba', ramo: 'Grill' },
-  { marca: 'ViCor', ramo: 'Corretora de seguros' },
-  { marca: 'Mymion', ramo: 'Lab' },
-  { marca: 'Eroika', ramo: 'Cosméticos' },
-  { marca: 'Sunfit', ramo: '' },
+  { marca: 'Mexicatti Sorvetes', logo: '/logos/mexicatti.png', prop: 1.74 },
+  { marca: 'Laba Grill', logo: '/logos/laba.png', prop: 4.05 },
+  { marca: 'ViCor Seguros', logo: '/logos/vicor.png', prop: 3.05 },
+  { marca: 'Mymion', logo: '/logos/mymion.png', prop: 1.23 },
+  { marca: 'Eroika Cosméticos', logo: '/logos/eroika.png', prop: 1.07 },
+  { marca: 'Sunfit', logo: '/logos/sunfit.png', prop: 2.95 },
 ]
+
+/**
+ * Área óptica que todo logo deve ocupar, em px². A altura sai de
+ * sqrt(AREA / proporção) — logo largo fica mais baixo, logo quadrado fica
+ * mais alto, e os seis terminam com o mesmo peso na faixa.
+ */
+const AREA_DO_LOGO = 5200
+const alturaDoLogo = (prop: number) => Math.round(Math.sqrt(AREA_DO_LOGO / prop))
 
 export default function LandingAlmore() {
   const trilhaDoTime = useRef<HTMLDivElement>(null)
@@ -244,17 +257,33 @@ export default function LandingAlmore() {
           <h2 className="rise h2-lead h2-lead--w24">Mais de <span className="todo">[N]</span> empresas com a rotina contábil em ordem</h2>
       
           {/*
-            Clientes. Por enquanto marca nominativa; quando os arquivos de
-            logo chegarem, troque os dois <span> de cada célula por
-            <img src="/logos/nome.svg" alt="Nome do cliente" />.
+            Os logos entram como máscara, não como imagem: cada um é pintado
+            em champanhe a partir do próprio recorte. Isso resolve o problema
+            de os seis não serem do mesmo tipo — três são brancos (Laba,
+            Eroika, Sunfit) e três são escuros (Mexicatti marrom, ViCor azul,
+            Mymion prata). Como imagem colorida, metade desapareceria nesta
+            faixa escura; como máscara, todos leem igual.
           */}
           <div className="logos rise">
-            {CLIENTES.map((c) => (
-              <div key={c.marca}>
-                <span className="marca">{c.marca}</span>
-                {c.ramo && <span className="ramo">{c.ramo}</span>}
-              </div>
-            ))}
+            {CLIENTES.map((c) => {
+              const h = alturaDoLogo(c.prop)
+              return (
+                <div key={c.marca}>
+                  <span
+                    className="logo-marca"
+                    role="img"
+                    aria-label={c.marca}
+                    style={
+                      {
+                        '--logo': `url(${c.logo})`,
+                        '--logo-h': `${h}px`,
+                        '--logo-w': `${Math.round(h * c.prop)}px`,
+                      } as CSSProperties
+                    }
+                  />
+                </div>
+              )
+            })}
           </div>
       
           <div className="quotes rise">
