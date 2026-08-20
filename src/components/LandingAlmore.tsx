@@ -1,4 +1,4 @@
-import { useRef, type CSSProperties } from 'react'
+import type { CSSProperties } from 'react'
 
 /**
  * Landing page da Almore Inteligência Contábil.
@@ -8,8 +8,7 @@ import { useRef, type CSSProperties } from 'react'
  *
  * A revelação no scroll é 100% CSS (animation-timeline: view()): o conteúdo
  * é visível por padrão e nenhuma seção depende de JavaScript para aparecer.
- * O único JS aqui são as setas do carrossel do time, e mesmo elas são
- * dispensáveis — o arraste é nativo.
+ * Não há JavaScript nenhum: é marcação pura.
  *
  * FALTA PREENCHER (marcado na tela com sublinhado tracejado):
  *   1. CTA      — a constante abaixo, num lugar só
@@ -64,35 +63,13 @@ const AREA_DO_LOGO = 5200
 const alturaDoLogo = (prop: number) => Math.round(Math.sqrt(AREA_DO_LOGO / prop))
 
 /**
- * Quem aparece na seção do time. Acrescentar pessoa aqui basta: acima de
- * três, o bloco volta a ser carrossel e as setas reaparecem.
- * Cargo, trajetória e @ seguem em branco — falta o dado.
+ * Quem aparece na seção do time. Acrescentar pessoa aqui basta: o grid se
+ * reorganiza sozinho, e sobrando um na última fileira ele ocupa a linha
+ * inteira. Cargo, trajetória e @ seguem em branco — falta o dado.
  */
 const EQUIPE = [{ nome: 'Diego' }, { nome: 'Larissa' }]
 
 export default function LandingAlmore() {
-  const trilhaDoTime = useRef<HTMLDivElement>(null)
-
-  /*
-   * Avança ou volta ~80% da largura visível da trilha.
-   *
-   * O 'smooth' é enfeite e não pode ser o mecanismo: ele depende do relógio
-   * de animação, que congela em aba oculta e em contexto throttled — e ali a
-   * rolagem simplesmente não acontecia (medido: scrollLeft ficava em 0,
-   * enquanto 'auto' chegava ao fim da trilha). Quando não há relógio para
-   * animar, rola instantâneo. Também respeita quem pediu menos movimento.
-   */
-  const desliza = (direcao: number) => {
-    const trilha = trilhaDoTime.current
-    if (!trilha) return
-    const podeAnimar =
-      !document.hidden && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    trilha.scrollBy({
-      left: direcao * trilha.clientWidth * 0.8,
-      behavior: podeAnimar ? 'smooth' : 'auto',
-    })
-  }
-
   return (
     <div className="lp-almore">
       <a className="skip" href="#conteudo">Ir para o conteúdo</a>
@@ -311,34 +288,27 @@ export default function LandingAlmore() {
           <p className="narrow narrow--ink">Você fala com gente que conhece a sua empresa pelo nome — não com um protocolo. Estes são os profissionais que vão acompanhar a sua operação.</p>
       
           {/*
-            Carrossel de arrastar. Com duas pessoas os cartões crescem para
-            ocupar a linha e as setas não aparecem — seta que não leva a
-            lugar nenhum parece defeito. Ao passar de três, o carrossel e as
-            setas voltam sozinhos, sem mexer no código.
+            Cartão horizontal: retrato à esquerda, dados à direita. Com duas
+            pessoas, dois cartões preenchem a linha inteira em colunas
+            iguais — o carrossel saiu porque com duas fotos não havia o que
+            arrastar, e a trilha dimensionada para cinco deixava um vazio.
+
+            O grid acompanha a quantidade de gente sozinho: três pessoas dão
+            duas colunas e o terceiro cartão ocupa a linha toda, então nunca
+            sobra meia fileira vazia.
           */}
-          <div className="team-carrossel rise">
-            <div
-              className={EQUIPE.length > 3 ? 'team' : 'team team--poucos'}
-              ref={trilhaDoTime}
-            >
-              {EQUIPE.map((p) => (
-                <article className="person" key={p.nome}>
-                  <div className="photo todo">foto</div>
+          <div className="equipe rise">
+            {EQUIPE.map((p) => (
+              <article className="person" key={p.nome}>
+                <div className="photo todo">foto</div>
+                <div className="dados">
                   <h3>{p.nome}</h3>
                   <span className="role todo">cargo na Almore</span>
                   <p className="todo">trajetória: anos de experiência, especialidade e onde atuou antes.</p>
                   <span className="at todo">@perfil</span>
-                </article>
-              ))}
-            </div>
-
-            {EQUIPE.length > 3 && (
-              <div className="team-nav">
-                <button type="button" aria-label="Ver anteriores" onClick={() => desliza(-1)}>‹</button>
-                <button type="button" aria-label="Ver próximos" onClick={() => desliza(1)}>›</button>
-                <span className="dica">Arraste para ver o time</span>
-              </div>
-            )}
+                </div>
+              </article>
+            ))}
           </div>
 
           <p className="cta-row"><a className="btn" href={CTA}>Quero esse time cuidando da minha empresa</a></p>
