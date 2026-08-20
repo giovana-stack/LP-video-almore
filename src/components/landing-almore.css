@@ -134,6 +134,22 @@
 .lp-almore .btn--paper { background: var(--paper); color: var(--bordo); border-color: var(--paper); }
 .lp-almore .btn--paper:hover { background: #fff; border-color: #fff; color: var(--bordo-deep); }
 
+/*
+ * Botao em bloco: ocupa a largura inteira do conteudo, com o rotulo ao
+ * centro. Usado sob o video do heroi — ali o titulo, o subtitulo e o video
+ * ja ocupam os 1140px, e o botao era o unico elemento fora dessa medida, o
+ * que o deixava solto no canto.
+ *
+ * Sem o translateY do hover: num bloco dessa largura o deslocamento de 1px
+ * le como tremor, nao como resposta ao toque.
+ */
+.lp-almore .btn--bloco {
+  width: 100%;
+  justify-content: center;
+  padding-block: 1.15rem;
+}
+.lp-almore .btn--bloco:hover { transform: none; }
+
 /* -- topo ------------------------------------------------------------ */
 .lp-almore header.top {
   position: sticky;
@@ -148,17 +164,17 @@
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--rule-dark);
 }
-/* A marca e o logo do Manual, nao texto: um lockup horizontal de 4:1 com o
-   triangulo, ALMORE e a assinatura. A altura manda; a largura acompanha. */
+/* A marca e imagem, nao texto. No topo entra so o isotipo metalico; no
+   rodape, o lockup completo. A altura manda, a largura acompanha. */
 .brand { display: flex; align-items: center; text-decoration: none; }
-.brand img { height: 46px; width: auto; }
+.brand img { height: 52px; width: auto; }
 .brand--foot img { height: 58px; }
 
 .lp-almore header.top .btn { padding: .6rem 1.15rem; font-size: var(--step--1); white-space: nowrap; }
 /* No celular o topo e apertado: logo menor e botao sem a seta. */
 @media (max-width: 560px) {
   .lp-almore header.top { padding: .75rem 1rem; }
-  .brand img { height: 34px; }
+  .brand img { height: 40px; }
   .lp-almore header.top .btn { padding: .55rem .9rem; }
   .lp-almore header.top .btn::after { content: none; }
 }

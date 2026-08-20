@@ -23,15 +23,23 @@ const CTA = 'CTA_LINK'
 const LINKEDIN = 'LINKEDIN_URL'
 
 /**
- * Logo da Almore, versão branca do Manual de Marca, recortado na caixa do
- * desenho e reduzido a 600px de largura (~10 kb). Entra como imagem, e não
- * como máscara: é branco sobre transparente e tanto o cabeçalho quanto o
- * rodapé são escuros, então o desenho original se mantém intacto.
+ * Duas peças de marca, cada uma no lugar onde funciona.
  *
- * width e height vão na tag para o navegador reservar o espaço antes de
- * baixar o arquivo — sem isso o cabeçalho pula quando o logo carrega.
+ * ISOTIPO — só o símbolo, na versão metálica do Manual (bordô com o "A" em
+ * prateado). Vai no cabeçalho fixo, onde o lockup completo obrigaria a
+ * assinatura "INTELIGÊNCIA CONTÁBIL" a ficar com 5px de altura, ilegível.
+ * Recortado do arquivo mais-claro.png achando o vão entre o símbolo e o
+ * letreiro pelo perfil de colunas do canal alfa.
+ *
+ * LOCKUP — símbolo + nome + assinatura, versão branca. Vai no rodapé, que
+ * tem espaço para a marca inteira e é onde ela funciona como assinatura.
+ *
+ * Os dois entram como imagem, não como máscara: o desenho tem gradiente e
+ * precisa manter a cor. width e height vão na tag para o navegador reservar
+ * o espaço antes de baixar — sem isso o cabeçalho pula quando o logo carrega.
  */
-const LOGO = { src: '/almore-logo.png', w: 600, h: 148 }
+const ISOTIPO = { src: '/almore-isotipo.png', w: 307, h: 240 }
+const LOCKUP = { src: '/almore-logo.png', w: 600, h: 148 }
 
 /**
  * Clientes da faixa de prova.
@@ -82,10 +90,10 @@ export default function LandingAlmore() {
       <header className="top">
         <a className="brand" href="#topo">
           <img
-            src={LOGO.src}
+            src={ISOTIPO.src}
             alt="Almore Inteligência Contábil"
-            width={LOGO.w}
-            height={LOGO.h}
+            width={ISOTIPO.w}
+            height={ISOTIPO.h}
           />
         </a>
         <a className="btn" href={CTA}>Quero meu diagnóstico</a>
@@ -111,7 +119,8 @@ export default function LandingAlmore() {
             <span className="rotulo">Espaço do vídeo · 16:9</span>
           </div>
 
-          <p className="cta-row"><a className="btn" href={CTA}>Quero meu diagnóstico</a></p>
+          {/* Botao na largura do video: no heroi tudo ocupa os 1140px. */}
+          <p className="cta-row"><a className="btn btn--bloco" href={CTA}>Quero meu diagnóstico</a></p>
         </div>
 
         {/*
@@ -375,10 +384,10 @@ export default function LandingAlmore() {
           <div>
             <a className="brand brand--foot" href="#topo">
               <img
-                src={LOGO.src}
+                src={LOCKUP.src}
                 alt="Almore Inteligência Contábil"
-                width={LOGO.w}
-                height={LOGO.h}
+                width={LOCKUP.w}
+                height={LOCKUP.h}
               />
             </a>
             <p className="foot-claim">Contabilidade 100% digital, consultiva e ágil. Rápido. Consultivo. Sempre.</p>
