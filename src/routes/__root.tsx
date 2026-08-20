@@ -256,7 +256,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      // Favicon gerado a partir do isotipo, sobre o --ink da marca: o simbolo
+      // tem bordo escuro e prateado claro, entao num quadrado escuro ele le
+      // tanto em aba clara quanto em aba escura.
+      { rel: "icon", href: "/favicon.ico", sizes: "any" },
+      { rel: "icon", href: "/favicon-32.png", type: "image/png", sizes: "32x32" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png", sizes: "180x180" },
       { rel: "canonical", href: SITE.url },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       {
