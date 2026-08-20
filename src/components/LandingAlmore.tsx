@@ -40,12 +40,26 @@ export default function LandingAlmore() {
       {/* 1. HERO ============================================================== */}
       <section className="hero" id="topo">
         <div className="wrap">
-          <span className="tag rise">Rápido · Consultivo · Sempre</span>
-          <h1 className="rise">Contabilidade consultiva<br /><em>do MEI ao Lucro Real</em></h1>
-          <p className="lead rise">A contabilidade que traduz número em direção — e responde no dia em que você precisa decidir, não no mês seguinte.</p>
-          <a className="btn rise" href={CTA}>Quero meu diagnóstico</a>
-      
-          <div className="pillars rise">
+          <div className="hero-grid">
+            <div>
+              <span className="tag">Rápido · Consultivo · Sempre</span>
+              <h1>Contabilidade consultiva<br /><em>do MEI ao Lucro Real</em></h1>
+              <p className="lead">A contabilidade que traduz número em direção — e responde no dia em que você precisa decidir, não no mês seguinte.</p>
+              <a className="btn" href={CTA}>Quero meu diagnóstico</a>
+            </div>
+
+            {/*
+              Espaço do vídeo. Para colocar o vídeo, troque os dois <span> por
+              um <iframe> (YouTube/Vimeo) ou um <video> — o CSS já posiciona
+              qualquer um dos dois preenchendo o quadro em 16:9.
+            */}
+            <div className="hero-video">
+              <span className="play" aria-hidden="true"></span>
+              <span className="rotulo">Espaço do vídeo · 16:9</span>
+            </div>
+          </div>
+
+          <div className="pillars">
             <div><span className="k">01</span><span className="v">Rotina fiscal blindada</span></div>
             <div><span className="k">02</span><span className="v">Planejamento tributário</span></div>
             <div><span className="k">03</span><span className="v">Relatório consultivo mensal</span></div>

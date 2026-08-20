@@ -177,6 +177,67 @@
   padding: clamp(4rem, 8vw, 7rem) 1.5rem clamp(3rem, 6vw, 5rem);
   border-bottom: 1px solid var(--rule-dark);
 }
+/* Texto à esquerda, vídeo à direita. Empilha no celular. */
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(2.5rem, 5vw, 4rem);
+  align-items: center;
+}
+@media (min-width: 980px) {
+  .hero-grid { grid-template-columns: 1.05fr .95fr; }
+}
+
+/*
+ * Espaço reservado do vídeo. Para trocar pelo vídeo de verdade, ponha um
+ * <iframe> ou <video> como filho e apague os dois <span> — a proporção 16:9
+ * já está fixa, então a página não salta quando ele entrar.
+ */
+.hero-video {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border: 1px dashed rgba(235, 224, 201, 0.32);
+  border-radius: 2px;
+  background:
+    radial-gradient(120% 120% at 50% 0%, rgba(124, 22, 56, 0.38), rgba(20, 10, 15, 0) 72%),
+    var(--ink-2);
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 1rem;
+  color: var(--dim);
+}
+.hero-video .play {
+  width: 56px;
+  height: 56px;
+  border: 1px solid rgba(235, 224, 201, 0.42);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+.hero-video .play::before {
+  content: "";
+  margin-left: 4px;
+  border-left: 13px solid var(--sand);
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+}
+.hero-video .rotulo {
+  font-size: .68rem;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+.hero-video iframe,
+.hero-video video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 2px;
+}
+
 .hero h1 {
   font-size: var(--step-4);
   max-width: 20ch;
@@ -232,8 +293,8 @@
 
 /* -- proposta -------------------------------------------------------- */
 .prop { display: grid; gap: clamp(2rem, 5vw, 4rem); grid-template-columns: 1fr; }
-@media (min-width: 900px) { .prop { grid-template-columns: 1.25fr .75fr; align-items: end; } }
-.prop h2 { font-size: var(--step-3); max-width: 26ch; }
+@media (min-width: 900px) { .prop { grid-template-columns: 1.25fr .75fr; align-items: center; } }
+.prop h2 { font-size: var(--step-3); max-width: 34ch; }
 .prop p { color: var(--dim-ink); max-width: 46ch; margin: 1.25rem 0 0; }
 .benefits { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
 .benefits li {
@@ -440,7 +501,19 @@
   border-radius: 50%;
   background: var(--metal);
 }
-.plan .items small { display: block; color: var(--dim-ink); font-size: .82em; line-height: 1.35; margin-top: .15rem; }
+/*
+ * O <li> é grid de duas colunas (bolinha, texto). Sem declarar a coluna, o
+ * <small> virava item próprio e caía na coluna de 0,5rem — o texto descia
+ * uma letra por linha. Ele precisa ficar na coluna do conteúdo.
+ */
+.plan .items small {
+  grid-column: 2;
+  display: block;
+  color: var(--dim-ink);
+  font-size: .82em;
+  line-height: 1.35;
+  margin-top: .15rem;
+}
 
 /* -- prova social ---------------------------------------------------- */
 .logos {
@@ -555,10 +628,10 @@
  * limpa e igual entre a versão HTML e a versão React.
  * -------------------------------------------------------------------- */
 .cta-row { margin-top: clamp(2rem, 4vw, 3rem); }
-.h2-lead { font-size: var(--step-3); max-width: 26ch; }
-.h2-lead--w30 { max-width: 30ch; }
-.h2-lead--w24 { max-width: 24ch; }
-.h2-lead--w22 { max-width: 22ch; }
+.h2-lead { font-size: var(--step-3); max-width: 42ch; }
+.h2-lead--w30 { max-width: 54ch; }
+.h2-lead--w24 { max-width: 36ch; }
+.h2-lead--w22 { max-width: 30ch; }
 .h2-lead--full { max-width: none; }
 .h2-lead--paper { color: var(--paper); }
 .narrow--dim { color: var(--dim); }
