@@ -1,3 +1,6 @@
+# Almore Inteligência Contábil
+# Se a página não ficar na raiz de almorecontabilidade.com.br, ajuste o Sitemap.
+
 User-agent: Googlebot
 Allow: /
 
@@ -12,3 +15,5 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+Sitemap: https://almorecontabilidade.com.br/sitemap.xml

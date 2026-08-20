@@ -2,6 +2,10 @@
 @source "../src";
 @import "tw-animate-css";
 
+/* Estilos da landing page da Almore — escopados em .lp-almore, então não
+   disputam com o preflight do Tailwind nem com o design system acima. */
+@import "./components/landing-almore.css";
+
 @custom-variant dark (&:is(.dark *));
 
 /*

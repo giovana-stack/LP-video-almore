@@ -1,0 +1,658 @@
+/* ============================================================
+   LANDING PAGE ALMORE — estilos
+   Tudo escopado em .lp-almore, então nada aqui vaza para o resto
+   do app nem briga com o reset do Tailwind.
+   Tokens do Manual de Marca da Almore (junho/2026).
+   ============================================================ */
+
+/* ------------------------------------------------------------------ *
+ * Tema único, comprometido com a marca: a página alterna faixas
+ * escuras (bordô quase preto) e claras (champanhe). Toda cor é pintada
+ * explicitamente, então ela não empresta o fundo de quem hospeda.
+ * ------------------------------------------------------------------ */
+.lp-almore {
+  --ink:        #140A0F;   /* quase preto com calor de bordô */
+  --ink-2:      #1E0E16;
+  --ink-3:      #2A141E;
+  --paper:      #FBF8F1;   /* champanhe */
+  --paper-2:    #F6F0E4;
+  --bordo:      #68112F;
+  --bordo-soft: #7C1638;
+  --bordo-deep: #500D24;
+  --gold:       #D4A017;   /* usado uma única vez, no dado do meio da página */
+  --sand:       #EBE0C9;
+  --cream:      #F4EBE0;
+  --dim:        #B49AA3;   /* cinza com viés de bordô, sobre escuro */
+  --dim-ink:    #6E5A61;   /* cinza com viés de bordô, sobre claro */
+  --rule-dark:  rgba(235,224,201,.16);
+  --rule-light: rgba(104,17,47,.15);
+
+  --measure: 1140px;
+  --step--1: clamp(.8rem, .78rem + .1vw, .875rem);
+  --step-0:  clamp(1rem, .96rem + .18vw, 1.09rem);
+  --step-1:  clamp(1.18rem, 1.1rem + .35vw, 1.4rem);
+  --step-2:  clamp(1.5rem, 1.3rem + .8vw, 2rem);
+  --step-3:  clamp(2rem, 1.6rem + 1.9vw, 3.1rem);
+  --step-4:  clamp(2.6rem, 1.9rem + 3.4vw, 4.6rem);
+}
+
+.lp-almore, .lp-almore *, .lp-almore *::before, .lp-almore *::after { box-sizing: border-box; }
+
+.lp-almore {
+  min-height: 100vh;
+  margin: 0;
+  background: var(--ink);
+  color: var(--cream);
+  font-family: Figtree, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: var(--step-0);
+  line-height: 1.6;
+  overflow-wrap: break-word;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Filhos de grid/flex não empurram a página para o lado. */
+.wrap > *, .pillars > *, .ledger > *, .plans > *, .flow > *, .team > *,
+.quotes > *, .audience > *, .logos > *, .foot-grid > * { min-width: 0; }
+
+.lp-almore h1, .lp-almore h2, .lp-almore h3 {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-weight: 400;
+  line-height: 1.04;
+  letter-spacing: -.01em;
+  text-wrap: balance;
+  margin: 0;
+}
+
+.lp-almore a { color: inherit; }
+.lp-almore img { max-width: 100%; display: block; }
+
+.lp-almore :focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* -- faixas ---------------------------------------------------------- */
+.band { padding: clamp(4rem, 9vw, 7.5rem) 1.5rem; }
+.band--dark  { background: var(--ink);   color: var(--cream); }
+.band--dark2 { background: var(--ink-2); color: var(--cream); }
+.band--light { background: var(--paper);  color: var(--ink); }
+.band--bordo { background: var(--bordo);  color: var(--paper-2); }
+.wrap { max-width: var(--measure); margin-inline: auto; }
+.narrow { max-width: 64ch; }
+
+/* -- rótulo de linha (motivo de balancete) --------------------------- */
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  margin: 0 0 1.75rem;
+}
+.eyebrow::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: currentColor;
+  opacity: .28;
+}
+.eyebrow .n {
+  font-variant-numeric: tabular-nums;
+  opacity: .55;
+}
+.band--dark .eyebrow, .band--dark2 .eyebrow { color: var(--sand); }
+.band--light .eyebrow { color: var(--bordo); }
+
+/* -- botão ----------------------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .95rem 1.9rem;
+  font-family: inherit;
+  font-size: var(--step-0);
+  font-weight: 600;
+  text-decoration: none;
+  background: var(--bordo-soft);
+  color: #fff;
+  border: 1px solid var(--bordo-soft);
+  border-radius: 2px;
+  transition: background .2s ease, transform .2s ease;
+}
+.btn:hover { background: var(--bordo-deep); border-color: var(--bordo-deep); transform: translateY(-1px); }
+.btn::after { content: "→"; font-size: .95em; }
+.btn--ghost {
+  background: transparent;
+  color: var(--sand);
+  border-color: var(--rule-dark);
+}
+.btn--ghost:hover { background: var(--ink-3); border-color: var(--sand); color: var(--cream); }
+.btn--paper { background: var(--paper); color: var(--bordo); border-color: var(--paper); }
+.btn--paper:hover { background: #fff; border-color: #fff; color: var(--bordo-deep); }
+
+/* -- topo ------------------------------------------------------------ */
+.lp-almore header.top {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: rgba(20,10,15,.86);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--rule-dark);
+}
+.brand { display: flex; align-items: baseline; gap: .7rem; text-decoration: none; }
+.brand .mark {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 1.6rem;
+  letter-spacing: .1em;
+  color: var(--cream);
+}
+.brand .sub {
+  font-size: .68rem;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.lp-almore header.top .btn { padding: .6rem 1.15rem; font-size: var(--step--1); white-space: nowrap; }
+/* No celular o topo não tem espaço para os dois textos da marca. */
+@media (max-width: 560px) {
+  .lp-almore header.top { padding: .75rem 1rem; }
+  .brand .sub { display: none; }
+  .lp-almore header.top .btn { padding: .55rem .9rem; }
+  .lp-almore header.top .btn::after { content: none; }
+}
+
+/* -- hero ------------------------------------------------------------ */
+.hero {
+  background:
+    radial-gradient(120% 90% at 12% 0%, rgba(124,22,56,.5) 0%, rgba(20,10,15,0) 62%),
+    var(--ink);
+  padding: clamp(4rem, 8vw, 7rem) 1.5rem clamp(3rem, 6vw, 5rem);
+  border-bottom: 1px solid var(--rule-dark);
+}
+.hero h1 {
+  font-size: var(--step-4);
+  max-width: 20ch;
+  margin-bottom: 1.5rem;
+}
+.hero h1 em { font-style: italic; color: var(--sand); }
+.hero p.lead {
+  font-size: var(--step-1);
+  color: var(--dim);
+  max-width: 54ch;
+  margin: 0 0 2.25rem;
+}
+.hero .tag {
+  display: inline-block;
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--sand);
+  border: 1px solid var(--rule-dark);
+  border-radius: 2px;
+  padding: .4rem .85rem;
+  margin-bottom: 2rem;
+}
+.pillars {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1px;
+  margin-top: clamp(3rem, 6vw, 4.5rem);
+  background: var(--rule-dark);
+  border: 1px solid var(--rule-dark);
+}
+.pillars div {
+  background: var(--ink);
+  padding: 1.4rem 1.3rem 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+.pillars .k {
+  font-size: .7rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .18em;
+  color: var(--bordo-soft);
+  filter: brightness(1.6);
+}
+.pillars .v {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: var(--step-1);
+  line-height: 1.15;
+}
+
+/* -- proposta -------------------------------------------------------- */
+.prop { display: grid; gap: clamp(2rem, 5vw, 4rem); grid-template-columns: 1fr; }
+@media (min-width: 900px) { .prop { grid-template-columns: 1.25fr .75fr; align-items: end; } }
+.prop h2 { font-size: var(--step-3); max-width: 26ch; }
+.prop p { color: var(--dim-ink); max-width: 46ch; margin: 1.25rem 0 0; }
+.benefits { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.benefits li {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--rule-light);
+  font-size: var(--step-1);
+  font-family: "Instrument Serif", Georgia, serif;
+}
+.benefits li:last-child { border-bottom: 1px solid var(--rule-light); }
+.benefits .k {
+  font-family: Figtree, sans-serif;
+  font-size: .72rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .16em;
+  color: var(--bordo);
+  opacity: .7;
+}
+
+/* -- dado do meio (único uso do dourado) ----------------------------- */
+.stat {
+  border-top: 1px solid var(--rule-dark);
+  border-bottom: 1px solid var(--rule-dark);
+  padding: clamp(2rem, 4vw, 3rem) 0;
+  margin: clamp(2.5rem, 5vw, 3.5rem) 0;
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: 1fr;
+  align-items: center;
+}
+@media (min-width: 780px) { .stat { grid-template-columns: auto 1fr; gap: 2.5rem; } }
+.stat .num {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: clamp(3.4rem, 9vw, 6rem);
+  line-height: .85;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+.stat p { margin: 0; color: var(--dim); max-width: 48ch; font-size: var(--step-1); }
+/* Crédito da fonte: presente para dar lastro ao dado, discreto para não competir. */
+.stat .src {
+  margin-top: 1rem;
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--dim);
+  opacity: .6;
+}
+
+/* -- livro-caixa: as duas colunas de comparação ---------------------- */
+.ledger {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1px;
+  background: var(--rule-dark);
+  border: 1px solid var(--rule-dark);
+  margin-top: clamp(2rem, 4vw, 3rem);
+}
+@media (min-width: 860px) { .ledger { grid-template-columns: 1fr 1fr; } }
+.col { background: var(--ink); padding: clamp(1.5rem, 3vw, 2.25rem); display: flex; flex-direction: column; }
+.col--good { background: var(--ink-3); }
+.col h3 {
+  font-family: Figtree, sans-serif;
+  font-size: var(--step-1);
+  font-weight: 600;
+  letter-spacing: -.005em;
+  line-height: 1.3;
+  margin-bottom: 1.5rem;
+}
+.col h3 span { display: block; font-size: .7rem; letter-spacing: .18em; text-transform: uppercase; color: var(--dim); font-weight: 600; margin-bottom: .5rem; }
+.col--good h3 span { color: var(--sand); }
+.col ul { list-style: none; margin: 0 0 auto; padding: 0; }
+.col li {
+  padding: .8rem 0;
+  border-bottom: 1px dotted var(--rule-dark);
+  color: var(--dim);
+  display: flex;
+  gap: .8rem;
+}
+.col--good li { color: var(--cream); }
+.col li::before { content: "—"; opacity: .45; }
+.col .total {
+  margin-top: 1.75rem;
+  padding-top: 1rem;
+  border-top: 3px double var(--rule-dark);
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: var(--step-1);
+  line-height: 1.25;
+}
+.col--bad .total { color: var(--dim); }
+.col--good .total { color: var(--sand); }
+.col .total b { display: block; font-family: Figtree, sans-serif; font-size: .7rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; opacity: .6; margin-bottom: .4rem; }
+
+/* -- o ciclo mensal (faixa acima dos planos) -------------------------- */
+.flow {
+  list-style: none;
+  counter-reset: f;
+  display: grid;
+  gap: 1px;
+  margin: clamp(2rem, 4vw, 3rem) 0 0;
+  padding: 0;
+  background: var(--rule-light);
+  border: 1px solid var(--rule-light);
+}
+@media (min-width: 880px) { .flow { grid-template-columns: repeat(4, 1fr); } }
+.flow li {
+  background: var(--paper);
+  padding: 1rem 1.15rem;
+  display: flex;
+  gap: .75rem;
+  align-items: baseline;
+  font-size: var(--step--1);
+  color: var(--ink);
+}
+.flow .k {
+  font-size: .68rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .1em;
+  color: var(--bordo);
+  opacity: .5;
+}
+
+/* -- planos ---------------------------------------------------------- *
+ * Cada plano tem o seu metal, que é o próprio nome dele virando cor.
+ * Os tons são escurecidos para ler sobre champanhe — o dourado usa o
+ * gold.ink do manual, que existe justamente para texto.
+ * -------------------------------------------------------------------- */
+.plans {
+  display: grid;
+  gap: 1px;
+  background: var(--rule-light);
+  border: 1px solid var(--rule-light);
+  margin-top: clamp(2rem, 4vw, 3rem);
+}
+@media (min-width: 980px) { .plans { grid-template-columns: repeat(3, 1fr); } }
+.plan {
+  --metal: var(--bordo);
+  background: var(--paper);
+  padding: clamp(1.5rem, 3vw, 2.15rem);
+  display: flex;
+  flex-direction: column;
+}
+.plan--bronze { --metal: #8A5A2B; }
+.plan--prata  { --metal: #6E6E73; }
+.plan--ouro   { --metal: #8A6100; background: var(--paper-2); }
+
+.plan .tier { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+.plan h3 { font-size: var(--step-3); line-height: .95; color: var(--metal); }
+.plan .flag {
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--paper);
+  background: var(--metal);
+  padding: .3rem .55rem;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+.plan .claim {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-size: var(--step-1);
+  color: var(--dim-ink);
+  margin: .6rem 0 0;
+}
+/* A linha de herança usa a régua dupla do livro-caixa: é um saldo que vem de cima. */
+.plan .herda {
+  margin: 1.25rem 0 0;
+  padding: .8rem 0;
+  border-top: 1px solid var(--rule-light);
+  border-bottom: 3px double var(--rule-light);
+}
+.plan .herda b {
+  display: block;
+  font-size: .64rem;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--dim-ink);
+  margin-bottom: .3rem;
+}
+.plan .herda span { font-weight: 600; color: var(--metal); }
+
+.plan .items { list-style: none; margin: 1.15rem 0 0; padding: 0; }
+.plan .items li {
+  display: grid;
+  grid-template-columns: .5rem 1fr;
+  gap: .8rem;
+  padding: .65rem 0;
+  border-bottom: 1px solid var(--rule-light);
+  font-size: var(--step--1);
+}
+.plan .items li:last-child { border-bottom: 0; }
+.plan .items li::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  margin-top: .5em;
+  border-radius: 50%;
+  background: var(--metal);
+}
+.plan .items small { display: block; color: var(--dim-ink); font-size: .82em; line-height: 1.35; margin-top: .15rem; }
+
+/* -- prova social ---------------------------------------------------- */
+.logos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1px;
+  background: var(--rule-dark);
+  border: 1px solid var(--rule-dark);
+  margin-top: 2.5rem;
+}
+.logos div {
+  background: var(--ink-2);
+  min-height: 90px;
+  display: grid;
+  place-items: center;
+  font-size: .68rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.quotes { display: grid; gap: 1px; background: var(--rule-dark); border: 1px solid var(--rule-dark); margin-top: 2.5rem; }
+@media (min-width: 900px) { .quotes { grid-template-columns: repeat(3, 1fr); } }
+.quote { background: var(--ink-2); padding: clamp(1.5rem, 3vw, 2rem); display: flex; flex-direction: column; gap: 1rem; }
+.quote .label { font-size: .66rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--dim); }
+.quote .desafio { font-size: var(--step-0); color: var(--dim); }
+.quote .resultado { font-family: "Instrument Serif", Georgia, serif; font-size: var(--step-2); color: var(--sand); line-height: 1.1; }
+.quote .quem { margin-top: auto; padding-top: 1.25rem; border-top: 1px solid var(--rule-dark); }
+.quote .quem strong { display: block; letter-spacing: .06em; text-transform: uppercase; font-size: var(--step--1); }
+.quote .quem span { font-size: var(--step--1); color: var(--dim); }
+
+/* -- time ------------------------------------------------------------ */
+.team { display: grid; gap: 1px; background: var(--rule-light); border: 1px solid var(--rule-light); margin-top: 2.5rem; }
+@media (min-width: 760px) { .team { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1080px) { .team { grid-template-columns: repeat(3, 1fr); } }
+.person { background: var(--paper); padding: clamp(1.4rem, 3vw, 2rem); display: flex; flex-direction: column; gap: .9rem; }
+.person .photo {
+  aspect-ratio: 4 / 5;
+  background:
+    repeating-linear-gradient(45deg, rgba(104,17,47,.06) 0 10px, rgba(104,17,47,.02) 10px 20px);
+  border: 1px solid var(--rule-light);
+  display: grid;
+  place-items: center;
+  font-size: .66rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--dim-ink);
+}
+.person h3 { font-size: var(--step-2); color: var(--bordo); }
+.person .role { font-size: var(--step--1); font-weight: 600; letter-spacing: .04em; color: var(--ink); }
+.person p { margin: 0; font-size: var(--step--1); color: var(--dim-ink); }
+.person .at { font-size: var(--step--1); color: var(--bordo); opacity: .75; }
+
+/* -- para quem ------------------------------------------------------- */
+.audience { display: grid; gap: 1px; background: rgba(251,248,241,.22); border: 1px solid rgba(251,248,241,.22); margin-top: 2.5rem; }
+@media (min-width: 860px) { .audience { grid-template-columns: 1fr 1fr; } }
+.audience > div { background: var(--bordo); padding: clamp(1.6rem, 3.5vw, 2.5rem); }
+.audience h3 { font-size: var(--step-2); margin-bottom: 1rem; color: var(--paper); }
+.audience p { margin: 0; color: rgba(251,248,241,.78); }
+
+/* -- fechamento ------------------------------------------------------ */
+.closing { text-align: left; }
+.closing h2 { font-size: var(--step-4); margin-bottom: 1.5rem; }
+.closing p { font-size: var(--step-1); color: var(--dim); max-width: 58ch; margin: 0 0 2.25rem; }
+
+/* -- faq ------------------------------------------------------------- */
+.faq { margin-top: 2.5rem; border-top: 1px solid var(--rule-light); }
+.faq details { border-bottom: 1px solid var(--rule-light); }
+.faq summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 1.4rem 2.5rem 1.4rem 0;
+  position: relative;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: var(--step-2);
+  color: var(--bordo);
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after {
+  content: "+";
+  position: absolute;
+  right: .25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: Figtree, sans-serif;
+  font-size: 1.5rem;
+  color: var(--dim-ink);
+}
+.faq details[open] summary::after { content: "–"; }
+.faq .answer { padding: 0 0 1.6rem; color: var(--dim-ink); max-width: 68ch; }
+.faq .answer p { margin: 0 0 .8rem; }
+.faq .answer p:last-child { margin-bottom: 0; }
+
+/* -- rodapé ---------------------------------------------------------- */
+.lp-almore footer {
+  background: var(--ink-2);
+  border-top: 1px solid var(--rule-dark);
+  padding: clamp(2.5rem, 5vw, 4rem) 1.5rem 2rem;
+  font-size: var(--step--1);
+  color: var(--dim);
+}
+.foot-grid { display: grid; gap: 2rem; }
+@media (min-width: 800px) { .foot-grid { grid-template-columns: 1.2fr .8fr auto; align-items: start; } }
+.lp-almore footer .legal { display: grid; gap: .3rem; }
+.lp-almore footer nav { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+.lp-almore footer a { text-decoration: none; }
+.lp-almore footer a:hover { color: var(--cream); text-decoration: underline; }
+.copy { margin-top: 2.5rem; padding-top: 1.25rem; border-top: 1px solid var(--rule-dark); display: flex; flex-wrap: wrap; gap: .75rem 2rem; justify-content: space-between; }
+
+/* -- utilitários de composição ---------------------------------------- *
+ * Poucos, nomeados pelo papel que cumprem. Existem para que nenhum
+ * ajuste de espaço ou largura more no HTML — o que mantém a marcação
+ * limpa e igual entre a versão HTML e a versão React.
+ * -------------------------------------------------------------------- */
+.cta-row { margin-top: clamp(2rem, 4vw, 3rem); }
+.h2-lead { font-size: var(--step-3); max-width: 26ch; }
+.h2-lead--w30 { max-width: 30ch; }
+.h2-lead--w24 { max-width: 24ch; }
+.h2-lead--w22 { max-width: 22ch; }
+.h2-lead--full { max-width: none; }
+.h2-lead--paper { color: var(--paper); }
+.narrow--dim { color: var(--dim); }
+.narrow--ink { color: var(--dim-ink); margin-top: 1.25rem; }
+.eyebrow--bordo-band { color: rgba(251,248,241,.8); }
+.em-sand { font-style: italic; color: var(--sand); }
+.brand--foot { margin-bottom: 1rem; }
+.foot-claim { margin: 1rem 0 0; max-width: 38ch; }
+
+/* -- marcador de conteúdo a preencher -------------------------------- */
+.todo {
+  border-bottom: 1px dashed currentColor;
+  opacity: .8;
+  font-style: italic;
+}
+
+/* -- hover das listas ------------------------------------------------ *
+ * Só cor: o item que está sob o mouse ganha contraste e o marcador
+ * (número, letra ou travessão) acende. Nada se move, então nenhuma
+ * linha empurra a de baixo.
+ * -------------------------------------------------------------------- */
+.pillars > div,
+.benefits li,
+.col li,
+.flow li,
+.plan .items li,
+.faq summary {
+  transition: background-color .22s ease, color .22s ease;
+}
+.pillars .k, .pillars .v,
+.benefits .k,
+.col li::before,
+.flow .k,
+.faq summary::after {
+  transition: color .22s ease, opacity .22s ease, filter .22s ease;
+}
+.plan .items li::before { transition: transform .22s ease; }
+
+.logos > div, .quote, .person { transition: background-color .22s ease; }
+
+/* Só onde existe mouse de verdade: no toque o :hover fica preso na tela. */
+@media (hover: hover) {
+  /* pilares do herói — sobre escuro */
+  .pillars > div:hover { background: var(--ink-3); }
+  .pillars > div:hover .v { color: #FFFFFF; }
+  .pillars > div:hover .k { color: var(--sand); filter: none; }
+
+  /* benefícios — sobre claro */
+  .benefits li:hover { color: var(--bordo); background: rgba(104,17,47,.045); }
+  .benefits li:hover .k { opacity: 1; }
+
+  /* livro-caixa — sobre escuro */
+  .col li:hover { color: var(--cream); }
+  .col--good li:hover { color: #FFFFFF; }
+  .col li:hover::before { color: var(--sand); opacity: .9; }
+
+  /* ciclo mensal — sobre claro */
+  .flow li:hover { color: var(--bordo); background: rgba(104,17,47,.04); }
+  .flow li:hover .k { opacity: 1; }
+
+  /* itens dos planos — o ponto cresce no metal do plano */
+  .plan .items li:hover { color: var(--metal); background: rgba(104,17,47,.04); }
+  .plan .items li:hover::before { transform: scale(1.45); }
+
+  /* perguntas do FAQ */
+  .faq summary:hover { color: var(--bordo-deep); background: rgba(104,17,47,.04); }
+  .faq summary:hover::after { color: var(--bordo); }
+
+  /* logos, depoimentos e time, para o bloco não parecer morto */
+  .logos > div:hover { background: var(--ink-3); }
+  .quote:hover { background: var(--ink-3); }
+  .person:hover { background: var(--paper-2); }
+}
+
+/* -- movimento ------------------------------------------------------- */
+/* Só esconde se o JS estiver rodando — sem JS a página aparece inteira. */
+.lp-almore .rise { opacity: 0; transform: translateY(14px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.8,.2,1); }
+.lp-almore .rise.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .lp-almore .rise { opacity: 1; transform: none; transition: none; }
+  .btn, .pillars > div, .benefits li, .col li, .flow li, .faq summary,
+  .plan .items li, .plan .items li::before,
+  .logos > div, .quote, .person { transition: none; }
+}
+
+/* -- link de salto (teclado e leitor de tela) ------------------------ */
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 30;
+  background: var(--paper);
+  color: var(--bordo);
+  padding: .75rem 1.25rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+.skip:focus { left: .5rem; top: .5rem; }
