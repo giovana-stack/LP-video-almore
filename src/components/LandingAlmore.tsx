@@ -82,6 +82,72 @@ const DURACAO_DA_ESTEIRA = `${CLIENTES.length * 7}s`
 const AREA_DO_LOGO = 5200
 const alturaDoLogo = (prop: number) => Math.round(Math.sqrt(AREA_DO_LOGO / prop))
 
+/**
+ * Os três planos.
+ *
+ * Fechado, cada cartão mostra só o que identifica o plano — nome, promessa,
+ * rótulo e o que ele herda. A lista de itens abre no clique.
+ *
+ * Está em dados e não em marcação porque o atraso da cascata sai do índice de
+ * cada item: escrito à mão seriam nove `style` repetidos por plano.
+ * `detalhe` é a linha miúda embaixo do item, quando existe.
+ */
+const PLANOS = [
+  {
+    nome: 'Bronze',
+    metal: 'bronze',
+    claim: 'Atendimento essencial e completo',
+    rotulo: 'Ponto de partida',
+    herda: 'A rotina contábil inteira em ordem',
+    itens: [
+      { texto: 'Onboarding Premium 360º' },
+      { texto: 'Apuração de impostos e obrigações acessórias' },
+      { texto: 'Auditoria mensal de classificação fiscal' },
+      { texto: 'Folha, pró-labore, admissão e rescisão' },
+      { texto: 'Controle de férias e prazos de contratos' },
+      { texto: 'Acompanhamento de faturamento e alíquota efetiva' },
+      { texto: 'Demonstração do Resultado gerencial' },
+      { texto: 'Relatório consultivo mensal' },
+      { texto: 'Atendimento consultivo' },
+    ],
+  },
+  {
+    nome: 'Prata',
+    metal: 'prata',
+    claim: 'Tudo do Bronze + camada tributária',
+    rotulo: 'Traz junto',
+    herda: 'Todo o plano Bronze',
+    itens: [
+      { texto: 'Planejamento tributário inicial' },
+      { texto: 'Conciliação de extrato bancário' },
+      { texto: 'Imposto de Renda de Pessoa Física (1 pessoa)' },
+      {
+        texto: 'Gestão de benefícios',
+        detalhe: 'vale-refeição, vale-alimentação e vale-transporte',
+      },
+      { texto: 'Controle de negativas federais e trabalhistas' },
+    ],
+  },
+  {
+    nome: 'Ouro',
+    metal: 'ouro',
+    claim: 'Tudo do Prata + camada estratégica + I.A.',
+    rotulo: 'Traz junto',
+    herda: 'Todo o plano Prata',
+    itens: [
+      { texto: 'Planejamento tributário estratégico anual' },
+      { texto: 'Consultoria revisional semestral' },
+      { texto: 'Consultoria em precificação anual' },
+      { texto: 'Imposto de Renda de Pessoa Física (2 pessoas)' },
+      { texto: '1 alteração de contrato social ao ano' },
+      { texto: 'Demonstração do Resultado do Exercício' },
+      { texto: 'Gestão de indicadores do Departamento Pessoal' },
+      { texto: 'Fechamento do ponto' },
+      { texto: 'Assistente de inteligência artificial personalizado' },
+    ],
+  },
+]
+
 export default function LandingAlmore() {
   return (
     <div className="lp-almore">
@@ -247,53 +313,46 @@ export default function LandingAlmore() {
             <li><span className="k">04</span> Relatório consultivo do mês</li>
           </ol>
       
+          {/*
+            Cada plano e um <details>: fechado mostra so nome, promessa, rotulo
+            e o que herda; o clique abre a lista. <details> nativo em vez de
+            JavaScript — ja e o padrao do FAQ desta pagina, funciona com teclado
+            e leitor de tela de graca, e abre mesmo se o script falhar.
+
+            A cascata sai do indice: cada item recebe --i e o CSS transforma
+            isso em atraso da animacao.
+          */}
           <div className="plans">
-            <article className="plan plan--bronze rise">
-              <div className="tier"><h3>Bronze</h3></div>
-              <p className="claim">Atendimento essencial e completo</p>
-              <p className="herda"><b>Ponto de partida</b><span>A rotina contábil inteira em ordem</span></p>
-              <ul className="items">
-                <li>Onboarding Premium 360º</li>
-                <li>Apuração de impostos e obrigações acessórias</li>
-                <li>Auditoria mensal de classificação fiscal</li>
-                <li>Folha, pró-labore, admissão e rescisão</li>
-                <li>Controle de férias e prazos de contratos</li>
-                <li>Acompanhamento de faturamento e alíquota efetiva</li>
-                <li>Demonstração do Resultado gerencial</li>
-                <li>Relatório consultivo mensal</li>
-                <li>Atendimento consultivo</li>
-              </ul>
-            </article>
-      
-            <article className="plan plan--prata rise">
-              <div className="tier"><h3>Prata</h3></div>
-              <p className="claim">Tudo do Bronze + camada tributária</p>
-              <p className="herda"><b>Traz junto</b><span>Todo o plano Bronze</span></p>
-              <ul className="items">
-                <li>Planejamento tributário inicial</li>
-                <li>Conciliação de extrato bancário</li>
-                <li>Imposto de Renda de Pessoa Física (1 pessoa)</li>
-                <li>Gestão de benefícios <small>vale-refeição, vale-alimentação e vale-transporte</small></li>
-                <li>Controle de negativas federais e trabalhistas</li>
-              </ul>
-            </article>
-      
-            <article className="plan plan--ouro rise">
-              <div className="tier"><h3>Ouro</h3></div>
-              <p className="claim">Tudo do Prata + camada estratégica + I.A.</p>
-              <p className="herda"><b>Traz junto</b><span>Todo o plano Prata</span></p>
-              <ul className="items">
-                <li>Planejamento tributário estratégico anual</li>
-                <li>Consultoria revisional semestral</li>
-                <li>Consultoria em precificação anual</li>
-                <li>Imposto de Renda de Pessoa Física (2 pessoas)</li>
-                <li>1 alteração de contrato social ao ano</li>
-                <li>Demonstração do Resultado do Exercício</li>
-                <li>Gestão de indicadores do Departamento Pessoal</li>
-                <li>Fechamento do ponto</li>
-                <li>Assistente de inteligência artificial personalizado</li>
-              </ul>
-            </article>
+            {PLANOS.map((p) => (
+              <details className={`plan plan--${p.metal} rise`} key={p.nome}>
+                <summary>
+                  <span className="tier">
+                    <span className="nome">{p.nome}</span>
+                  </span>
+                  <span className="claim">{p.claim}</span>
+                  <span className="herda">
+                    <b>{p.rotulo}</b>
+                    <span>{p.herda}</span>
+                  </span>
+                  {/* Os dois rotulos existem na marcacao e o CSS troca qual
+                      aparece: <summary> ja anuncia aberto/fechado ao leitor de
+                      tela, mas o texto visivel tambem precisa acompanhar. */}
+                  <span className="abrir">
+                    <span className="ver">Ver o que inclui</span>
+                    <span className="fechar">Fechar</span>
+                    <span className="qtd">{p.itens.length} itens</span>
+                  </span>
+                </summary>
+                <ul className="items">
+                  {p.itens.map((item, i) => (
+                    <li key={item.texto} style={{ '--i': i } as CSSProperties}>
+                      {item.texto}
+                      {item.detalhe && <small>{item.detalhe}</small>}
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            ))}
           </div>
       
           <p className="cta-row"><a className="btn" href={CTA}>Quero meu diagnóstico</a></p>

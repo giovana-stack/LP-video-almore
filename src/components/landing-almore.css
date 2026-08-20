@@ -387,37 +387,95 @@
  * Os tons são escurecidos para ler sobre champanhe — o dourado usa o
  * gold.ink do manual, que existe justamente para texto.
  * -------------------------------------------------------------------- */
+/*
+ * Cartoes independentes, com borda propria e alinhados ao topo. Antes o
+ * container desenhava os fios com background + gap de 1px, o que exigia que
+ * os tres cartoes tivessem a mesma altura. Agora eles abrem e fecham, e com
+ * alturas diferentes aquele truque deixaria um bloco rosa aparecendo embaixo
+ * dos fechados.
+ */
 .plans {
   display: grid;
-  gap: 1px;
-  background: var(--rule-light);
-  border: 1px solid var(--rule-light);
+  gap: clamp(1rem, 2vw, 1.5rem);
+  align-items: start;
   margin-top: clamp(2rem, 4vw, 3rem);
 }
 @media (min-width: 980px) { .plans { grid-template-columns: repeat(3, 1fr); } }
+
 .plan {
   --metal: var(--bordo);
   background: var(--paper);
+  border: 1px solid var(--rule-light);
+  border-radius: 2px;
+}
+
+/* -- cabecalho clicavel do plano -------------------------------------- */
+.plan > summary {
+  list-style: none;
+  cursor: pointer;
   padding: clamp(1.5rem, 3vw, 2.15rem);
   display: flex;
   flex-direction: column;
+}
+.plan > summary::-webkit-details-marker { display: none; }
+
+/* O rotulo de abrir troca de texto quando o cartao esta aberto. */
+.plan .abrir {
+  margin-top: 1.35rem;
+  display: flex;
+  align-items: baseline;
+  gap: .5rem;
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: var(--metal);
+}
+.plan .abrir::before {
+  content: "+";
+  font-size: 1.15em;
+  line-height: 1;
+  transition: transform .22s ease;
+}
+.plan[open] .abrir::before { content: "–"; }
+.plan .fechar { display: none; }
+.plan[open] .ver { display: none; }
+.plan[open] .fechar { display: inline; }
+.plan[open] .qtd { display: none; }
+.plan .abrir .qtd {
+  font-weight: 400;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  font-size: .78em;
+  color: var(--dim-ink);
 }
 .plan--bronze { --metal: #8A5A2B; }
 .plan--prata  { --metal: #6E6E73; }
 .plan--ouro   { --metal: #8A6100; }
 
 .plan .tier { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
-.plan h3 { font-size: var(--step-3); line-height: .95; color: var(--metal); }
+.plan .nome {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: var(--step-3);
+  line-height: .95;
+  color: var(--metal);
+}
 .plan .claim {
+  display: block;
   font-family: "Instrument Serif", Georgia, serif;
   font-style: italic;
   font-size: var(--step-1);
+  line-height: 1.2;
   color: var(--dim-ink);
-  margin: .6rem 0 0;
+  margin-top: .6rem;
+  /* Reserva duas linhas: o claim do Bronze cabe em uma e os dos outros em
+     duas, e sem isso os tres cartoes fechados ficavam com alturas
+     diferentes lado a lado (306 contra 342px). */
+  min-height: 2.4em;
 }
 /* A linha de herança usa a régua dupla do livro-caixa: é um saldo que vem de cima. */
 .plan .herda {
-  margin: 1.25rem 0 0;
+  display: block;
+  margin-top: 1.25rem;
   padding: .8rem 0;
   border-top: 1px solid var(--rule-light);
   border-bottom: 3px double var(--rule-light);
@@ -433,7 +491,12 @@
 }
 .plan .herda span { font-weight: 600; color: var(--metal); }
 
-.plan .items { list-style: none; margin: 1.15rem 0 0; padding: 0; }
+/* A lista fica fora do <summary>, entao ela devolve o padding lateral. */
+.plan .items {
+  list-style: none;
+  margin: 0;
+  padding: 0 clamp(1.5rem, 3vw, 2.15rem) clamp(1.5rem, 3vw, 2.15rem);
+}
 .plan .items li {
   display: grid;
   grid-template-columns: .5rem 1fr;
@@ -460,8 +523,10 @@
    diferença é o metal do nome, que é identidade, não hierarquia. O realce
    acontece só no hover. */
 @media (hover: hover) {
-  .plan:hover { background: var(--paper-2); }
-  .plan:hover h3 { letter-spacing: .005em; }
+  /* O realce responde ao cabecalho, nao ao cartao todo: aberto, o cartao
+     inteiro mudando de cor no hover da lista distrai da leitura. */
+  .plan > summary:hover { background: var(--paper-2); }
+  .plan > summary:hover .abrir::before { transform: scale(1.2); }
 }
 
 .plan .items small {
@@ -643,8 +708,24 @@
 }
 .plan .items li::before { transition: transform .22s ease; }
 
-.plan { transition: background-color .22s ease; }
-.plan h3 { transition: letter-spacing .22s ease; }
+.plan > summary { transition: background-color .22s ease; }
+
+/* -- cascata dos itens do plano --------------------------------------- *
+ * Ao abrir, cada item entra com um atraso proporcional ao seu indice: o
+ * --i vem do componente e viram 45ms por posicao. A animacao dispara
+ * sozinha porque os <li> so passam a ser renderizados quando o <details>
+ * abre — nao precisa de JavaScript nem de classe.
+ * -------------------------------------------------------------------- */
+@keyframes cascata {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .plan[open] .items li {
+    animation: cascata .34s cubic-bezier(.2, .8, .2, 1) both;
+    animation-delay: calc(var(--i, 0) * 45ms);
+  }
+}
 
 /* Só onde existe mouse de verdade: no toque o :hover fica preso na tela. */
 @media (hover: hover) {
@@ -724,6 +805,7 @@
   .lp-almore .faq summary,
   .lp-almore .plan .items li,
   .lp-almore .plan .items li::before,
+  .lp-almore .plan > summary,
   .lp-almore .logos-trilha { transition: none; animation: none; }
 }
 
