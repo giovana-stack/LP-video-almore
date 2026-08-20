@@ -36,11 +36,24 @@ const CTA = 'CTA_LINK'
 const CLIENTES = [
   { marca: 'Mexicatti Sorvetes', logo: '/logos/mexicatti.png', prop: 1.74 },
   { marca: 'Laba Grill', logo: '/logos/laba.png', prop: 4.05 },
-  { marca: 'ViCor Seguros', logo: '/logos/vicor.png', prop: 3.05 },
-  { marca: 'Mymion', logo: '/logos/mymion.png', prop: 1.23 },
+  { marca: 'GNP', logo: '/logos/gnp.png', prop: 1.02 },
+  { marca: 'SuperVisão Vistorias Automotivas', logo: '/logos/supervisao.png', prop: 3.58 },
   { marca: 'Eroika Cosméticos', logo: '/logos/eroika.png', prop: 1.07 },
+  { marca: 'InfoCliN', logo: '/logos/infoclin.png', prop: 2.44 },
+  { marca: 'Mymion', logo: '/logos/mymion.png', prop: 1.23 },
+  { marca: 'ViCor Seguros', logo: '/logos/vicor.png', prop: 3.05 },
+  { marca: 'JF Celulares', logo: '/logos/jfcelulares.png', prop: 0.97 },
+  { marca: 'Parabrisas Petrucci', logo: '/logos/petrucci.png', prop: 3.29 },
+  { marca: 'Centauro Agropecuária e Petshop', logo: '/logos/centauro.png', prop: 1.0 },
   { marca: 'Sunfit', logo: '/logos/sunfit.png', prop: 2.95 },
 ]
+
+/**
+ * Duração de uma volta da esteira. Cresce com a quantidade de logos para a
+ * velocidade aparente não mudar: dobrar a lista sem dobrar o tempo faria a
+ * faixa passar duas vezes mais rápido.
+ */
+const DURACAO_DA_ESTEIRA = `${CLIENTES.length * 7}s`
 
 /**
  * Área óptica que todo logo deve ocupar, em px². A altura sai de
@@ -128,7 +141,11 @@ export default function LandingAlmore() {
           escuros (Mexicatti marrom, ViCor azul, Mymion prata). Como imagem
           colorida, metade desapareceria neste fundo escuro.
         */}
-        <div className="logos-esteira" aria-label="Clientes da Almore">
+        <div
+          className="logos-esteira"
+          aria-label="Clientes da Almore"
+          style={{ '--esteira-duracao': DURACAO_DA_ESTEIRA } as CSSProperties}
+        >
           <div className="logos-trilha">
             {[0, 1].map((volta) =>
               CLIENTES.map((c) => {
@@ -283,25 +300,6 @@ export default function LandingAlmore() {
           </div>
       
           <p className="cta-row"><a className="btn" href={CTA}>Quero meu diagnóstico</a></p>
-        </div>
-      </section>
-      
-      {/* 5. SETORES =========================================================== */}
-      <section className="band band--dark2">
-        <div className="wrap">
-          <p className="eyebrow"><span className="n">04</span> Setores</p>
-          <h2 className="rise h2-lead">A apuração muda conforme a atividade da empresa.</h2>
-          <p className="narrow narrow--dim">A alíquota de um alimento não é a de um serviço, a comissão de corretagem não entra como receita de software e a folha de um restaurante não segue as regras da folha de um laboratório. Estes são os setores que a Almore atende hoje.</p>
-
-          <ul className="setores rise">
-            <li>Alimentação e sorveteria</li>
-            <li>Restaurante e churrascaria</li>
-            <li>Corretagem de seguros</li>
-            <li>Tecnologia e software</li>
-            <li>Cosméticos</li>
-            <li>Moda e fitness</li>
-          </ul>
-          <p className="regimes">Todos os regimes, do MEI ao Lucro Real</p>
         </div>
       </section>
       
