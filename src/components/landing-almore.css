@@ -404,8 +404,13 @@
 
 .plan {
   --metal: var(--bordo);
+  --tinta: var(--bordo);
+  /* Champanhe puro e o fallback: navegador sem color-mix ignora a linha
+     seguinte e o cartao fica no fundo normal, sem quebrar nada. */
   background: var(--paper);
+  background: color-mix(in srgb, var(--tinta) 14%, var(--paper));
   border: 1px solid var(--rule-light);
+  border-color: color-mix(in srgb, var(--tinta) 28%, var(--rule-light));
   border-radius: 2px;
 }
 
@@ -448,9 +453,29 @@
   font-size: .78em;
   color: var(--dim-ink);
 }
-.plan--bronze { --metal: #8A5A2B; }
-.plan--prata  { --metal: #6E6E73; }
-.plan--ouro   { --metal: #8A6100; }
+/*
+ * Duas variaveis por plano, e nao uma:
+ *
+ * --metal e a cor do TEXTO. Foi escolhida escura de proposito, para o nome
+ *   do plano ler sobre champanhe (bronze 5,5:1, prata 4,8:1, ouro 4,9:1).
+ * --tinta e a cor do FUNDO. Precisa ser o metal de verdade, saturado, porque
+ *   diluida a 12% ela quase desaparece. Usando o --metal para as duas coisas,
+ *   bronze e ouro davam #F2EBE1 e #F2ECDE — 3 unidades de diferenca, ou seja,
+ *   o mesmo tom na pratica.
+ */
+/*
+ * As tintas foram afastadas de matiz. Com bronze #B87333 e ouro #D4A017 — os
+ * dois quentes — os fundos diluidos davam #F3E8DA e #F6EDD7: 7 unidades de
+ * distancia, invisivel. Agora o bronze puxa para o vermelho (sienna), o ouro
+ * para o amarelo puro e a prata para o azulado, que a afasta dos dois.
+ */
+.plan--bronze { --metal: #8A5A2B; --tinta: #A0522D; }
+/* Prata mais escuro que os outros dois metais de proposito: #6E6E73 dava
+   4,25:1 sobre o fundo tingido, abaixo do minimo de 4,5 para o rotulo
+   pequeno. Escurecer o texto foi a saida — clarear a tinta apagaria a cor
+   do plano, que e justamente o que se quer ver. */
+.plan--prata  { --metal: #5B5B62; --tinta: #8E9AA6; }
+.plan--ouro   { --metal: #8A6100; --tinta: #DFB100; }
 
 .plan .tier { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
 .plan .nome {
@@ -525,7 +550,9 @@
 @media (hover: hover) {
   /* O realce responde ao cabecalho, nao ao cartao todo: aberto, o cartao
      inteiro mudando de cor no hover da lista distrai da leitura. */
-  .plan > summary:hover { background: var(--paper-2); }
+  /* O hover reforca a propria tinta em vez de trocar por um cinza: se
+     trocasse, a cor do plano sumiria justamente ao passar o mouse. */
+  .plan > summary:hover { background: color-mix(in srgb, var(--tinta) 10%, transparent); }
   .plan > summary:hover .abrir::before { transform: scale(1.2); }
 }
 
