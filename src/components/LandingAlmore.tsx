@@ -119,8 +119,17 @@ export default function LandingAlmore() {
             <span className="rotulo">Espaço do vídeo · 16:9</span>
           </div>
 
-          {/* Botao na largura do video: no heroi tudo ocupa os 1140px. */}
-          <p className="cta-row"><a className="btn btn--bloco" href={CTA}>Quero meu diagnóstico</a></p>
+          {/*
+            Quem ocupa os 1140px do herói é a linha, não o botão: ele fica no
+            tamanho natural e a frase de apoio ancora a outra ponta. Assim o
+            eixo direito fecha com o vídeo sem virar uma faixa de bordô.
+          */}
+          <div className="cta-linha">
+            <a className="btn" href={CTA}>Quero meu diagnóstico</a>
+            <p className="apoio">
+              <strong>Resposta no mesmo dia</strong>, com quem conhece a sua empresa pelo nome.
+            </p>
+          </div>
         </div>
 
         {/*
