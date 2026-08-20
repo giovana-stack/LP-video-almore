@@ -1,10 +1,12 @@
-import { useEffect, useRef } from 'react'
-
 /**
  * Landing page da Almore Inteligência Contábil.
  *
  * Tudo vive dentro de .lp-almore, então os estilos não vazam para o resto
  * do app e não brigam com o reset do Tailwind.
+ *
+ * A revelação no scroll é 100% CSS (animation-timeline: view()), então este
+ * componente não tem estado nem efeito: é marcação pura. O conteúdo é
+ * visível por padrão — nenhuma seção depende de JavaScript para aparecer.
  *
  * FALTA PREENCHER (marcado na tela com sublinhado tracejado):
  *   1. CTA          — a constante abaixo, num lugar só
@@ -21,48 +23,8 @@ import { useEffect, useRef } from 'react'
 const CTA = 'CTA_LINK'
 
 export default function LandingAlmore() {
-  const raiz = useRef<HTMLDivElement>(null)
-
-  // Revelação no scroll. O herói entra na carga, em cascata; o resto
-  // entra quando encosta na viewport.
-  useEffect(() => {
-    const no = raiz.current
-    if (!no) return
-
-    const alvos = Array.from(no.querySelectorAll<HTMLElement>('.rise'))
-    const menosMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
-    if (menosMovimento || !('IntersectionObserver' in window)) {
-      alvos.forEach((el) => el.classList.add('in'))
-      return
-    }
-
-    no.querySelectorAll<HTMLElement>('.hero .rise').forEach((el, i) => {
-      el.style.transitionDelay = `${i * 90}ms`
-      requestAnimationFrame(() => el.classList.add('in'))
-    })
-
-    const obs = new IntersectionObserver(
-      (entradas) => {
-        entradas.forEach((e) => {
-          if (e.isIntersecting) {
-            e.target.classList.add('in')
-            obs.unobserve(e.target)
-          }
-        })
-      },
-      { rootMargin: '0px 0px -12% 0px' },
-    )
-
-    alvos.forEach((el) => {
-      if (!el.closest('.hero')) obs.observe(el)
-    })
-
-    return () => obs.disconnect()
-  }, [])
-
   return (
-    <div className="lp-almore" ref={raiz}>
+    <div className="lp-almore">
       <a className="skip" href="#conteudo">Ir para o conteúdo</a>
       
       <header className="top">

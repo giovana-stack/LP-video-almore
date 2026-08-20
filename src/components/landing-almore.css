@@ -107,7 +107,7 @@
 .band--light .eyebrow { color: var(--bordo); }
 
 /* -- botão ----------------------------------------------------------- */
-.btn {
+.lp-almore .btn {
   display: inline-flex;
   align-items: center;
   gap: .6rem;
@@ -122,16 +122,16 @@
   border-radius: 2px;
   transition: background .2s ease, transform .2s ease;
 }
-.btn:hover { background: var(--bordo-deep); border-color: var(--bordo-deep); transform: translateY(-1px); }
-.btn::after { content: "→"; font-size: .95em; }
-.btn--ghost {
+.lp-almore .btn:hover { background: var(--bordo-deep); border-color: var(--bordo-deep); transform: translateY(-1px); }
+.lp-almore .btn::after { content: "→"; font-size: .95em; }
+.lp-almore .btn--ghost {
   background: transparent;
   color: var(--sand);
   border-color: var(--rule-dark);
 }
-.btn--ghost:hover { background: var(--ink-3); border-color: var(--sand); color: var(--cream); }
-.btn--paper { background: var(--paper); color: var(--bordo); border-color: var(--paper); }
-.btn--paper:hover { background: #fff; border-color: #fff; color: var(--bordo-deep); }
+.lp-almore .btn--ghost:hover { background: var(--ink-3); border-color: var(--sand); color: var(--cream); }
+.lp-almore .btn--paper { background: var(--paper); color: var(--bordo); border-color: var(--paper); }
+.lp-almore .btn--paper:hover { background: #fff; border-color: #fff; color: var(--bordo-deep); }
 
 /* -- topo ------------------------------------------------------------ */
 .lp-almore header.top {
@@ -220,8 +220,9 @@
   font-size: .7rem;
   font-variant-numeric: tabular-nums;
   letter-spacing: .18em;
-  color: var(--bordo-soft);
-  filter: brightness(1.6);
+  /* Bordo puro nao le sobre o fundo escuro (1,88:1). O cinza com vies de
+     bordo mantem o tom da marca e passa de 4,5:1. */
+  color: var(--dim);
 }
 .pillars .v {
   font-family: "Instrument Serif", Georgia, serif;
@@ -592,7 +593,7 @@
 .col li::before,
 .flow .k,
 .faq summary::after {
-  transition: color .22s ease, opacity .22s ease, filter .22s ease;
+  transition: color .22s ease, opacity .22s ease;
 }
 .plan .items li::before { transition: transform .22s ease; }
 
@@ -603,7 +604,7 @@
   /* pilares do herói — sobre escuro */
   .pillars > div:hover { background: var(--ink-3); }
   .pillars > div:hover .v { color: #FFFFFF; }
-  .pillars > div:hover .k { color: var(--sand); filter: none; }
+  .pillars > div:hover .k { color: var(--sand); }
 
   /* benefícios — sobre claro */
   .benefits li:hover { color: var(--bordo); background: rgba(104,17,47,.045); }
@@ -632,19 +633,67 @@
   .person:hover { background: var(--paper-2); }
 }
 
-/* -- movimento ------------------------------------------------------- */
-/* Só esconde se o JS estiver rodando — sem JS a página aparece inteira. */
-.lp-almore .rise { opacity: 0; transform: translateY(14px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.8,.2,1); }
-.lp-almore .rise.in { opacity: 1; transform: none; }
+/* -- movimento -------------------------------------------------------- *
+ * Sem JavaScript e sem estado inicial invisível: o conteúdo é visível por
+ * padrão e a animação é acréscimo. Onde o navegador tem timeline de scroll
+ * (Chrome/Edge 115+), os blocos entram ao encostar na viewport; onde não
+ * tem (Safari e Firefox hoje), simplesmente aparecem prontos.
+ *
+ * Por que não IntersectionObserver: com SSR, qualquer atraso ou falha do
+ * JS deixava seções em branco — e seção em branco parece layout quebrado,
+ * que foi exatamente o sintoma relatado.
+ * -------------------------------------------------------------------- */
+@keyframes lp-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .lp-almore .rise {
+      animation: lp-rise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 45%;
+    }
+
+    /*
+     * O herói NÃO anima, de propósito.
+     *
+     * Animação de entrada por tempo depende do relógio do documento, e esse
+     * relógio congela em aba oculta, em iframe sem composição e em aba
+     * aberta em segundo plano. Quando ele congela, o quadro inicial fica
+     * valendo para sempre — e o quadro inicial é opacity 0. Resultado: herói
+     * em branco, que é o pior lugar possível para uma página falhar.
+     *
+     * A timeline de scroll das outras seções não tem esse problema: ela é
+     * dirigida pela posição de rolagem, não pelo relógio.
+     */
+    .lp-almore .hero .rise {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .lp-almore .rise { opacity: 1; transform: none; transition: none; }
-  .btn, .pillars > div, .benefits li, .col li, .flow li, .faq summary,
-  .plan .items li, .plan .items li::before,
-  .logos > div, .quote, .person { transition: none; }
+  /* Precisa do .lp-almore para vencer as regras de hover, que também
+     são escopadas — sem isso o "transition: none" não pegava. */
+  .lp-almore .btn,
+  .lp-almore .pillars > div,
+  .lp-almore .benefits li,
+  .lp-almore .col li,
+  .lp-almore .flow li,
+  .lp-almore .faq summary,
+  .lp-almore .plan .items li,
+  .lp-almore .plan .items li::before,
+  .lp-almore .logos > div,
+  .lp-almore .quote,
+  .lp-almore .person { transition: none; }
 }
 
 /* -- link de salto (teclado e leitor de tela) ------------------------ */
-.skip {
+.lp-almore .skip {
   position: absolute;
   left: -9999px;
   top: 0;
@@ -655,4 +704,4 @@
   font-weight: 600;
   text-decoration: none;
 }
-.skip:focus { left: .5rem; top: .5rem; }
+.lp-almore .skip:focus { left: .5rem; top: .5rem; }
