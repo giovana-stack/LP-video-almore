@@ -25,6 +25,21 @@ import { useRef } from 'react'
 // O único lugar onde o destino dos botões é definido.
 const CTA = 'CTA_LINK'
 
+/**
+ * Clientes da faixa de prova. `marca` é o nome, `ramo` é o descritor que
+ * aparece pequeno embaixo — deixe vazio quando o nome já se explica.
+ * Para incluir ou tirar um cliente, é só editar esta lista: a faixa se
+ * reorganiza sozinha.
+ */
+const CLIENTES = [
+  { marca: 'Mexicatti', ramo: 'Sorvetes' },
+  { marca: 'Laba', ramo: 'Grill' },
+  { marca: 'ViCor', ramo: 'Corretora de seguros' },
+  { marca: 'Mymion', ramo: 'Lab' },
+  { marca: 'Eroika', ramo: 'Cosméticos' },
+  { marca: 'Sunfit', ramo: '' },
+]
+
 export default function LandingAlmore() {
   const trilhaDoTime = useRef<HTMLDivElement>(null)
 
@@ -228,13 +243,18 @@ export default function LandingAlmore() {
           <p className="eyebrow"><span className="n">04</span> Prova</p>
           <h2 className="rise h2-lead h2-lead--w24">Mais de <span className="todo">[N]</span> empresas com a rotina contábil em ordem</h2>
       
+          {/*
+            Clientes. Por enquanto marca nominativa; quando os arquivos de
+            logo chegarem, troque os dois <span> de cada célula por
+            <img src="/logos/nome.svg" alt="Nome do cliente" />.
+          */}
           <div className="logos rise">
-            <div className="todo">logo cliente</div>
-            <div className="todo">logo cliente</div>
-            <div className="todo">logo cliente</div>
-            <div className="todo">logo cliente</div>
-            <div className="todo">logo cliente</div>
-            <div className="todo">logo cliente</div>
+            {CLIENTES.map((c) => (
+              <div key={c.marca}>
+                <span className="marca">{c.marca}</span>
+                {c.ramo && <span className="ramo">{c.ramo}</span>}
+              </div>
+            ))}
           </div>
       
           <div className="quotes rise">
