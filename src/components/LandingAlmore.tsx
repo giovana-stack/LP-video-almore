@@ -113,7 +113,7 @@ export default function LandingAlmore() {
             height={ISOTIPO.h}
           />
         </a>
-        <a className="btn" href={CTA}>Quero meu diagnóstico</a>
+        <a className="btn" href={CTA}>Quero ter uma contabilidade estratégica</a>
       </header>
       
       <main id="conteudo">
@@ -138,7 +138,7 @@ export default function LandingAlmore() {
 
           {/* Botao no tamanho natural, centralizado sob o video. */}
           <p className="cta-row cta-row--centro">
-            <a className="btn" href={CTA}>Quero meu diagnóstico</a>
+            <a className="btn" href={CTA}>Quero ter uma contabilidade estratégica</a>
           </p>
         </div>
 
@@ -217,7 +217,7 @@ export default function LandingAlmore() {
         </div>
         <div className="wrap copy">
           <span>© 2026 Almore Inteligência Contábil · Todos os direitos reservados</span>
-          <a href={CTA}>Quero meu diagnóstico</a>
+          <a href={CTA}>Quero ter uma contabilidade estratégica</a>
         </div>
       </footer>
     </div>

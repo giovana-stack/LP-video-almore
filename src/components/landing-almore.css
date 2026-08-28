@@ -122,6 +122,13 @@
   .brand img { height: 40px; }
   .lp-almore header.top .btn { padding: .55rem .9rem; }
   .lp-almore header.top .btn::after { content: none; }
+
+  /* O rotulo do botao e longo, e no flex do cabecalho ele vencia a disputa
+     de espaco contra o logo: em 320px a marca era espremida de 51px para 6.
+     A marca passa a nao encolher, e em troca o botao pode quebrar em duas
+     linhas. Ate 360px ele quebra; de 375px em diante continua numa linha so. */
+  .lp-almore header.top .brand { flex: 0 0 auto; }
+  .lp-almore header.top .btn { white-space: normal; text-align: center; }
 }
 
 /* -- hero ------------------------------------------------------------ */
