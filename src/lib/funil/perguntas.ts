@@ -65,15 +65,18 @@ const ehTrilhaB = (r: Respostas) => r.cnpj_aberto === false
 
 export const TELAS: Tela[] = [
   // ============================================================ sobre você
-  // TEXTO NOVO — PENDENTE DE APROVAÇÃO (as três perguntas e os três erros).
+  // As perguntas e as opções deste arquivo são cópia literal da tabela 1.3 do
+  // documento de execução (VERSÃO COM SDR DE VOZ). Não reescrever: os textos
+  // do WhatsApp da automação referenciam frases específicas daqui.
+  // As mensagens de erro, essas sim, são texto meu — PENDENTE DE APROVAÇÃO.
   {
     tipo: "texto",
     id: "nome",
     secao: "Sobre você",
     numeroNoBrief: "1",
-    pergunta: "Como podemos te chamar?",
+    pergunta: "Qual é o seu nome?",
     campo: "nome",
-    placeholder: "Maria",
+    placeholder: "Maria da Silva",
     tipoDoInput: "text",
     autoComplete: "name",
     valida: nomeValido,
@@ -84,7 +87,7 @@ export const TELAS: Tela[] = [
     id: "whatsapp",
     secao: "Sobre você",
     numeroNoBrief: "2",
-    pergunta: "Qual o seu WhatsApp?",
+    pergunta: "Qual é o seu WhatsApp?",
     campo: "whatsapp",
     placeholder: "(19) 99999-9999",
     tipoDoInput: "tel",
@@ -98,7 +101,7 @@ export const TELAS: Tela[] = [
     id: "email",
     secao: "Sobre você",
     numeroNoBrief: "3",
-    pergunta: "E o seu e-mail?",
+    pergunta: "Qual é o seu e-mail?",
     campo: "email",
     placeholder: "maria@empresa.com.br",
     tipoDoInput: "email",

@@ -277,6 +277,13 @@
   cursor: pointer;
   font-size: 0.95rem;
 }
+/* Sem título em cima, o consentimento é o conteúdo da tela: ganha o corpo de
+   texto maior e respira mais. */
+.funil-consentimento--sozinho {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  padding: 1.35rem;
+}
 .funil-consentimento input {
   /* 22px porque o padrão do navegador dá um quadrado de 13px, pequeno demais
      para o dedo num checkbox que bloqueia o envio. */

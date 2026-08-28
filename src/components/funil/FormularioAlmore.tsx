@@ -298,9 +298,10 @@ export default function FormularioAlmore() {
 
             {telaAtual.tipo === "fechamento" ? (
               <div className="funil-tela">
-                {/* TEXTO NOVO — PENDENTE DE APROVAÇÃO (o título desta tela). */}
-                <h2 className="funil-pergunta">Só falta confirmar.</h2>
-                <label className="funil-consentimento">
+                {/* Sem título aqui: a tabela 1.3 marca o consentimento como
+                    "(checkbox, não é pergunta)". O texto do consentimento é
+                    a única coisa que a tela precisa dizer. */}
+                <label className="funil-consentimento funil-consentimento--sozinho">
                   <input
                     type="checkbox"
                     checked={respostas.consentimento_whatsapp}
@@ -347,8 +348,10 @@ export default function FormularioAlmore() {
           <fieldset className="funil-tela">
             <legend className="funil-pergunta">{PERGUNTA_DECISORES}</legend>
             <div className="funil-opcoes">
-              {/* TEXTO NOVO — PENDENTE DE APROVAÇÃO (os dois rótulos). O brief
-                  diz "duas opções de resposta" sem definir o texto delas. */}
+              {/* TEXTO NOVO — PENDENTE DE APROVAÇÃO (os dois rótulos). O
+                  documento descreve os dois caminhos como "decisor único" e
+                  "múltiplos decisores", mas não dá o texto dos botões. Estes
+                  ecoam as palavras da própria pergunta. */}
               <button
                 type="button"
                 className="funil-opcao"
@@ -361,7 +364,7 @@ export default function FormularioAlmore() {
                 className="funil-opcao"
                 onClick={() => responderDecisores(true)}
               >
-                Tem mais alguém que decide junto
+                Tenho outros sócios/decisores
               </button>
             </div>
           </fieldset>
