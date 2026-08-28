@@ -80,7 +80,7 @@ export const TELAS: Tela[] = [
     tipoDoInput: "text",
     autoComplete: "name",
     valida: nomeValido,
-    erro: "Escreve seu nome aqui.",
+    erro: "Escreva seu nome aqui.",
   },
   {
     tipo: "texto",

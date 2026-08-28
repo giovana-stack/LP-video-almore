@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useRef, useState } from "react"
 
 import { paraE164 } from "@/lib/funil/contato"
+import { INSTAGRAM, LINKEDIN, temLinkedin } from "@/lib/redes"
 import { limparRespostasOrfas, telasVisiveis, type Opcao, type Tela } from "@/lib/funil/perguntas"
 import { atualizarLead, criarLead, idDaSessao } from "@/lib/funil/persistencia"
 import { RESPOSTAS_VAZIAS, type Respostas } from "@/lib/funil/tipos"
@@ -228,6 +229,21 @@ export default function FormularioAlmore() {
         <div className="funil-barra-preenchida" style={{ width: `${progresso}%` }} />
       </div>
 
+      {/*
+        O voltar mora no topo, logo abaixo da barra de progresso e acima de
+        tudo — inclusive do rótulo da seção. Embaixo do conteúdo ele ficava
+        depois do botão de avançar, e no celular sumia abaixo da dobra em
+        telas com muitas alternativas.
+      */}
+      {fase.nome === "perguntas" && indice > 0 ? (
+        <div className="funil-voltar-linha">
+          <button type="button" className="funil-voltar" onClick={voltar}>
+            {/* TEXTO NOVO — PENDENTE DE APROVAÇÃO. */}
+            Voltar
+          </button>
+        </div>
+      ) : null}
+
       <main className="funil-palco">
         {fase.nome === "perguntas" && telaAtual ? (
           <>
@@ -325,12 +341,6 @@ export default function FormularioAlmore() {
               </div>
             ) : null}
 
-            {indice > 0 ? (
-              <button type="button" className="funil-voltar" onClick={voltar}>
-                {/* TEXTO NOVO — PENDENTE DE APROVAÇÃO. */}
-                Voltar
-              </button>
-            ) : null}
           </>
         ) : null}
 
@@ -380,10 +390,25 @@ export default function FormularioAlmore() {
 
         {fase.nome === "recusa" ? (
           <div className="funil-tela funil-tela--final">
-            {/* TEXTO NOVO — PENDENTE DE APROVAÇÃO. O brief diz que o fluxo
+            {/* TEXTO NOVO — PENDENTE DE APROVAÇÃO. O documento diz que o fluxo
                 termina sem tela adicional, mas alguma coisa precisa aparecer
                 na tela do lead depois do clique. */}
             <p className="funil-texto-final">Tudo bem. Obrigado pelo seu tempo.</p>
+            <p className="funil-texto-final funil-texto-final--menor">
+              Se quiser nos conhecer melhor enquanto isso, estamos no{" "}
+              {temLinkedin ? (
+                <>
+                  <a href={LINKEDIN} target="_blank" rel="noopener noreferrer">
+                    LinkedIn
+                  </a>{" "}
+                  e no{" "}
+                </>
+              ) : null}
+              <a href={INSTAGRAM} target="_blank" rel="noopener noreferrer">
+                Instagram
+              </a>
+              .
+            </p>
           </div>
         ) : null}
       </main>

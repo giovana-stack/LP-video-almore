@@ -1,6 +1,7 @@
 import { useEffect, type CSSProperties } from 'react'
 
 import { capturarOrigem } from '@/lib/funil/origem'
+import { LINKEDIN } from '@/lib/redes'
 
 /**
  * Landing page da Almore Inteligência Contábil — página de um fôlego só.
@@ -34,8 +35,9 @@ import { capturarOrigem } from '@/lib/funil/origem'
 // UTM nenhuma, e nada quebraria para avisar.
 const CTA = '/formulario'
 
-/** FALTA: a URL do perfil da Almore no LinkedIn. */
-const LINKEDIN = 'LINKEDIN_URL'
+// A URL do LinkedIn saiu daqui para src/lib/redes.ts quando a tela de recusa
+// do formulário passou a apontar para as redes também: duas cópias do mesmo
+// endereço é uma para esquecer de atualizar. Continua faltando preencher.
 
 /**
  * Duas peças de marca, cada uma no lugar onde funciona.

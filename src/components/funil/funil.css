@@ -268,16 +268,36 @@
   }
 }
 
+/* O voltar fica no topo, entre a barra de progresso e a pergunta. A linha
+   repete a medida e o respiro do palco para o botão nascer alinhado com o
+   rótulo da seção logo abaixo, e não solto na borda. */
+.funil-voltar-linha {
+  width: 100%;
+  max-width: 900px;
+  margin-inline: auto;
+  padding: 1rem 1.15rem 0;
+}
 .funil-voltar {
-  margin-top: 1.6rem;
-  padding: 0.5rem 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  /* Recuo negativo à esquerda: o padding existe para o dedo alcançar, mas
+     visualmente o texto tem que bater com a margem do resto da tela. */
+  margin-left: -0.55rem;
+  padding: 0.5rem 0.55rem;
+  min-height: 44px;
   font-family: var(--corpo);
   font-size: 0.9rem;
   color: var(--cinza-medio);
   background: none;
   border: 0;
+  border-radius: 6px;
   cursor: pointer;
-  align-self: start;
+}
+.funil-voltar::before {
+  content: "←";
+  font-size: 1.05em;
+  line-height: 1;
 }
 @media (hover: hover) {
   .funil-voltar:hover { color: var(--tinta); text-decoration: underline; }
@@ -327,6 +347,17 @@
   margin: 0 0 2rem;
 }
 .funil-texto-final { font-size: 1.15rem; }
+/* A segunda linha da recusa: o convite para conhecer a Almore não pode ter o
+   mesmo peso do agradecimento que vem antes dele. */
+.funil-texto-final--menor {
+  font-size: 1rem;
+  color: var(--cinza-esc);
+  margin-bottom: 0;
+}
+.funil-texto-final--menor a {
+  color: var(--bordo);
+  text-underline-offset: 3px;
+}
 .funil-acoes {
   display: grid;
   gap: 0.7rem;
@@ -386,6 +417,9 @@
   .funil-topo { padding: 1.2rem 2rem; }
   .funil-marca img { height: 42px; }
   .funil-palco { padding: 3rem 2rem 4rem; }
+  /* Acompanha o recuo do palco: sem isto o "Voltar" nasce 22px à esquerda do
+     rótulo da seção, porque a linha ficaria com o recuo do celular. */
+  .funil-voltar-linha { padding-inline: 2rem; }
   .funil-botao { width: auto; min-width: 260px; }
   .funil-acoes { grid-auto-flow: column; justify-content: start; }
 }
