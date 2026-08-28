@@ -94,12 +94,25 @@
 .funil-palco {
   flex: 1;
   width: 100%;
-  max-width: 620px;
+  /* 760px e não 620: com 620 o título de uma linha só ("Como podemos te
+     chamar?") quebrava em duas com meia tela sobrando ao lado. */
+  max-width: 760px;
   margin-inline: auto;
   padding: 2rem 1.15rem 3rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+/* Sobretítulo: em que parte do formulário o lead está. */
+.funil-secao {
+  font-family: var(--titulo);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--bordo);
+  margin: 0 0 0.65rem;
 }
 
 .funil-tela {
@@ -110,10 +123,18 @@
 }
 .funil-tela--larga { max-width: none; }
 
-.funil-pergunta {
+/* O seletor precisa do `.funil-almore` na frente: o reset lá em cima é
+   `.funil-almore h2 { margin: 0 }`, que é classe + elemento e vencia
+   `.funil-pergunta` sozinha. O resultado era a margem indo a zero e o campo
+   colando embaixo da pergunta. */
+.funil-almore .funil-pergunta {
   font-size: clamp(1.35rem, 1.15rem + 1vw, 1.9rem);
   padding: 0;
-  margin-bottom: 1.6rem;
+  margin-bottom: 2.4rem;
+  /* Quando a pergunta é longa demais para uma linha, `balance` reparte o
+     texto em linhas de tamanho parecido, em vez de deixar uma palavra órfã
+     na segunda. */
+  text-wrap: balance;
 }
 
 /* -- opções (avançam sozinhas ao toque) ------------------------------- */
@@ -149,35 +170,30 @@
   background: rgba(124, 22, 56, 0.07);
 }
 
-/* -- campos de texto -------------------------------------------------- */
-.funil-campos {
-  display: grid;
-  gap: 1.1rem;
-  margin-bottom: 1.6rem;
-}
+/* -- campo de texto ---------------------------------------------------- */
+/* Uma pergunta por tela, então o título JÁ É o rótulo do campo: não existe
+   mais um <label> miúdo em cima do input repetindo a mesma coisa. */
 .funil-campo {
   display: grid;
-  gap: 0.4rem;
-}
-.funil-rotulo {
-  font-family: var(--titulo);
-  font-weight: 600;
-  font-size: 12px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--cinza-esc);
+  gap: 0.55rem;
+  margin-bottom: 2.2rem;
 }
 .funil-campo input {
-  min-height: 52px;
-  padding: 0.75rem 0.95rem;
+  min-height: 58px;
+  padding: 0.85rem 1.05rem;
   font-family: var(--corpo);
-  /* 16px trava o zoom automático do Safari no iOS ao focar o campo. */
-  font-size: 16px;
+  /* Maior que o corpo do texto: numa tela com uma pergunta só, o campo é o
+     assunto. 16px é o piso — abaixo disso o Safari do iOS dá zoom ao focar. */
+  font-size: clamp(16px, 15px + 0.4vw, 1.15rem);
   color: var(--tinta);
   background: var(--branco);
   border: 1px solid var(--linha);
   border-radius: 10px;
   width: 100%;
+}
+.funil-campo input::placeholder {
+  color: var(--cinza-medio);
+  opacity: 0.7;
 }
 .funil-campo input:focus-visible {
   outline: 2px solid var(--bordo);

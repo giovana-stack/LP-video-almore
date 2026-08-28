@@ -1,3 +1,4 @@
+import { paraE164 } from "./contato"
 import { lerOrigem } from "./origem"
 import type { Respostas } from "./tipos"
 
@@ -83,8 +84,42 @@ export { lerOrigem as lerUtms } from "./origem"
  */
 export type ResultadoGravacao = { ok: true; id: string } | { ok: false; erro: string }
 
+/**
+ * Campo de texto ainda não preenchido vai como null, e não como "".
+ *
+ * O estado do formulário começa com string vazia nos três campos de contato,
+ * porque um `<input>` controlado não aceita null. Se isso vazasse para o banco,
+ * quem parou antes do e-mail teria `email = ''`, e o `where email is null` do
+ * CRM não acharia essa pessoa — ela sumiria da lista de quem falta completar.
+ */
+function semVazios(dados: Partial<Respostas>): Partial<Respostas> {
+  const saida: Partial<Respostas> = {}
+  for (const [chave, valor] of Object.entries(dados)) {
+    // @ts-expect-error — o mapa chave→tipo não sobrevive à indexação genérica.
+    saida[chave] = typeof valor === "string" && valor.trim() === "" ? null : valor
+  }
+  return saida
+}
+
+/**
+ * A fronteira entre o que o lead vê e o que o banco guarda.
+ *
+ * Na tela o telefone é `(19) 99999-9999`, porque é assim que se lê um número
+ * no Brasil. No banco é `+5519999999999`, porque é o que a API do WhatsApp
+ * aceita. A tradução acontece aqui e em nenhum outro lugar — o componente não
+ * precisa saber que o banco tem um formato próprio.
+ */
+function paraBanco(dados: Partial<Respostas>): Partial<Respostas> {
+  const saida = semVazios(dados)
+  if (typeof saida.whatsapp === "string" && saida.whatsapp) {
+    saida.whatsapp = paraE164(saida.whatsapp)
+  }
+  return saida
+}
+
 /** A única chamada que escreve. Cria na primeira vez, atualiza nas seguintes. */
-async function salvar(id: string, dados: Partial<Respostas>): Promise<ResultadoGravacao> {
+async function salvar(id: string, bruto: Partial<Respostas>): Promise<ResultadoGravacao> {
+  const dados = paraBanco(bruto)
   try {
     const resposta = await fetch(RPC_SALVAR, {
       method: "POST",

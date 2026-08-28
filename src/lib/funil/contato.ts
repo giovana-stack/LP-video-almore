@@ -39,10 +39,17 @@ export function telefoneValido(valor: string): boolean {
   return true
 }
 
-/** `(19) 99999-9999` vira `+5519999999999`. */
+/**
+ * `(19) 99999-9999` vira `+5519999999999`.
+ *
+ * Aguenta receber um número que já está em E.164 sem estragá-lo. Sem essa
+ * guarda, `+5519999999999` viraria `+5555199999999`: o `55` do país entraria
+ * de novo na frente e o número ficaria impossível de discar.
+ */
 export function paraE164(valor: string): string {
-  const d = digitos(valor)
-  return `+55${d}`
+  let d = valor.replace(/\D/g, "")
+  if (d.length > 11 && d.startsWith("55")) d = d.slice(2)
+  return `+55${d.slice(0, 11)}`
 }
 
 /**

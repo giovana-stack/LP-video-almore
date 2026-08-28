@@ -1,8 +1,8 @@
 import { useCallback, useMemo, useRef, useState } from "react"
 
-import { emailValido, mascararTelefone, nomeValido, paraE164, telefoneValido } from "@/lib/funil/contato"
+import { paraE164 } from "@/lib/funil/contato"
 import { limparRespostasOrfas, telasVisiveis, type Opcao, type Tela } from "@/lib/funil/perguntas"
-import { atualizarLead, criarLead, idDaSessao, lerUtms } from "@/lib/funil/persistencia"
+import { atualizarLead, criarLead, idDaSessao } from "@/lib/funil/persistencia"
 import { RESPOSTAS_VAZIAS, type Respostas } from "@/lib/funil/tipos"
 import {
   CONFIRMACAO_PADRAO,
@@ -16,19 +16,28 @@ import Agendamento from "./Agendamento"
 /**
  * Formulário de captação da Almore.
  *
- * Multi-step, uma pergunta por tela. Perguntas de botão avançam sozinhas ao
- * toque — sem "continuar" embaixo, que num formulário assim só adiciona um
- * toque por tela. Perguntas de texto têm botão e aceitam Enter.
+ * Multi-step, uma pergunta por tela — as três de contato inclusive. Perguntas
+ * de botão avançam sozinhas ao toque, sem "continuar" embaixo, que num
+ * formulário assim só adiciona um toque por tela. Perguntas de texto têm botão
+ * e aceitam Enter.
  *
- * A gravação é parcial e começa cedo: assim que o bloco de contato passa, a
- * linha já existe no banco. Quem desistir na pergunta 7 deixou nome, WhatsApp
- * e e-mail para trás. Cada tela seguinte faz update na mesma linha.
+ * A gravação acontece a CADA avanço, e não no fim de um bloco. É o motivo de o
+ * formulário existir aqui em vez de no Typeform: quem largar depois de dar o
+ * nome e o WhatsApp já deixou um canal de contato para trás.
  *
- * TEXTOS: a copy das perguntas e das telas de valor é final e veio do brief —
- * ela é referenciada pelas mensagens de WhatsApp da automação, então reescrever
- * uma frase aqui desalinha os dois sistemas em silêncio. O que é texto novo
- * meu está marcado com "TEXTO NOVO — PENDENTE DE APROVAÇÃO".
+ * TEXTOS: a copy das perguntas de negócio e das telas de valor é final e veio
+ * do brief — ela é referenciada pelas mensagens de WhatsApp da automação, então
+ * reescrever uma frase aqui desalinha os dois sistemas em silêncio. O que é
+ * texto novo meu está marcado com "TEXTO NOVO — PENDENTE DE APROVAÇÃO".
  */
+
+type Fase =
+  | { nome: "perguntas" }
+  | { nome: "valor" }
+  | { nome: "padrao" }
+  | { nome: "decisores" }
+  | { nome: "agendamento" }
+  | { nome: "recusa" }
 
 /** O que mudou entre duas respostas. Só isso viaja para o banco. */
 function diferenca(antes: Respostas, depois: Respostas): Partial<Respostas> {
@@ -43,22 +52,12 @@ function diferenca(antes: Respostas, depois: Respostas): Partial<Respostas> {
   return saida
 }
 
-type Fase =
-  | { nome: "perguntas" }
-  | { nome: "valor" }
-  | { nome: "padrao" }
-  | { nome: "decisores" }
-  | { nome: "agendamento" }
-  | { nome: "recusa" }
-
 export default function FormularioAlmore() {
   const [respostas, setRespostas] = useState<Respostas>(RESPOSTAS_VAZIAS)
   const [indice, setIndice] = useState(0)
   const [fase, setFase] = useState<Fase>({ nome: "perguntas" })
   const [enviando, setEnviando] = useState(false)
-
-  // Erros do bloco de contato, por campo.
-  const [erros, setErros] = useState<{ nome?: string; whatsapp?: string; email?: string }>({})
+  const [erro, setErro] = useState<string | null>(null)
 
   // O id da linha vive num ref, e não no state: ele muda uma vez só e nenhuma
   // renderização depende dele. Em state, causaria um render à toa no meio do
@@ -68,17 +67,30 @@ export default function FormularioAlmore() {
   const visiveis = useMemo(() => telasVisiveis(respostas), [respostas])
   const telaAtual: Tela | undefined = visiveis[indice]
 
-  /** Grava em segundo plano. Nunca bloqueia o avanço: banco fora do ar não
-   *  pode travar a conversa com o lead. */
-  const gravar = useCallback((campos: Partial<Respostas>) => {
-    const id = idLead.current ?? idDaSessao()
-    if (!id) return
-    idLead.current = id
-    void atualizarLead(id, campos)
-  }, [])
+  /**
+   * Grava em segundo plano. Nunca bloqueia o avanço: banco fora do ar não pode
+   * travar a conversa com o lead. Cria a linha na primeira vez que é chamada.
+   */
+  const gravar = useCallback(
+    (campos: Partial<Respostas>, tudo: Respostas) => {
+      if (Object.keys(campos).length === 0) return
+      const id = idLead.current ?? idDaSessao()
+      if (id) {
+        idLead.current = id
+        void atualizarLead(id, campos)
+        return
+      }
+      // Primeira gravação: nasce a linha, já com a origem da campanha.
+      void criarLead(tudo).then((r) => {
+        if (r.ok) idLead.current = r.id
+      })
+    },
+    [],
+  )
 
   const irPara = (novoIndice: number) => {
     setIndice(novoIndice)
+    setErro(null)
     // Cada tela nova começa do topo: no celular, avançar sem isso deixa o lead
     // olhando para o meio da pergunta seguinte.
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "auto" })
@@ -88,35 +100,34 @@ export default function FormularioAlmore() {
     if (indice > 0) irPara(indice - 1)
   }
 
-  // ------------------------------------------------------------ bloco 1
-  const enviarContato = async () => {
-    const novosErros: typeof erros = {}
-    // TEXTO NOVO — PENDENTE DE APROVAÇÃO (três mensagens de erro abaixo).
-    if (!nomeValido(respostas.nome)) novosErros.nome = "Escreve seu nome aqui."
-    if (!telefoneValido(respostas.whatsapp)) novosErros.whatsapp = "Esse número não parece completo."
-    if (!emailValido(respostas.email)) novosErros.email = "Falta alguma coisa nesse e-mail."
-    setErros(novosErros)
-    if (Object.keys(novosErros).length > 0) return
-
-    setEnviando(true)
-    const comE164: Respostas = {
-      ...respostas,
-      nome: respostas.nome.trim(),
-      email: respostas.email.trim(),
-      whatsapp: paraE164(respostas.whatsapp),
-      ...lerUtms(),
+  // ------------------------------------------------------- perguntas de texto
+  const responderTexto = (tela: Extract<Tela, { tipo: "texto" }>) => {
+    const bruto = respostas[tela.campo]
+    if (!tela.valida(bruto)) {
+      setErro(tela.erro)
+      return
     }
-    setRespostas(comE164)
 
-    // A primeira gravação. Daqui para a frente é update.
-    const r = await criarLead(comE164)
-    if (r.ok) idLead.current = r.id
-    setEnviando(false)
+    // O estado guarda o que o lead VÊ — `(19) 99999-9999`. A conversão para
+    // E.164 acontece só na fronteira do banco, em persistencia.ts. Convertendo
+    // aqui, voltar uma tela mostrava `+5519999999999` no campo, e bastava
+    // editar para a máscara ler o `55` como DDD e destruir o número.
+    const limpo = bruto.trim()
+    const novas: Respostas = { ...respostas, [tela.campo]: limpo }
+
+    setRespostas(novas)
+
+    // O campo da tela entra SEMPRE, e não só quando o diff acusa mudança.
+    // Num campo de texto o valor já está no estado desde a digitação, então
+    // `diferenca` costuma sair vazia aqui — o `.trim()` não muda nada. Confiar
+    // no diff fazia o e-mail nunca ser gravado: o nome e o WhatsApp só
+    // escapavam por acaso, porque o telefone vira E.164 e isso mudava o valor.
+    gravar({ ...diferenca(respostas, novas), [tela.campo]: limpo }, novas)
     irPara(indice + 1)
   }
 
   // ------------------------------------------------------- perguntas de botão
-  const responder = (tela: Extract<Tela, { tipo: "escolha" }>, opcao: Opcao) => {
+  const responderEscolha = (tela: Extract<Tela, { tipo: "escolha" }>, opcao: Opcao) => {
     const valor = opcao.valor !== undefined ? opcao.valor : opcao.rotulo
 
     let novas: Respostas = { ...respostas, [tela.campo]: valor } as Respostas
@@ -128,10 +139,8 @@ export default function FormularioAlmore() {
 
     // Manda o diff inteiro, e não só o campo respondido. A diferença aparece
     // quando o lead volta e troca o regime: `limparRespostasOrfas` zera o
-    // `mei_quer_sair`, e esse null precisa chegar ao banco. Gravando só o
-    // campo da tela, o valor velho ficaria lá e a automação leria um MEI que
-    // quer sair onde existe uma empresa do Simples.
-    gravar(diferenca(respostas, novas))
+    // `mei_quer_sair`, e esse null precisa chegar ao banco.
+    gravar(diferenca(respostas, novas), novas)
 
     // Avança sozinha, como o brief pede. O índice é calculado sobre a lista
     // nova, porque responder o CNPJ muda quais telas existem daqui pra frente.
@@ -155,7 +164,8 @@ export default function FormularioAlmore() {
       status: tela ? "aguardando_decisao_valor" : "novo",
     }
 
-    setRespostas((r) => ({ ...r, ...campos }))
+    const novas = { ...respostas, ...campos } as Respostas
+    setRespostas(novas)
     const id = idLead.current ?? idDaSessao()
     if (id) await atualizarLead(id, campos)
 
@@ -163,35 +173,42 @@ export default function FormularioAlmore() {
     setFase(tela ? { nome: "valor" } : { nome: "padrao" })
   }
 
-  const aceitarValor = async () => {
+  const aceitarValor = () => {
     const campos: Partial<Respostas> = { status: "valor_aceito_sem_agendamento" }
     setRespostas((r) => ({ ...r, ...campos }))
-    gravar(campos)
+    gravar(campos, { ...respostas, ...campos } as Respostas)
     setFase({ nome: "decisores" })
   }
 
-  const recusarValor = async () => {
+  const recusarValor = () => {
     const campos: Partial<Respostas> = { status: "nao_atende_preco" }
     setRespostas((r) => ({ ...r, ...campos }))
-    gravar(campos)
+    gravar(campos, { ...respostas, ...campos } as Respostas)
     setFase({ nome: "recusa" })
   }
 
   const responderDecisores = (multiplos: boolean) => {
-    setRespostas((r) => ({ ...r, multiplos_decisores: multiplos }))
-    gravar({ multiplos_decisores: multiplos })
+    const campos: Partial<Respostas> = { multiplos_decisores: multiplos }
+    setRespostas((r) => ({ ...r, ...campos }))
+    gravar(campos, { ...respostas, ...campos } as Respostas)
     setFase({ nome: "agendamento" })
   }
 
   // ================================================================= render
   const totalDePassos = visiveis.length
   const progresso = fase.nome === "perguntas" ? (indice / totalDePassos) * 100 : 100
+  const secao = telaAtual && telaAtual.tipo !== "fechamento" ? telaAtual.secao : null
 
   return (
     <div className="funil-almore">
       <header className="funil-topo">
         <a className="funil-marca" href="/">
-          <img src="/almore-isotipo.png" alt="Almore Inteligência Contábil" width={307} height={240} />
+          <img
+            src="/almore-isotipo.png"
+            alt="Almore Inteligência Contábil"
+            width={307}
+            height={240}
+          />
         </a>
         {fase.nome === "perguntas" ? (
           <span className="funil-passo">
@@ -214,17 +231,46 @@ export default function FormularioAlmore() {
       <main className="funil-palco">
         {fase.nome === "perguntas" && telaAtual ? (
           <>
-            {telaAtual.tipo === "contato" ? (
-              <BlocoContato
-                respostas={respostas}
-                erros={erros}
-                enviando={enviando}
-                onChange={(campo, valor) => {
-                  setRespostas((r) => ({ ...r, [campo]: valor }))
-                  setErros((e) => ({ ...e, [campo]: undefined }))
-                }}
-                onAvancar={enviarContato}
-              />
+            {secao ? <p className="funil-secao">{secao}</p> : null}
+
+            {telaAtual.tipo === "texto" ? (
+              <div className="funil-tela">
+                <h2 className="funil-pergunta">{telaAtual.pergunta}</h2>
+                <div className="funil-campo">
+                  <input
+                    key={telaAtual.id}
+                    type={telaAtual.tipoDoInput}
+                    inputMode={telaAtual.campo === "whatsapp" ? "numeric" : undefined}
+                    value={respostas[telaAtual.campo]}
+                    placeholder={telaAtual.placeholder}
+                    autoComplete={telaAtual.autoComplete}
+                    autoFocus
+                    aria-invalid={!!erro}
+                    aria-label={telaAtual.pergunta}
+                    onChange={(e) => {
+                      const v = telaAtual.mascara ? telaAtual.mascara(e.target.value) : e.target.value
+                      setRespostas((r) => ({ ...r, [telaAtual.campo]: v }))
+                      setErro(null)
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault()
+                        responderTexto(telaAtual)
+                      }
+                    }}
+                  />
+                  {erro ? <span className="funil-erro">{erro}</span> : null}
+                </div>
+                <button
+                  type="button"
+                  className="funil-botao"
+                  onClick={() => responderTexto(telaAtual)}
+                  disabled={enviando}
+                >
+                  {/* TEXTO NOVO — PENDENTE DE APROVAÇÃO. */}
+                  Continuar
+                </button>
+              </div>
             ) : null}
 
             {telaAtual.tipo === "escolha" ? (
@@ -239,7 +285,7 @@ export default function FormularioAlmore() {
                         key={o.rotulo}
                         type="button"
                         className={`funil-opcao${escolhida ? " funil-opcao--ativa" : ""}`}
-                        onClick={() => responder(telaAtual, o)}
+                        onClick={() => responderEscolha(telaAtual, o)}
                         aria-pressed={escolhida}
                       >
                         {o.rotulo}
@@ -287,7 +333,9 @@ export default function FormularioAlmore() {
           </>
         ) : null}
 
-        {fase.nome === "valor" ? <TelaValor respostas={respostas} onAceitar={aceitarValor} onRecusar={recusarValor} /> : null}
+        {fase.nome === "valor" ? (
+          <TelaValor respostas={respostas} onAceitar={aceitarValor} onRecusar={recusarValor} />
+        ) : null}
 
         {fase.nome === "padrao" ? (
           <div className="funil-tela funil-tela--final">
@@ -301,10 +349,18 @@ export default function FormularioAlmore() {
             <div className="funil-opcoes">
               {/* TEXTO NOVO — PENDENTE DE APROVAÇÃO (os dois rótulos). O brief
                   diz "duas opções de resposta" sem definir o texto delas. */}
-              <button type="button" className="funil-opcao" onClick={() => responderDecisores(false)}>
+              <button
+                type="button"
+                className="funil-opcao"
+                onClick={() => responderDecisores(false)}
+              >
                 Decido sozinho
               </button>
-              <button type="button" className="funil-opcao" onClick={() => responderDecisores(true)}>
+              <button
+                type="button"
+                className="funil-opcao"
+                onClick={() => responderDecisores(true)}
+              >
                 Tem mais alguém que decide junto
               </button>
             </div>
@@ -313,7 +369,9 @@ export default function FormularioAlmore() {
 
         {fase.nome === "agendamento" ? (
           <div className="funil-tela funil-tela--larga">
-            <Agendamento nota={respostas.multiplos_decisores ? NOTA_MULTIPLOS_DECISORES : undefined} />
+            <Agendamento
+              nota={respostas.multiplos_decisores ? NOTA_MULTIPLOS_DECISORES : undefined}
+            />
           </div>
         ) : null}
 
@@ -331,85 +389,6 @@ export default function FormularioAlmore() {
 }
 
 // ---------------------------------------------------------------------------
-
-function BlocoContato({
-  respostas,
-  erros,
-  enviando,
-  onChange,
-  onAvancar,
-}: {
-  respostas: Respostas
-  erros: { nome?: string; whatsapp?: string; email?: string }
-  enviando: boolean
-  onChange: (campo: "nome" | "whatsapp" | "email", valor: string) => void
-  onAvancar: () => void
-}) {
-  // Enter avança, como o brief pede para as perguntas de texto.
-  const noEnter = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      e.preventDefault()
-      onAvancar()
-    }
-  }
-
-  return (
-    <div className="funil-tela">
-      {/* TEXTO NOVO — PENDENTE DE APROVAÇÃO (o título desta tela). */}
-      <h2 className="funil-pergunta">Pra começar, como falamos com você?</h2>
-
-      <div className="funil-campos">
-        <label className="funil-campo">
-          <span className="funil-rotulo">Nome</span>
-          <input
-            type="text"
-            value={respostas.nome}
-            placeholder="Maria"
-            autoComplete="name"
-            onChange={(e) => onChange("nome", e.target.value)}
-            onKeyDown={noEnter}
-            aria-invalid={!!erros.nome}
-          />
-          {erros.nome ? <span className="funil-erro">{erros.nome}</span> : null}
-        </label>
-
-        <label className="funil-campo">
-          <span className="funil-rotulo">WhatsApp</span>
-          <input
-            type="tel"
-            inputMode="numeric"
-            value={respostas.whatsapp}
-            placeholder="(19) 99999-9999"
-            autoComplete="tel-national"
-            onChange={(e) => onChange("whatsapp", mascararTelefone(e.target.value))}
-            onKeyDown={noEnter}
-            aria-invalid={!!erros.whatsapp}
-          />
-          {erros.whatsapp ? <span className="funil-erro">{erros.whatsapp}</span> : null}
-        </label>
-
-        <label className="funil-campo">
-          <span className="funil-rotulo">E-mail</span>
-          <input
-            type="email"
-            value={respostas.email}
-            placeholder="maria@empresa.com.br"
-            autoComplete="email"
-            onChange={(e) => onChange("email", e.target.value)}
-            onKeyDown={noEnter}
-            aria-invalid={!!erros.email}
-          />
-          {erros.email ? <span className="funil-erro">{erros.email}</span> : null}
-        </label>
-      </div>
-
-      <button type="button" className="funil-botao" onClick={onAvancar} disabled={enviando}>
-        {/* TEXTO NOVO — PENDENTE DE APROVAÇÃO. */}
-        {enviando ? "Só um instante…" : "Continuar"}
-      </button>
-    </div>
-  )
-}
 
 function TelaValor({
   respostas,

@@ -1,7 +1,13 @@
+import { emailValido, mascararTelefone, nomeValido, telefoneValido } from "./contato"
 import type { Respostas } from "./tipos"
 
 /**
  * As telas do formulário, numa lista só.
+ *
+ * Uma pergunta por tela, inclusive as três de contato — que antes dividiam uma
+ * tela e agora são três. A separação não é estética: a gravação acontece a cada
+ * avanço, então quem larga depois de dar o nome e o WhatsApp já deixou um canal
+ * de contato para trás. Numa tela única, largar no meio não deixava nada.
  *
  * O fluxo não é uma árvore de `if` espalhada pelo componente: cada tela diz
  * sozinha quando aparece, através de `exibeSe`. A sequência visível é
@@ -14,6 +20,9 @@ import type { Respostas } from "./tipos"
  * existem. Quem vai pela trilha B não vê uma barra que trava em 40%.
  */
 
+/** As duas partes do formulário, mostradas como sobretítulo em cada tela. */
+export type Secao = "Sobre você" | "Sobre a sua empresa"
+
 export type Opcao = {
   /** O que aparece na tela. */
   rotulo: string
@@ -21,37 +30,88 @@ export type Opcao = {
   valor?: string | boolean
 }
 
+type Base = {
+  id: string
+  secao: Secao
+  /** Numeração do brief, para achar a pergunta aqui quando ele mudar. */
+  numeroNoBrief: string
+  pergunta: string
+  /** Só aparece quando isto for verdade. Sem isso, aparece sempre. */
+  exibeSe?: (r: Respostas) => boolean
+}
+
 export type Tela =
-  | {
-      tipo: "contato"
-      id: string
-    }
-  | {
+  | (Base & {
+      tipo: "texto"
+      campo: "nome" | "whatsapp" | "email"
+      placeholder: string
+      tipoDoInput: "text" | "tel" | "email"
+      autoComplete: string
+      /** Formata enquanto digita. Só o telefone usa. */
+      mascara?: (v: string) => string
+      valida: (v: string) => boolean
+      /** TEXTO NOVO — PENDENTE DE APROVAÇÃO. */
+      erro: string
+    })
+  | (Base & {
       tipo: "escolha"
-      id: string
-      /** Numeração do brief, para achar a pergunta aqui quando ele mudar. */
-      numeroNoBrief: string
-      pergunta: string
       opcoes: Opcao[]
-      /** Coluna(s) que esta tela preenche. */
       campo: keyof Respostas
-      /** Só aparece quando isto for verdade. Sem isso, aparece sempre. */
-      exibeSe?: (r: Respostas) => boolean
-    }
-  | {
-      tipo: "fechamento"
-      id: string
-    }
+    })
+  | { tipo: "fechamento"; id: string }
 
 const ehTrilhaA = (r: Respostas) => r.cnpj_aberto === true
 const ehTrilhaB = (r: Respostas) => r.cnpj_aberto === false
 
 export const TELAS: Tela[] = [
-  { tipo: "contato", id: "contato" },
+  // ============================================================ sobre você
+  // TEXTO NOVO — PENDENTE DE APROVAÇÃO (as três perguntas e os três erros).
+  {
+    tipo: "texto",
+    id: "nome",
+    secao: "Sobre você",
+    numeroNoBrief: "1",
+    pergunta: "Como podemos te chamar?",
+    campo: "nome",
+    placeholder: "Maria",
+    tipoDoInput: "text",
+    autoComplete: "name",
+    valida: nomeValido,
+    erro: "Escreve seu nome aqui.",
+  },
+  {
+    tipo: "texto",
+    id: "whatsapp",
+    secao: "Sobre você",
+    numeroNoBrief: "2",
+    pergunta: "Qual o seu WhatsApp?",
+    campo: "whatsapp",
+    placeholder: "(19) 99999-9999",
+    tipoDoInput: "tel",
+    autoComplete: "tel-national",
+    mascara: mascararTelefone,
+    valida: telefoneValido,
+    erro: "Esse número não parece completo.",
+  },
+  {
+    tipo: "texto",
+    id: "email",
+    secao: "Sobre você",
+    numeroNoBrief: "3",
+    pergunta: "E o seu e-mail?",
+    campo: "email",
+    placeholder: "maria@empresa.com.br",
+    tipoDoInput: "email",
+    autoComplete: "email",
+    valida: emailValido,
+    erro: "Falta alguma coisa nesse e-mail.",
+  },
 
+  // ==================================================== sobre a sua empresa
   {
     tipo: "escolha",
     id: "cnpj",
+    secao: "Sobre a sua empresa",
     numeroNoBrief: "4",
     pergunta: "Você já tem CNPJ aberto?",
     campo: "cnpj_aberto",
@@ -65,6 +125,7 @@ export const TELAS: Tela[] = [
   {
     tipo: "escolha",
     id: "regime",
+    secao: "Sobre a sua empresa",
     numeroNoBrief: "5",
     pergunta: "Qual é o regime tributário da sua empresa hoje?",
     campo: "regime_tributario",
@@ -80,6 +141,7 @@ export const TELAS: Tela[] = [
   {
     tipo: "escolha",
     id: "mei",
+    secao: "Sobre a sua empresa",
     numeroNoBrief: "5.1",
     pergunta: "Você quer sair do MEI ou continuar no MEI com acompanhamento contábil?",
     campo: "mei_quer_sair",
@@ -94,6 +156,7 @@ export const TELAS: Tela[] = [
   {
     tipo: "escolha",
     id: "faturamento",
+    secao: "Sobre a sua empresa",
     numeroNoBrief: "6",
     pergunta: "Qual é o faturamento médio mensal da empresa?",
     campo: "faturamento_faixa",
@@ -110,6 +173,7 @@ export const TELAS: Tela[] = [
   {
     tipo: "escolha",
     id: "contador",
+    secao: "Sobre a sua empresa",
     numeroNoBrief: "7",
     pergunta: "Você já tem contador hoje?",
     campo: "tem_contador",
@@ -124,6 +188,7 @@ export const TELAS: Tela[] = [
   {
     tipo: "escolha",
     id: "funcionarios",
+    secao: "Sobre a sua empresa",
     numeroNoBrief: "8",
     pergunta: "Quantos funcionários a empresa tem hoje?",
     campo: "funcionarios_faixa",
@@ -139,6 +204,7 @@ export const TELAS: Tela[] = [
   {
     tipo: "escolha",
     id: "dor",
+    secao: "Sobre a sua empresa",
     numeroNoBrief: "9",
     pergunta: "Qual é a sua maior dificuldade hoje?",
     campo: "dor_principal",
@@ -159,6 +225,7 @@ export const TELAS: Tela[] = [
   {
     tipo: "escolha",
     id: "atividade",
+    secao: "Sobre a sua empresa",
     numeroNoBrief: "4B",
     pergunta: "Que tipo de atividade você pretende exercer?",
     campo: "tipo_atividade",
@@ -175,6 +242,7 @@ export const TELAS: Tela[] = [
   {
     tipo: "escolha",
     id: "urgencia",
+    secao: "Sobre a sua empresa",
     numeroNoBrief: "10",
     pergunta: "Quando você precisa resolver isso?",
     campo: "urgencia",
@@ -188,6 +256,7 @@ export const TELAS: Tela[] = [
   {
     tipo: "escolha",
     id: "horario",
+    secao: "Sobre a sua empresa",
     numeroNoBrief: "11",
     pergunta: "Qual o melhor horário pra te chamar?",
     campo: "melhor_horario_contato",
@@ -203,7 +272,7 @@ export const TELAS: Tela[] = [
 
 /** A sequência que *este* lead vê, dadas as respostas que ele já deu. */
 export function telasVisiveis(r: Respostas): Tela[] {
-  return TELAS.filter((t) => (t.tipo === "escolha" && t.exibeSe ? t.exibeSe(r) : true))
+  return TELAS.filter((t) => (t.tipo !== "fechamento" && t.exibeSe ? t.exibeSe(r) : true))
 }
 
 /**
