@@ -24,8 +24,15 @@ export type Perfil =
 
 export type TelaDeValor = {
   perfil: Perfil
-  /** Vai para a coluna `valor_informado`, gravada no envio. */
-  valorInformado: string
+  /**
+   * Vai para a coluna `valor_informado`, gravada no envio.
+   *
+   * É um número, e não a frase que aparece na tela, porque a seção 2.2 define
+   * a coluna como `numeric` — assim o comercial consegue somar, comparar e
+   * filtrar por faixa. A frase exata sai da combinação regime + faturamento,
+   * então guardá-la seria guardar a mesma informação duas vezes.
+   */
+  valorInformado: number
   /** O texto da tela. Recebe as respostas porque um dos perfis é condicional. */
   texto: (r: Respostas) => string
 }
@@ -38,21 +45,21 @@ type Regra = TelaDeValor & { bate: (r: Respostas) => boolean }
 const REGRAS: Regra[] = [
   {
     perfil: "mei_sair",
-    valorInformado: "A partir de R$600/mês",
+    valorInformado: 600,
     bate: (r) => r.regime_tributario === "MEI" && r.mei_quer_sair === true,
     texto: () =>
       "Entendemos que você quer sair do MEI! Nossa contabilidade para empresas fora do MEI parte de R$600,00 mensais, incluindo atendimento consultivo, entrega das obrigações acessórias e suporte humanizado. Se isso faz sentido pro seu momento, clique aqui para agendar um contato com a especialista e ver como a nossa contabilidade vai fazer a diferença pra você.",
   },
   {
     perfil: "mei_continuar",
-    valorInformado: "R$150/mês",
+    valorInformado: 150,
     bate: (r) => r.regime_tributario === "MEI" && r.mei_quer_sair === false,
     texto: () =>
       "Entendemos que você quer continuar no MEI com acompanhamento! Esse serviço parte de R$150,00 mensais, incluindo atendimento consultivo, entrega das obrigações acessórias e suporte humanizado. Se isso faz sentido pro seu momento, clique aqui para agendar um contato com a especialista e ver como a nossa contabilidade vai fazer a diferença pra você.",
   },
   {
     perfil: "simples_baixo",
-    valorInformado: "A partir de R$600/mês",
+    valorInformado: 600,
     bate: (r) =>
       r.regime_tributario === "Simples Nacional" &&
       r.faturamento_faixa !== null &&
@@ -62,7 +69,7 @@ const REGRAS: Regra[] = [
   },
   {
     perfil: "presumido_real_baixo",
-    valorInformado: "A partir de R$1.100/mês",
+    valorInformado: 1100,
     bate: (r) =>
       (r.regime_tributario === "Lucro Presumido" || r.regime_tributario === "Lucro Real") &&
       r.faturamento_faixa !== null &&
@@ -74,7 +81,7 @@ const REGRAS: Regra[] = [
   },
   {
     perfil: "abertura",
-    valorInformado: "R$1.200,00 fixo",
+    valorInformado: 1200,
     bate: (r) => r.trilha === "B",
     texto: () =>
       "Nosso serviço de abertura de CNPJ custa R$1.200,00 (valor único). Esse valor não inclui licenciamento do Corpo de Bombeiros, registros em conselhos de classe ou alvarás — esses custos são cobrados separadamente pelos órgãos responsáveis, conforme a atividade da sua empresa. Se isso faz sentido pro seu momento, clique aqui para agendar um contato com a especialista, que vai te ajudar a abrir sua empresa da forma ideal pro seu negócio.",

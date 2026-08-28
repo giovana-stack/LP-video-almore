@@ -66,7 +66,8 @@ export type Respostas = {
   // Fechamento
   consentimento_whatsapp: boolean
   formulario_completo: boolean
-  valor_informado: string | null
+  /** Número, não a frase da tela — a coluna é `numeric` na seção 2.2. */
+  valor_informado: number | null
   multiplos_decisores: boolean | null
   status: Status
 

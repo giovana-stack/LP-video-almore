@@ -13,11 +13,15 @@ import type { Respostas } from "./tipos"
  * qualquer visitante consegue lê-la no DevTools. A chave `sb_secret_...` NUNCA
  * pode aparecer neste arquivo nem em nenhum outro do front: ela ignora RLS.
  *
- * NÃO se escreve na tabela daqui. A tabela `funil_leads` está fechada para o
+ * NÃO se escreve na tabela daqui. A tabela `leads` está fechada para o
  * público — sem SELECT, sem INSERT, sem UPDATE. Tudo passa pela função
  * `funil_salvar(id, dados)`, que roda com os privilégios do dono e exige o
  * UUID da linha. Sem leitura, ninguém descobre id alheio; sem id, a função não
- * faz nada. O porquê dessa volta está em sql/funil_leads.sql.
+ * faz nada. O porquê dessa volta está em sql/leads.sql.
+ *
+ * A tabela é a mesma da automação do CRM — uma linha por lead, e não uma cópia
+ * de cada lado. O que a função não lista, o navegador não escreve: ligações,
+ * score e horário agendado são território da automação.
  */
 const SUPABASE_URL = "https://ffdbojtidzmoklcpvnsz.supabase.co"
 const SUPABASE_PUBLISHABLE = "sb_publishable__LklhoT23NAzaPHjb5mZWQ_aE3DHG7F"
