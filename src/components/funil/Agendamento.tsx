@@ -1,59 +1,53 @@
 /**
  * Widget de agendamento.
  *
- * PENDENTE: Cal.com ou Calendly — ainda não decidido. O brief é explícito
- * sobre o critério: a agenda tem que ser a MESMA que a automação do outro
- * desenvolvedor consulta via API, senão os dois sistemas marcam horários
- * conflitantes na mesma pessoa.
+ * A agenda é a da Devant, no domínio próprio — não é Cal.com nem Calendly
+ * hospedado por terceiros. O brief exigia que fosse a MESMA agenda que a
+ * automação consulta via API, senão os dois sistemas marcariam horários
+ * conflitantes na mesma pessoa; sendo o sistema da casa, isso está resolvido.
  *
- * Está isolado neste arquivo justamente para que a decisão custe um arquivo só.
- * Quando ela sair, é trocar o corpo de `Agendamento` por um dos dois blocos
- * comentados abaixo e apagar o placeholder.
+ * Entra por iframe. Conferido antes de escrever: a página não manda
+ * `X-Frame-Options` nem `Content-Security-Policy`, então aceita ser embutida.
+ * Se algum dia passar a mandar, o iframe vira um retângulo em branco — e é por
+ * isso que existe o link abaixo dele, que continua funcionando de qualquer
+ * jeito. Um lead que chegou até aqui não pode ficar sem conseguir marcar.
  */
 
+const URL_AGENDA = "https://agendar.devantsolucoes.com.br/p/almore-inteligencia-contabil"
+
 type Props = {
-  /** Quando há mais de um decisor, a nota do brief aparece acima da agenda. */
+  /** Quando há mais de um decisor, a nota do documento aparece acima da agenda. */
   // `| undefined` explícito porque o projeto usa exactOptionalPropertyTypes.
   nota?: string | undefined
 }
-
-/** Troque quando a conta existir. */
-const CAL_LINK = "" // ex.: "almore/diagnostico"
-const CALENDLY_URL = "" // ex.: "https://calendly.com/almore/diagnostico"
 
 export default function Agendamento({ nota }: Props) {
   return (
     <div className="agenda">
       {nota ? <p className="agenda-nota">{nota}</p> : null}
 
-      {/*
-        Cal.com — quando for esse, o embed entra assim:
-
-          <Cal calLink={CAL_LINK} style={{ width: "100%", height: "100%" }} />
-
-        e `@calcom/embed-react` vira dependência.
-
-        Calendly — quando for esse, não precisa de dependência nenhuma:
-
-          <div
-            className="calendly-inline-widget"
-            data-url={CALENDLY_URL}
-            style={{ minWidth: 320, height: 700 }}
-          />
-
-        mais o script https://assets.calendly.com/assets/external/widget.js
-        no head da rota.
-      */}
-      <div className="agenda-vazia" role="status">
-        {/* TEXTO NOVO — PENDENTE DE APROVAÇÃO. Só aparece enquanto a conta de
-            agendamento não estiver definida; some quando o embed entrar. */}
-        <p>Agenda ainda não conectada.</p>
-        <p className="agenda-vazia-sub">
-          Escolhemos Cal.com ou Calendly e este espaço passa a mostrar os horários.
-        </p>
+      <div className="agenda-quadro">
+        <iframe
+          src={URL_AGENDA}
+          title="Escolha um horário para a conversa com a especialista"
+          // A agenda pede data, horário e dados de contato: o formulário
+          // próprio dela precisa poder enviar, e a confirmação costuma
+          // depender de um redirecionamento dentro do próprio quadro.
+          allow="camera; microphone; fullscreen"
+          referrerPolicy="strict-origin-when-cross-origin"
+        />
       </div>
+
+      {/* Rede de segurança: se o embed falhar, ainda dá para marcar. */}
+      <p className="agenda-alternativa">
+        {/* TEXTO NOVO — PENDENTE DE APROVAÇÃO. */}
+        Não está carregando?{" "}
+        <a href={URL_AGENDA} target="_blank" rel="noopener noreferrer">
+          Abrir a agenda numa nova aba
+        </a>
+      </p>
     </div>
   )
 }
 
-export { CAL_LINK, CALENDLY_URL }
+export { URL_AGENDA }

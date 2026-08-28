@@ -341,16 +341,45 @@
   border-radius: 0 8px 8px 0;
   font-size: 0.95rem;
 }
-.agenda-vazia {
-  padding: 2.5rem 1.5rem;
-  text-align: center;
-  background: var(--branco);
-  border: 1px dashed var(--linha);
+/*
+ * O quadro da agenda.
+ *
+ * A altura é fixa porque o conteúdo vem de outro domínio: o navegador não
+ * deixa medir a altura de um iframe cross-origin, então não há como ele se
+ * ajustar sozinho. 760px cobrem o calendário aberto com a lista de horários
+ * ao lado; no celular a coluna vira uma só e o passo pede mais, daí a altura
+ * maior lá embaixo. O `-webkit-overflow-scrolling` é para o iOS não travar a
+ * rolagem dentro do quadro.
+ */
+.agenda-quadro {
+  width: 100%;
+  height: 860px;
+  border: 1px solid var(--linha);
   border-radius: 10px;
-  color: var(--cinza-medio);
+  overflow: hidden;
+  background: var(--branco);
+  -webkit-overflow-scrolling: touch;
 }
-.agenda-vazia p { margin: 0; }
-.agenda-vazia-sub { margin-top: 0.5rem; font-size: 0.9rem; }
+.agenda-quadro iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+@media (min-width: 720px) {
+  .agenda-quadro { height: 760px; }
+}
+
+.agenda-alternativa {
+  margin: 0.9rem 0 0;
+  font-size: 0.9rem;
+  color: var(--cinza-medio);
+  text-align: center;
+}
+.agenda-alternativa a {
+  color: var(--bordo);
+  text-underline-offset: 3px;
+}
 
 /* -- desktop ---------------------------------------------------------- */
 @media (min-width: 720px) {
