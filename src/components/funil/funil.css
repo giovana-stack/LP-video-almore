@@ -91,17 +91,37 @@
 }
 
 /* -- palco ------------------------------------------------------------ */
+/*
+ * Duas larguras, de propósito.
+ *
+ * O PALCO é largo (900px, ~836 úteis) e serve à pergunta: medi as catorze
+ * perguntas na fonte do título e as maiores pedem 754px e 773px. Com os 696px
+ * de antes elas quebravam em duas linhas com meia tela sobrando ao lado.
+ *
+ * A COLUNA (620px) segura tudo que se lê ou se clica: alternativas, campo,
+ * botões e os textos das telas finais. Botão de 836px de largura fica com
+ * cara de barra, e linha de texto desse tamanho cansa de ler — a medida
+ * confortável é bem menor que a de um título.
+ */
 .funil-palco {
   flex: 1;
   width: 100%;
-  /* 760px e não 620: com 620 o título de uma linha só ("Como podemos te
-     chamar?") quebrava em duas com meia tela sobrando ao lado. */
-  max-width: 760px;
+  max-width: 900px;
   margin-inline: auto;
   padding: 2rem 1.15rem 3rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+.funil-opcoes,
+.funil-campo,
+.funil-consentimento,
+.funil-acoes,
+.funil-texto-valor,
+.funil-texto-final,
+.agenda-nota {
+  max-width: 620px;
 }
 
 /* Sobretítulo: em que parte do formulário o lead está. */
@@ -131,10 +151,14 @@
   font-size: clamp(1.35rem, 1.15rem + 1vw, 1.9rem);
   padding: 0;
   margin-bottom: 2.4rem;
-  /* Quando a pergunta é longa demais para uma linha, `balance` reparte o
-     texto em linhas de tamanho parecido, em vez de deixar uma palavra órfã
-     na segunda. */
-  text-wrap: balance;
+  /*
+   * SEM `text-wrap: balance` aqui, e isso é intencional.
+   *
+   * O `balance` iguala o tamanho das linhas, e para conseguir isso ele empurra
+   * palavras para a linha de baixo ANTES de a primeira encher. Numa pergunta
+   * de duas linhas o efeito é justamente parecer que quebrou à toa, com espaço
+   * sobrando à direita. Sem ele, cada linha enche até o fim antes de quebrar.
+   */
 }
 
 /* -- opções (avançam sozinhas ao toque) ------------------------------- */
