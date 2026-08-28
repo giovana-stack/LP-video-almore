@@ -1,7 +1,7 @@
 import { useEffect, type CSSProperties } from 'react'
 
 import { capturarOrigem } from '@/lib/funil/origem'
-import { LINKEDIN } from '@/lib/redes'
+import { INSTAGRAM, LINKEDIN } from '@/lib/redes'
 
 /**
  * Landing page da Almore Inteligência Contábil — página de um fôlego só.
@@ -21,11 +21,9 @@ import { LINKEDIN } from '@/lib/redes'
  * botão leva para /formulario e a query string não viaja no clique. Nada na
  * aparência depende disso — sem JS a página desenha inteira.
  *
- * FALTA PREENCHER (marcado na tela com sublinhado tracejado):
- *   1. CTA      — a constante abaixo, num lugar só
- *   2. LinkedIn — a URL do perfil, na constante LINKEDIN
- *   3. O vídeo  — o quadro 16:9 no herói ainda é placeholder
- * Os campos sem dado ficam em branco de propósito: nada inventado no ar.
+ * FALTA PREENCHER: o vídeo. O quadro 16:9 no herói ainda é placeholder — veja
+ * o comentário em cima dele. Nada é inventado no ar: enquanto o dado não
+ * existe, o espaço fica marcado em vez de receber conteúdo de mentira.
  */
 
 // O único lugar onde o destino dos botões é definido: a rota do formulário
@@ -35,9 +33,9 @@ import { LINKEDIN } from '@/lib/redes'
 // UTM nenhuma, e nada quebraria para avisar.
 const CTA = '/formulario'
 
-// A URL do LinkedIn saiu daqui para src/lib/redes.ts quando a tela de recusa
-// do formulário passou a apontar para as redes também: duas cópias do mesmo
-// endereço é uma para esquecer de atualizar. Continua faltando preencher.
+// Os endereços das redes moram em src/lib/redes.ts. O LinkedIn era uma
+// constante aqui e o Instagram estava escrito à mão no rodapé, com um handle
+// que nem existia — três cópias do mesmo dado, cada uma envelhecendo sozinha.
 
 /**
  * Duas peças de marca, cada uma no lugar onde funciona.
@@ -226,10 +224,12 @@ export default function LandingAlmore() {
             <span>Araras · SP</span>
             <span><a href="https://almorecontabilidade.com.br">almorecontabilidade.com.br</a></span>
           </address>
+          {/* Os dois endereços saem de src/lib/redes.ts. O Instagram estava
+              escrito à mão aqui, com o handle `almorecontabilidade`, que não
+              existe — o link do rodapé apontava para lugar nenhum. */}
           <nav aria-label="Redes sociais da Almore">
-            <a href="https://www.instagram.com/almorecontabilidade/" rel="me noopener">Instagram</a>
-            {/* FALTA a URL do LinkedIn — não inventei, link morto no ar é pior. */}
-            <a className="todo" href={LINKEDIN} rel="me noopener">LinkedIn</a>
+            <a href={INSTAGRAM} rel="me noopener">Instagram</a>
+            <a href={LINKEDIN} rel="me noopener">LinkedIn</a>
           </nav>
         </div>
         <div className="wrap copy">

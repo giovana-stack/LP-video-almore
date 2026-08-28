@@ -354,9 +354,23 @@
   color: var(--cinza-esc);
   margin-bottom: 0;
 }
-.funil-texto-final--menor a {
-  color: var(--bordo);
-  text-underline-offset: 3px;
+/* As duas redes na tela de recusa. Lado a lado, cada uma ocupando metade —
+   no celular ficam do tamanho do dedo, e no desktop param de crescer para
+   não virarem duas barras. Herdam .funil-botao--fantasma, então o
+   `text-decoration: none` é o que falta: por serem <a>, viriam sublinhadas. */
+.funil-redes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+  max-width: 420px;
+}
+.funil-redes a {
+  width: 100%;
+  min-width: 0;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .funil-acoes {
   display: grid;

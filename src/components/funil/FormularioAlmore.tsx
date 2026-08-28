@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useRef, useState } from "react"
 
 import { paraE164 } from "@/lib/funil/contato"
-import { INSTAGRAM, LINKEDIN, temLinkedin } from "@/lib/redes"
+import { INSTAGRAM, LINKEDIN } from "@/lib/redes"
 import { limparRespostasOrfas, telasVisiveis, type Opcao, type Tela } from "@/lib/funil/perguntas"
 import { atualizarLead, criarLead, idDaSessao } from "@/lib/funil/persistencia"
 import { RESPOSTAS_VAZIAS, type Respostas } from "@/lib/funil/tipos"
@@ -395,20 +395,29 @@ export default function FormularioAlmore() {
                 na tela do lead depois do clique. */}
             <p className="funil-texto-final">Tudo bem. Obrigado pelo seu tempo.</p>
             <p className="funil-texto-final funil-texto-final--menor">
-              Se quiser nos conhecer melhor enquanto isso, estamos no{" "}
-              {temLinkedin ? (
-                <>
-                  <a href={LINKEDIN} target="_blank" rel="noopener noreferrer">
-                    LinkedIn
-                  </a>{" "}
-                  e no{" "}
-                </>
-              ) : null}
-              <a href={INSTAGRAM} target="_blank" rel="noopener noreferrer">
+              Acompanhe a Almore e veja como trabalhamos.
+            </p>
+            {/* Botões, e não links no meio da frase: quem chegou aqui disse
+                "não" e não vai caçar uma palavra sublinhada. No celular ainda
+                viram dois alvos de toque de tamanho decente. */}
+            <div className="funil-redes">
+              <a
+                className="funil-botao funil-botao--fantasma"
+                href={LINKEDIN}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                LinkedIn
+              </a>
+              <a
+                className="funil-botao funil-botao--fantasma"
+                href={INSTAGRAM}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Instagram
               </a>
-              .
-            </p>
+            </div>
           </div>
         ) : null}
       </main>

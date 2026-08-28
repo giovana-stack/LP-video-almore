@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { INSTAGRAM, LINKEDIN } from "../lib/redes";
 
 /**
  * Identidade do site num só lugar.
@@ -54,8 +55,11 @@ const LD_ORGANIZACAO = {
   vatID: "67.132.226/0001-17",
   areaServed: { "@type": "Country", name: "Brasil" },
   availableLanguage: "pt-BR",
-  // Acrescentar a URL do LinkedIn aqui também quando ela existir.
-  sameAs: ["https://www.instagram.com/almorecontabilidade/"],
+  // Os endereços vêm de src/lib/redes.ts, o mesmo lugar que a landing e a
+  // tela de recusa do formulário leem. O `sameAs` é como o Google amarra o
+  // site aos perfis: até 28/08/2026 ele apontava para `almorecontabilidade`,
+  // que não existe — o perfil é `almorecontabil`.
+  sameAs: [INSTAGRAM, LINKEDIN],
   knowsAbout: [
     "MEI",
     "Simples Nacional",
