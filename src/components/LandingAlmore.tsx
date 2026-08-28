@@ -1,4 +1,6 @@
-import type { CSSProperties } from 'react'
+import { useEffect, type CSSProperties } from 'react'
+
+import { capturarOrigem } from '@/lib/funil/origem'
 
 /**
  * Landing page da Almore Inteligência Contábil — página de um fôlego só.
@@ -14,7 +16,9 @@ import type { CSSProperties } from 'react'
  * Tudo vive dentro de .lp-almore, então os estilos não vazam para o resto
  * do app e não brigam com o reset do Tailwind.
  *
- * Não há JavaScript nenhum: é marcação pura.
+ * O JavaScript da página é uma linha só: guardar a UTM da chegada, porque o
+ * botão leva para /formulario e a query string não viaja no clique. Nada na
+ * aparência depende disso — sem JS a página desenha inteira.
  *
  * FALTA PREENCHER (marcado na tela com sublinhado tracejado):
  *   1. CTA      — a constante abaixo, num lugar só
@@ -23,8 +27,12 @@ import type { CSSProperties } from 'react'
  * Os campos sem dado ficam em branco de propósito: nada inventado no ar.
  */
 
-// O único lugar onde o destino dos botões é definido.
-const CTA = 'CTA_LINK'
+// O único lugar onde o destino dos botões é definido: a rota do formulário
+// de captação, neste mesmo projeto. A query string NÃO viaja junto no clique,
+// e é por isso que a página guarda a origem na chegada (veja o useEffect em
+// LandingAlmore) — sem isso, todo lead vindo de anúncio chegaria ao banco sem
+// UTM nenhuma, e nada quebraria para avisar.
+const CTA = '/formulario'
 
 /** FALTA: a URL do perfil da Almore no LinkedIn. */
 const LINKEDIN = 'LINKEDIN_URL'
@@ -100,6 +108,13 @@ const AREA_DO_LOGO = 5200
 const alturaDoLogo = (prop: number) => Math.round(Math.sqrt(AREA_DO_LOGO / prop))
 
 export default function LandingAlmore() {
+  // A única coisa que esta página faz em JavaScript: guardar de onde o
+  // visitante veio. O clique no botão troca de rota e deixa a query string
+  // para trás, então a origem precisa ser guardada antes disso acontecer.
+  useEffect(() => {
+    capturarOrigem()
+  }, [])
+
   return (
     <div className="lp-almore">
       <a className="skip" href="#conteudo">Ir para o conteúdo</a>

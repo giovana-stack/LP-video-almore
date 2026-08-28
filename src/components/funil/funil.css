@@ -1,0 +1,315 @@
+/* ============================================================
+   FORMULÁRIO DE CAPTAÇÃO ALMORE — estilos
+   Escopado em .funil-almore, então nada aqui vaza para a landing
+   nem briga com o preflight do Tailwind.
+   Paleta e tipografia vêm do brief de construção.
+   ============================================================ */
+
+.funil-almore {
+  /* Cores do manual. MANUAL e VOLTE não existem em CDN, então os
+     substitutos obrigatórios são Montserrat (títulos) e Inter (corpo). */
+  --bordo:       #7C1638;
+  --bordo-dark:  #68112F;
+  --cinza-medio: #818181;
+  --cinza-esc:   #595959;
+  --fundo:       #F5F3F0;
+  --tinta:       #1A1A1A;
+  --branco:      #FFFFFF;
+  --linha:       rgba(26, 26, 26, 0.12);
+  --erro:        #B3261E;
+
+  --titulo: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --corpo:  "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--fundo);
+  color: var(--tinta);
+  font-family: var(--corpo);
+  font-weight: 400;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+.funil-almore,
+.funil-almore *,
+.funil-almore *::before,
+.funil-almore *::after {
+  box-sizing: border-box;
+}
+
+.funil-almore h1,
+.funil-almore h2,
+.funil-almore legend {
+  font-family: var(--titulo);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+/* -- topo e progresso ------------------------------------------------ */
+.funil-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1.15rem;
+}
+.funil-marca {
+  display: flex;
+  flex: 0 0 auto;
+}
+.funil-marca img {
+  height: 34px;
+  width: auto;
+  display: block;
+}
+.funil-passo {
+  font-family: var(--titulo);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cinza-medio);
+  white-space: nowrap;
+}
+
+.funil-barra {
+  height: 4px;
+  background: rgba(124, 22, 56, 0.14);
+  overflow: hidden;
+}
+.funil-barra-preenchida {
+  height: 100%;
+  background: var(--bordo);
+  transition: width 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .funil-barra-preenchida { transition: none; }
+}
+
+/* -- palco ------------------------------------------------------------ */
+.funil-palco {
+  flex: 1;
+  width: 100%;
+  max-width: 620px;
+  margin-inline: auto;
+  padding: 2rem 1.15rem 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.funil-tela {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.funil-tela--larga { max-width: none; }
+
+.funil-pergunta {
+  font-size: clamp(1.35rem, 1.15rem + 1vw, 1.9rem);
+  padding: 0;
+  margin-bottom: 1.6rem;
+}
+
+/* -- opções (avançam sozinhas ao toque) ------------------------------- */
+.funil-opcoes {
+  display: grid;
+  gap: 0.7rem;
+}
+.funil-opcao {
+  /* 56px de altura mínima: alvo de toque confortável no celular, que é de
+     onde vem a maior parte do tráfego. */
+  min-height: 56px;
+  padding: 0.9rem 1.1rem;
+  text-align: left;
+  font-family: var(--corpo);
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--tinta);
+  background: var(--branco);
+  border: 1px solid var(--linha);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.16s ease, background-color 0.16s ease, transform 0.16s ease;
+}
+@media (hover: hover) {
+  .funil-opcao:hover {
+    border-color: var(--bordo);
+    background: rgba(124, 22, 56, 0.04);
+  }
+}
+.funil-opcao:active { transform: scale(0.995); }
+.funil-opcao--ativa {
+  border-color: var(--bordo);
+  background: rgba(124, 22, 56, 0.07);
+}
+
+/* -- campos de texto -------------------------------------------------- */
+.funil-campos {
+  display: grid;
+  gap: 1.1rem;
+  margin-bottom: 1.6rem;
+}
+.funil-campo {
+  display: grid;
+  gap: 0.4rem;
+}
+.funil-rotulo {
+  font-family: var(--titulo);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cinza-esc);
+}
+.funil-campo input {
+  min-height: 52px;
+  padding: 0.75rem 0.95rem;
+  font-family: var(--corpo);
+  /* 16px trava o zoom automático do Safari no iOS ao focar o campo. */
+  font-size: 16px;
+  color: var(--tinta);
+  background: var(--branco);
+  border: 1px solid var(--linha);
+  border-radius: 10px;
+  width: 100%;
+}
+.funil-campo input:focus-visible {
+  outline: 2px solid var(--bordo);
+  outline-offset: 1px;
+  border-color: var(--bordo);
+}
+.funil-campo input[aria-invalid="true"] { border-color: var(--erro); }
+.funil-erro {
+  font-size: 0.85rem;
+  color: var(--erro);
+}
+
+/* -- botões ----------------------------------------------------------- */
+.funil-botao {
+  min-height: 54px;
+  width: 100%;
+  padding: 0.85rem 1.4rem;
+  font-family: var(--titulo);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--branco);
+  background: var(--bordo);
+  border: 1px solid var(--bordo);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.16s ease, border-color 0.16s ease;
+}
+@media (hover: hover) {
+  .funil-botao:hover:not(:disabled) {
+    background: var(--bordo-dark);
+    border-color: var(--bordo-dark);
+  }
+}
+.funil-botao:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.funil-botao--fantasma {
+  color: var(--cinza-esc);
+  background: transparent;
+  border-color: var(--linha);
+}
+@media (hover: hover) {
+  .funil-botao--fantasma:hover:not(:disabled) {
+    background: transparent;
+    border-color: var(--cinza-medio);
+    color: var(--tinta);
+  }
+}
+
+.funil-voltar {
+  margin-top: 1.6rem;
+  padding: 0.5rem 0;
+  font-family: var(--corpo);
+  font-size: 0.9rem;
+  color: var(--cinza-medio);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  align-self: start;
+}
+@media (hover: hover) {
+  .funil-voltar:hover { color: var(--tinta); text-decoration: underline; }
+}
+
+.funil-almore :focus-visible {
+  outline: 2px solid var(--bordo);
+  outline-offset: 2px;
+}
+
+/* -- consentimento ---------------------------------------------------- */
+.funil-consentimento {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  margin-bottom: 1.6rem;
+  padding: 1rem;
+  background: var(--branco);
+  border: 1px solid var(--linha);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+.funil-consentimento input {
+  /* 22px porque o padrão do navegador dá um quadrado de 13px, pequeno demais
+     para o dedo num checkbox que bloqueia o envio. */
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+  margin-top: 1px;
+  accent-color: var(--bordo);
+}
+
+/* -- telas finais ----------------------------------------------------- */
+.funil-tela--final { text-align: left; }
+.funil-texto-valor,
+.funil-texto-final {
+  font-size: 1.05rem;
+  line-height: 1.65;
+  margin: 0 0 2rem;
+}
+.funil-texto-final { font-size: 1.15rem; }
+.funil-acoes {
+  display: grid;
+  gap: 0.7rem;
+}
+
+/* -- agendamento ------------------------------------------------------ */
+.agenda-nota {
+  padding: 1rem 1.15rem;
+  margin: 0 0 1.5rem;
+  background: rgba(124, 22, 56, 0.06);
+  border-left: 3px solid var(--bordo);
+  border-radius: 0 8px 8px 0;
+  font-size: 0.95rem;
+}
+.agenda-vazia {
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  background: var(--branco);
+  border: 1px dashed var(--linha);
+  border-radius: 10px;
+  color: var(--cinza-medio);
+}
+.agenda-vazia p { margin: 0; }
+.agenda-vazia-sub { margin-top: 0.5rem; font-size: 0.9rem; }
+
+/* -- desktop ---------------------------------------------------------- */
+@media (min-width: 720px) {
+  .funil-topo { padding: 1.2rem 2rem; }
+  .funil-marca img { height: 42px; }
+  .funil-palco { padding: 3rem 2rem 4rem; }
+  .funil-botao { width: auto; min-width: 260px; }
+  .funil-acoes { grid-auto-flow: column; justify-content: start; }
+}

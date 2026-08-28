@@ -6,6 +6,10 @@
    disputam com o preflight do Tailwind nem com o design system acima. */
 @import "./components/landing-almore.css";
 
+/* Estilos do formulário de captação — escopados em .funil-almore, pela mesma
+   razão: não disputam com o preflight do Tailwind nem com a landing. */
+@import "./components/funil/funil.css";
+
 @custom-variant dark (&:is(.dark *));
 
 /*
