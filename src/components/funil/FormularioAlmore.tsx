@@ -444,7 +444,12 @@ function TelaValor({
       <p className="funil-texto-valor">{tela.texto(respostas)}</p>
       <div className="funil-acoes">
         <button type="button" className="funil-botao" onClick={onAceitar}>
-          Está de acordo, quero agendar
+          {/* O documento (1.2.1) escreve "Está de acordo, quero agendar", em
+              terceira pessoa. Quem clica é o lead falando, e a segunda metade
+              já está em primeira — "Estou" alinha as duas. Mudança pedida pela
+              Giovana; se a automação do CRM citar o rótulo antigo em alguma
+              mensagem, é lá que precisa acompanhar. */}
+          Estou de acordo, quero agendar
         </button>
         <button type="button" className="funil-botao funil-botao--fantasma" onClick={onRecusar}>
           Prefiro não seguir agora
