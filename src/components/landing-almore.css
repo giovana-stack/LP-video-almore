@@ -52,7 +52,8 @@
 
 /* Filhos de grid/flex não empurram a página para o lado. */
 .wrap > *, .ledger > *, .plans > *, .flow > *,
-.audience > *, .foot-grid > * { min-width: 0; }
+.wrap > *,
+.foot-grid > * { min-width: 0; }
 
 .lp-almore h1, .lp-almore h2, .lp-almore h3 {
   font-family: "Instrument Serif", Georgia, serif;
@@ -72,40 +73,7 @@
   outline-offset: 3px;
   border-radius: 2px;
 }
-
-/* -- faixas ---------------------------------------------------------- */
-.band { padding: clamp(4rem, 9vw, 7.5rem) 1.5rem; }
-.band--dark  { background: var(--ink);   color: var(--cream); }
-.band--dark2 { background: var(--ink-2); color: var(--cream); }
-.band--light { background: var(--paper);  color: var(--ink); }
-.band--bordo { background: var(--bordo);  color: var(--paper-2); }
 .wrap { max-width: var(--measure); margin-inline: auto; }
-.narrow { /* sem limite: o texto vai até a borda da faixa de conteúdo */ }
-
-/* -- rótulo de linha (motivo de balancete) --------------------------- */
-.eyebrow {
-  display: flex;
-  align-items: center;
-  gap: .75rem;
-  font-size: var(--step--1);
-  font-weight: 600;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  margin: 0 0 1.75rem;
-}
-.eyebrow::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: currentColor;
-  opacity: .28;
-}
-.eyebrow .n {
-  font-variant-numeric: tabular-nums;
-  opacity: .55;
-}
-.band--dark .eyebrow, .band--dark2 .eyebrow { color: var(--sand); }
-.band--light .eyebrow { color: var(--bordo); }
 
 /* -- botão ----------------------------------------------------------- */
 .lp-almore .btn {
@@ -125,14 +93,6 @@
 }
 .lp-almore .btn:hover { background: var(--bordo-deep); border-color: var(--bordo-deep); transform: translateY(-1px); }
 .lp-almore .btn::after { content: "→"; font-size: .95em; }
-.lp-almore .btn--ghost {
-  background: transparent;
-  color: var(--sand);
-  border-color: var(--rule-dark);
-}
-.lp-almore .btn--ghost:hover { background: var(--ink-3); border-color: var(--sand); color: var(--cream); }
-.lp-almore .btn--paper { background: var(--paper); color: var(--bordo); border-color: var(--paper); }
-.lp-almore .btn--paper:hover { background: #fff; border-color: #fff; color: var(--bordo-deep); }
 
 
 /* -- topo ------------------------------------------------------------ */
@@ -256,315 +216,6 @@
   margin-bottom: 2rem;
 }
 
-/* -- proposta -------------------------------------------------------- */
-.benefits { list-style: none; margin: clamp(2rem, 4vw, 2.75rem) 0 0; padding: 0; display: grid; gap: 0; }
-.benefits li {
-  display: flex;
-  align-items: baseline;
-  gap: 1rem;
-  padding: 1rem 0;
-  border-top: 1px solid var(--rule-light);
-  font-size: var(--step-1);
-  font-family: "Instrument Serif", Georgia, serif;
-}
-.benefits li:last-child { border-bottom: 1px solid var(--rule-light); }
-.benefits .k {
-  font-family: Figtree, sans-serif;
-  font-size: .72rem;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: .16em;
-  color: var(--bordo);
-  opacity: .7;
-}
-
-/* -- dado do meio (único uso do dourado) ----------------------------- */
-.stat {
-  border-top: 1px solid var(--rule-dark);
-  border-bottom: 1px solid var(--rule-dark);
-  padding: clamp(2rem, 4vw, 3rem) 0;
-  margin: clamp(2.5rem, 5vw, 3.5rem) 0;
-  display: grid;
-  gap: 1.25rem;
-  grid-template-columns: 1fr;
-  align-items: center;
-}
-@media (min-width: 780px) { .stat { grid-template-columns: auto 1fr; gap: 2.5rem; } }
-.stat .num {
-  font-family: "Instrument Serif", Georgia, serif;
-  font-size: clamp(3.4rem, 9vw, 6rem);
-  line-height: .85;
-  color: var(--gold);
-  font-variant-numeric: tabular-nums;
-}
-.stat p { margin: 0; color: var(--dim); font-size: var(--step-1); }
-/* Crédito da fonte: presente para dar lastro ao dado, discreto para não competir. */
-.stat .src {
-  margin-top: 1rem;
-  font-size: var(--step--1);
-  font-weight: 600;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  color: var(--dim);
-  opacity: .6;
-}
-
-/* -- livro-caixa: as duas colunas de comparação ---------------------- */
-.ledger {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1px;
-  background: var(--rule-dark);
-  border: 1px solid var(--rule-dark);
-  margin-top: clamp(2rem, 4vw, 3rem);
-}
-@media (min-width: 860px) { .ledger { grid-template-columns: 1fr 1fr; } }
-.col { background: var(--ink); padding: clamp(1.5rem, 3vw, 2.25rem); display: flex; flex-direction: column; }
-.col--good { background: var(--ink-3); }
-.col h3 {
-  font-family: Figtree, sans-serif;
-  font-size: var(--step-1);
-  font-weight: 600;
-  letter-spacing: -.005em;
-  line-height: 1.3;
-  margin-bottom: 1.5rem;
-}
-.col h3 span { display: block; font-size: .7rem; letter-spacing: .18em; text-transform: uppercase; color: var(--dim); font-weight: 600; margin-bottom: .5rem; }
-.col--good h3 span { color: var(--sand); }
-.col ul { list-style: none; margin: 0 0 auto; padding: 0; }
-.col li {
-  padding: .8rem 0;
-  border-bottom: 1px dotted var(--rule-dark);
-  color: var(--dim);
-  display: flex;
-  gap: .8rem;
-}
-.col--good li { color: var(--cream); }
-.col li::before { content: "—"; opacity: .45; }
-.col .total {
-  margin-top: 1.75rem;
-  padding-top: 1rem;
-  border-top: 3px double var(--rule-dark);
-  font-family: "Instrument Serif", Georgia, serif;
-  font-size: var(--step-1);
-  line-height: 1.25;
-}
-.col--bad .total { color: var(--dim); }
-.col--good .total { color: var(--sand); }
-.col .total b { display: block; font-family: Figtree, sans-serif; font-size: .7rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; opacity: .6; margin-bottom: .4rem; }
-
-/* -- o ciclo mensal (faixa acima dos planos) -------------------------- */
-.flow {
-  list-style: none;
-  counter-reset: f;
-  display: grid;
-  gap: 1px;
-  margin: clamp(2rem, 4vw, 3rem) 0 0;
-  padding: 0;
-  background: var(--rule-light);
-  border: 1px solid var(--rule-light);
-}
-@media (min-width: 880px) { .flow { grid-template-columns: repeat(4, 1fr); } }
-.flow li {
-  background: var(--paper);
-  padding: 1rem 1.15rem;
-  display: flex;
-  gap: .75rem;
-  align-items: baseline;
-  font-size: var(--step--1);
-  color: var(--ink);
-}
-.flow .k {
-  font-size: .68rem;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: .1em;
-  color: var(--bordo);
-  opacity: .5;
-}
-
-/* -- planos ---------------------------------------------------------- *
- * Cada plano tem o seu metal, que é o próprio nome dele virando cor.
- * Os tons são escurecidos para ler sobre champanhe — o dourado usa o
- * gold.ink do manual, que existe justamente para texto.
- * -------------------------------------------------------------------- */
-/*
- * Cartoes independentes, com borda propria e alinhados ao topo. Antes o
- * container desenhava os fios com background + gap de 1px, o que exigia que
- * os tres cartoes tivessem a mesma altura. Agora eles abrem e fecham, e com
- * alturas diferentes aquele truque deixaria um bloco rosa aparecendo embaixo
- * dos fechados.
- */
-.plans {
-  display: grid;
-  gap: clamp(1rem, 2vw, 1.5rem);
-  align-items: start;
-  margin-top: clamp(2rem, 4vw, 3rem);
-}
-@media (min-width: 980px) { .plans { grid-template-columns: repeat(3, 1fr); } }
-
-.plan {
-  --metal: var(--bordo);
-  --tinta: var(--bordo);
-  /* Champanhe puro e o fallback: navegador sem color-mix ignora a linha
-     seguinte e o cartao fica no fundo normal, sem quebrar nada. */
-  background: var(--paper);
-  background: color-mix(in srgb, var(--tinta) 14%, var(--paper));
-  border: 1px solid var(--rule-light);
-  border-color: color-mix(in srgb, var(--tinta) 28%, var(--rule-light));
-  border-radius: 2px;
-}
-
-/* -- cabecalho clicavel do plano -------------------------------------- */
-.plan > summary {
-  list-style: none;
-  cursor: pointer;
-  padding: clamp(1.5rem, 3vw, 2.15rem);
-  display: flex;
-  flex-direction: column;
-}
-.plan > summary::-webkit-details-marker { display: none; }
-
-/* O rotulo de abrir troca de texto quando o cartao esta aberto. */
-.plan .abrir {
-  margin-top: 1.35rem;
-  display: flex;
-  align-items: baseline;
-  gap: .5rem;
-  font-size: var(--step--1);
-  font-weight: 600;
-  letter-spacing: .04em;
-  color: var(--metal);
-}
-.plan .abrir::before {
-  content: "+";
-  font-size: 1.15em;
-  line-height: 1;
-  transition: transform .22s ease;
-}
-.plan[open] .abrir::before { content: "–"; }
-.plan .fechar { display: none; }
-.plan[open] .ver { display: none; }
-.plan[open] .fechar { display: inline; }
-.plan[open] .qtd { display: none; }
-.plan .abrir .qtd {
-  font-weight: 400;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  font-size: .78em;
-  color: var(--dim-ink);
-}
-/*
- * Duas variaveis por plano, e nao uma:
- *
- * --metal e a cor do TEXTO. Foi escolhida escura de proposito, para o nome
- *   do plano ler sobre champanhe (bronze 5,5:1, prata 4,8:1, ouro 4,9:1).
- * --tinta e a cor do FUNDO. Precisa ser o metal de verdade, saturado, porque
- *   diluida a 12% ela quase desaparece. Usando o --metal para as duas coisas,
- *   bronze e ouro davam #F2EBE1 e #F2ECDE — 3 unidades de diferenca, ou seja,
- *   o mesmo tom na pratica.
- */
-/*
- * As tintas foram afastadas de matiz. Com bronze #B87333 e ouro #D4A017 — os
- * dois quentes — os fundos diluidos davam #F3E8DA e #F6EDD7: 7 unidades de
- * distancia, invisivel. Agora o bronze puxa para o vermelho (sienna), o ouro
- * para o amarelo puro e a prata para o azulado, que a afasta dos dois.
- */
-.plan--bronze { --metal: #8A5A2B; --tinta: #A0522D; }
-/* Prata mais escuro que os outros dois metais de proposito: #6E6E73 dava
-   4,25:1 sobre o fundo tingido, abaixo do minimo de 4,5 para o rotulo
-   pequeno. Escurecer o texto foi a saida — clarear a tinta apagaria a cor
-   do plano, que e justamente o que se quer ver. */
-.plan--prata  { --metal: #5B5B62; --tinta: #8E9AA6; }
-.plan--ouro   { --metal: #8A6100; --tinta: #DFB100; }
-
-.plan .tier { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
-.plan .nome {
-  font-family: "Instrument Serif", Georgia, serif;
-  font-size: var(--step-3);
-  line-height: .95;
-  color: var(--metal);
-}
-.plan .claim {
-  display: block;
-  font-family: "Instrument Serif", Georgia, serif;
-  font-style: italic;
-  font-size: var(--step-1);
-  line-height: 1.2;
-  color: var(--dim-ink);
-  margin-top: .6rem;
-  /* Reserva duas linhas: o claim do Bronze cabe em uma e os dos outros em
-     duas, e sem isso os tres cartoes fechados ficavam com alturas
-     diferentes lado a lado (306 contra 342px). */
-  min-height: 2.4em;
-}
-/* A linha de herança usa a régua dupla do livro-caixa: é um saldo que vem de cima. */
-.plan .herda {
-  display: block;
-  margin-top: 1.25rem;
-  padding: .8rem 0;
-  border-top: 1px solid var(--rule-light);
-  border-bottom: 3px double var(--rule-light);
-}
-.plan .herda b {
-  display: block;
-  font-size: .64rem;
-  font-weight: 600;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: var(--dim-ink);
-  margin-bottom: .3rem;
-}
-.plan .herda span { font-weight: 600; color: var(--metal); }
-
-/* A lista fica fora do <summary>, entao ela devolve o padding lateral. */
-.plan .items {
-  list-style: none;
-  margin: 0;
-  padding: 0 clamp(1.5rem, 3vw, 2.15rem) clamp(1.5rem, 3vw, 2.15rem);
-}
-.plan .items li {
-  display: grid;
-  grid-template-columns: .5rem 1fr;
-  gap: .8rem;
-  padding: .65rem 0;
-  border-bottom: 1px solid var(--rule-light);
-  font-size: var(--step--1);
-}
-.plan .items li:last-child { border-bottom: 0; }
-.plan .items li::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  margin-top: .5em;
-  border-radius: 50%;
-  background: var(--metal);
-}
-/*
- * O <li> é grid de duas colunas (bolinha, texto). Sem declarar a coluna, o
- * <small> virava item próprio e caía na coluna de 0,5rem — o texto descia
- * uma letra por linha. Ele precisa ficar na coluna do conteúdo.
- */
-/* Os três planos são visualmente iguais: nenhum recebe destaque. A única
-   diferença é o metal do nome, que é identidade, não hierarquia. O realce
-   acontece só no hover. */
-@media (hover: hover) {
-  /* O realce responde ao cabecalho, nao ao cartao todo: aberto, o cartao
-     inteiro mudando de cor no hover da lista distrai da leitura. */
-  /* O hover reforca a propria tinta em vez de trocar por um cinza: se
-     trocasse, a cor do plano sumiria justamente ao passar o mouse. */
-  .plan > summary:hover { background: color-mix(in srgb, var(--tinta) 10%, transparent); }
-  .plan > summary:hover .abrir::before { transform: scale(1.2); }
-}
-
-.plan .items small {
-  grid-column: 2;
-  display: block;
-  color: var(--dim-ink);
-  font-size: .82em;
-  line-height: 1.35;
-  margin-top: .15rem;
-}
-
 /* -- prova social ---------------------------------------------------- */
 /* -- esteira de clientes ---------------------------------------------- *
  * A trilha carrega a lista duas vezes e desliza -50%: no fim do primeiro
@@ -632,47 +283,6 @@
   .logos-trilha > div:hover .logo-marca { background-color: #FFFFFF; opacity: 1; }
 }
 
-
-/* -- para quem ------------------------------------------------------- */
-.audience { display: grid; gap: 1px; background: rgba(251,248,241,.22); border: 1px solid rgba(251,248,241,.22); margin-top: 2.5rem; }
-@media (min-width: 860px) { .audience { grid-template-columns: 1fr 1fr; } }
-.audience > div { background: var(--bordo); padding: clamp(1.6rem, 3.5vw, 2.5rem); }
-.audience h3 { font-size: var(--step-2); margin-bottom: 1rem; color: var(--paper); }
-.audience p { margin: 0; color: rgba(251,248,241,.78); }
-
-/* -- fechamento ------------------------------------------------------ */
-.closing { text-align: left; }
-.closing h2 { font-size: var(--step-4); margin-bottom: 1.5rem; }
-.closing p { font-size: var(--step-1); color: var(--dim); margin: 0 0 2.25rem; }
-
-/* -- faq ------------------------------------------------------------- */
-.faq { margin-top: 2.5rem; border-top: 1px solid var(--rule-light); }
-.faq details { border-bottom: 1px solid var(--rule-light); }
-.faq summary {
-  cursor: pointer;
-  list-style: none;
-  padding: 1.4rem 2.5rem 1.4rem 0;
-  position: relative;
-  font-family: "Instrument Serif", Georgia, serif;
-  font-size: var(--step-2);
-  color: var(--bordo);
-}
-.faq summary::-webkit-details-marker { display: none; }
-.faq summary::after {
-  content: "+";
-  position: absolute;
-  right: .25rem;
-  top: 50%;
-  transform: translateY(-50%);
-  font-family: Figtree, sans-serif;
-  font-size: 1.5rem;
-  color: var(--dim-ink);
-}
-.faq details[open] summary::after { content: "–"; }
-.faq .answer { padding: 0 0 1.6rem; color: var(--dim-ink); }
-.faq .answer p { margin: 0 0 .8rem; }
-.faq .answer p:last-child { margin-bottom: 0; }
-
 /* -- rodapé ---------------------------------------------------------- */
 .lp-almore footer {
   background: var(--ink-2);
@@ -698,13 +308,6 @@
 
 /* Botao centralizado — usado sob o video do heroi. */
 .cta-row--centro { text-align: center; }
-.h2-lead { font-size: var(--step-3); }
-.h2-lead--full { max-width: none; }
-.h2-lead--paper { color: var(--paper); }
-.narrow--dim { color: var(--dim); }
-.narrow--ink { color: var(--dim-ink); margin-top: 1.25rem; }
-.eyebrow--bordo-band { color: rgba(251,248,241,.8); }
-.em-sand { font-style: italic; color: var(--sand); }
 .brand--foot { margin-bottom: 1rem; }
 .foot-claim { margin: 1rem 0 0; }
 
@@ -715,92 +318,8 @@
   font-style: italic;
 }
 
-/* -- hover das listas ------------------------------------------------ *
- * Só cor: o item que está sob o mouse ganha contraste e o marcador
- * (número, letra ou travessão) acende. Nada se move, então nenhuma
- * linha empurra a de baixo.
- * -------------------------------------------------------------------- */
-.benefits li,
-.col li,
-.flow li,
-.plan .items li,
-.faq summary {
-  transition: background-color .22s ease, color .22s ease;
-}
-.benefits .k,
-.col li::before,
-.flow .k,
-.faq summary::after {
-  transition: color .22s ease, opacity .22s ease;
-}
-.plan .items li::before { transition: transform .22s ease; }
-
-.plan > summary { transition: background-color .22s ease; }
-
-/* -- cascata dos itens do plano --------------------------------------- *
- * Ao abrir, cada item entra com um atraso proporcional ao seu indice: o
- * --i vem do componente e viram 45ms por posicao. A animacao dispara
- * sozinha porque os <li> so passam a ser renderizados quando o <details>
- * abre — nao precisa de JavaScript nem de classe.
- * -------------------------------------------------------------------- */
-@keyframes cascata {
-  from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: none; }
-}
-@media (prefers-reduced-motion: no-preference) {
-  .plan[open] .items li {
-    animation: cascata .34s cubic-bezier(.2, .8, .2, 1) both;
-    animation-delay: calc(var(--i, 0) * 45ms);
-  }
-}
-
-/* Só onde existe mouse de verdade: no toque o :hover fica preso na tela. */
-@media (hover: hover) {
-  /* benefícios — sobre claro */
-  .benefits li:hover { color: var(--bordo); background: rgba(104,17,47,.045); }
-  .benefits li:hover .k { opacity: 1; }
-
-  /* livro-caixa — sobre escuro */
-  .col li:hover { color: var(--cream); }
-  .col--good li:hover { color: #FFFFFF; }
-  .col li:hover::before { color: var(--sand); opacity: .9; }
-
-  /* ciclo mensal — sobre claro */
-  .flow li:hover { color: var(--bordo); background: rgba(104,17,47,.04); }
-  .flow li:hover .k { opacity: 1; }
-
-  /* itens dos planos — o ponto cresce no metal do plano */
-  .plan .items li:hover { color: var(--metal); background: rgba(104,17,47,.04); }
-  .plan .items li:hover::before { transform: scale(1.45); }
-
-  /* perguntas do FAQ */
-  .faq summary:hover { color: var(--bordo-deep); background: rgba(104,17,47,.04); }
-  .faq summary:hover::after { color: var(--bordo); }
-
-}
-
-/* -- movimento -------------------------------------------------------- *
- * Sem JavaScript e sem estado inicial invisível: o conteúdo é visível por
- * padrão e a animação é acréscimo. Onde o navegador tem timeline de scroll
- * (Chrome/Edge 115+), os blocos entram ao encostar na viewport; onde não
- * tem (Safari e Firefox hoje), simplesmente aparecem prontos.
- *
- * Por que não IntersectionObserver: com SSR, qualquer atraso ou falha do
- * JS deixava seções em branco — e seção em branco parece layout quebrado,
- * que foi exatamente o sintoma relatado.
- * -------------------------------------------------------------------- */
-@keyframes lp-rise {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: none; }
-}
-
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
-    .lp-almore .rise {
-      animation: lp-rise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 45%;
-    }
 
     /*
      * O herói NÃO anima, de propósito.
@@ -833,7 +352,8 @@
   .lp-almore .plan .items li,
   .lp-almore .plan .items li::before,
   .lp-almore .plan > summary,
-  .lp-almore .logos-trilha { transition: none; animation: none; }
+.lp-almore .btn,
+.lp-almore .logos-trilha { transition: none; animation: none; }
 }
 
 /* -- link de salto (teclado e leitor de tela) ------------------------ */

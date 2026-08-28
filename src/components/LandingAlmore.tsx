@@ -1,18 +1,24 @@
 import type { CSSProperties } from 'react'
 
 /**
- * Landing page da Almore Inteligência Contábil.
+ * Landing page da Almore Inteligência Contábil — página de um fôlego só.
+ *
+ * A página inteira é o herói: título, vídeo, botão e a esteira de clientes.
+ * As seções que vinham depois (método, problema, planos, para quem é,
+ * fechamento e FAQ) foram removidas: quem chega aqui vem para assistir ao
+ * vídeo e clicar, e cada seção a mais era um motivo a mais para rolar em vez
+ * de decidir. O cabeçalho e o rodapé continuam, um pela marca e outro pelo
+ * endereço e pelos dados obrigatórios.
  *
  * Tudo vive dentro de .lp-almore, então os estilos não vazam para o resto
  * do app e não brigam com o reset do Tailwind.
  *
- * A revelação no scroll é 100% CSS (animation-timeline: view()): o conteúdo
- * é visível por padrão e nenhuma seção depende de JavaScript para aparecer.
  * Não há JavaScript nenhum: é marcação pura.
  *
  * FALTA PREENCHER (marcado na tela com sublinhado tracejado):
  *   1. CTA      — a constante abaixo, num lugar só
  *   2. LinkedIn — a URL do perfil, na constante LINKEDIN
+ *   3. O vídeo  — o quadro 16:9 no herói ainda é placeholder
  * Os campos sem dado ficam em branco de propósito: nada inventado no ar.
  */
 
@@ -81,72 +87,6 @@ const DURACAO_DA_ESTEIRA = `${CLIENTES.length * 7}s`
  */
 const AREA_DO_LOGO = 5200
 const alturaDoLogo = (prop: number) => Math.round(Math.sqrt(AREA_DO_LOGO / prop))
-
-/**
- * Os três planos.
- *
- * Fechado, cada cartão mostra só o que identifica o plano — nome, promessa,
- * rótulo e o que ele herda. A lista de itens abre no clique.
- *
- * Está em dados e não em marcação porque o atraso da cascata sai do índice de
- * cada item: escrito à mão seriam nove `style` repetidos por plano.
- * `detalhe` é a linha miúda embaixo do item, quando existe.
- */
-const PLANOS = [
-  {
-    nome: 'Bronze',
-    metal: 'bronze',
-    claim: 'Atendimento essencial e completo',
-    rotulo: 'Ponto de partida',
-    herda: 'A rotina contábil inteira em ordem',
-    itens: [
-      { texto: 'Onboarding Premium 360º' },
-      { texto: 'Apuração de impostos e obrigações acessórias' },
-      { texto: 'Auditoria mensal de classificação fiscal' },
-      { texto: 'Folha, pró-labore, admissão e rescisão' },
-      { texto: 'Controle de férias e prazos de contratos' },
-      { texto: 'Acompanhamento de faturamento e alíquota efetiva' },
-      { texto: 'Demonstração do Resultado gerencial' },
-      { texto: 'Relatório consultivo mensal' },
-      { texto: 'Atendimento consultivo' },
-    ],
-  },
-  {
-    nome: 'Prata',
-    metal: 'prata',
-    claim: 'Tudo do Bronze + camada tributária',
-    rotulo: 'Traz junto',
-    herda: 'Todo o plano Bronze',
-    itens: [
-      { texto: 'Planejamento tributário inicial' },
-      { texto: 'Conciliação de extrato bancário' },
-      { texto: 'Imposto de Renda de Pessoa Física (1 pessoa)' },
-      {
-        texto: 'Gestão de benefícios',
-        detalhe: 'vale-refeição, vale-alimentação e vale-transporte',
-      },
-      { texto: 'Controle de negativas federais e trabalhistas' },
-    ],
-  },
-  {
-    nome: 'Ouro',
-    metal: 'ouro',
-    claim: 'Tudo do Prata + camada estratégica + I.A.',
-    rotulo: 'Traz junto',
-    herda: 'Todo o plano Prata',
-    itens: [
-      { texto: 'Planejamento tributário estratégico anual' },
-      { texto: 'Consultoria revisional semestral' },
-      { texto: 'Consultoria em precificação anual' },
-      { texto: 'Imposto de Renda de Pessoa Física (2 pessoas)' },
-      { texto: '1 alteração de contrato social ao ano' },
-      { texto: 'Demonstração do Resultado do Exercício' },
-      { texto: 'Gestão de indicadores do Departamento Pessoal' },
-      { texto: 'Fechamento do ponto' },
-      { texto: 'Assistente de inteligência artificial personalizado' },
-    ],
-  },
-]
 
 export default function LandingAlmore() {
   return (
@@ -231,209 +171,6 @@ export default function LandingAlmore() {
                 )
               }),
             )}
-          </div>
-        </div>
-      </section>
-      
-      {/* 2. PROPOSTA DE VALOR ================================================= */}
-      <section className="band band--light">
-        <div className="wrap">
-          <p className="eyebrow"><span className="n">01</span> O método</p>
-          {/* Título em linha cheia; tabela abaixo, e o texto de apoio embaixo dela. */}
-          <h2 className="rise h2-lead">O método que tira a contabilidade do arquivo morto e coloca no centro da sua decisão.</h2>
-
-          <ul className="benefits rise">
-            <li><span className="k">A</span> Pagando o imposto certo</li>
-            <li><span className="k">B</span> Sem perder prazo</li>
-            <li><span className="k">C</span> Sabendo quanto sobra</li>
-          </ul>
-
-          <p className="narrow narrow--ink">O mesmo aplicado em empresas de todos os regimes — MEI, Simples Nacional, Lucro Presumido e Lucro Real —, do primeiro CNPJ à operação com folha e sócios.</p>
-          <p className="cta-row"><a className="btn" href={CTA}>Quero meu diagnóstico</a></p>
-        </div>
-      </section>
-      
-      {/* 3. RUPTURA / PROBLEMA ================================================ */}
-      <section className="band band--dark">
-        <div className="wrap">
-          <p className="eyebrow"><span className="n">02</span> O problema</p>
-          <h2 className="rise h2-lead h2-lead--w30">As empresas que crescem sem susto são as que tratam contabilidade como gestão, não como obrigação.</h2>
-      
-          <div className="stat rise">
-            <div className="num">95%</div>
-            <div>
-              <p>das empresas brasileiras pagam mais imposto do que deveriam. Não é sonegação nem sorte: é classificação fiscal errada, regime mal escolhido e ninguém revisando.</p>
-              <p className="src">Fonte: Instituto Brasileiro de Planejamento e Tributação (IBPT)</p>
-            </div>
-          </div>
-      
-          <p className="narrow narrow--dim">A maior parte do dinheiro que escapa de uma empresa pequena e média não sai numa decisão grande. Sai em silêncio, todo mês, na rotina que ninguém confere: um CNAE herdado da abertura, uma alíquota que nunca foi recalculada, um prazo descoberto só quando chega a multa.</p>
-      
-          <div className="ledger rise">
-            <div className="col col--bad">
-              <h3><span>Como a maioria contrata</span>Contabilidade como despesa obrigatória</h3>
-              <ul>
-                <li>Resposta que demora dias</li>
-                <li>Guia de imposto sem explicação</li>
-                <li>Prazo descoberto depois da multa</li>
-                <li>Balanço que ninguém lê</li>
-                <li>Zero orientação antes de decidir</li>
-              </ul>
-              <p className="total"><b>Resultado</b>Imposto a mais, multa evitável e decisão tomada no escuro.</p>
-            </div>
-            <div className="col col--good">
-              <h3><span>Como funciona na Almore</span>Contabilidade como área de gestão</h3>
-              <ul>
-                <li>Resposta de quem conhece a sua empresa</li>
-                <li>Auditoria da classificação fiscal</li>
-                <li>Calendário de obrigações acompanhado</li>
-                <li>Relatório consultivo todo mês</li>
-                <li>Consultoria antes da decisão, não depois</li>
-              </ul>
-              <p className="total"><b>Resultado</b>Imposto no valor certo, prazo em dia e número na mão para decidir.</p>
-            </div>
-          </div>
-      
-          <p className="cta-row"><a className="btn" href={CTA}>Quero meu diagnóstico</a></p>
-        </div>
-      </section>
-      
-      {/* 4. PLANOS ============================================================ */}
-      <section className="band band--light" id="planos">
-        <div className="wrap">
-          <p className="eyebrow"><span className="n">03</span> Os planos</p>
-          <h2 className="rise h2-lead">Três planos, e cada um carrega o anterior inteiro.</h2>
-          <p className="narrow narrow--ink">Todo plano começa pelo Onboarding Premium 360º e roda no mesmo ciclo mensal. O que muda de um para o outro é a camada que se soma em cima: primeiro a tributária, depois a estratégica.</p>
-      
-          {/* O ciclo que todos os planos seguem */}
-          <ol className="flow rise" aria-label="O ciclo mensal de todos os planos">
-            <li><span className="k">01</span> Diagnóstico e reunião de alinhamento</li>
-            <li><span className="k">02</span> Onboarding Premium 360º</li>
-            <li><span className="k">03</span> Rotina do mês: imposto, folha e conciliação</li>
-            <li><span className="k">04</span> Relatório consultivo do mês</li>
-          </ol>
-      
-          {/*
-            Cada plano e um <details>: fechado mostra so nome, promessa, rotulo
-            e o que herda; o clique abre a lista. <details> nativo em vez de
-            JavaScript — ja e o padrao do FAQ desta pagina, funciona com teclado
-            e leitor de tela de graca, e abre mesmo se o script falhar.
-
-            A cascata sai do indice: cada item recebe --i e o CSS transforma
-            isso em atraso da animacao.
-          */}
-          <div className="plans">
-            {PLANOS.map((p) => (
-              <details className={`plan plan--${p.metal} rise`} key={p.nome}>
-                <summary>
-                  <span className="tier">
-                    <span className="nome">{p.nome}</span>
-                  </span>
-                  <span className="claim">{p.claim}</span>
-                  <span className="herda">
-                    <b>{p.rotulo}</b>
-                    <span>{p.herda}</span>
-                  </span>
-                  {/* Os dois rotulos existem na marcacao e o CSS troca qual
-                      aparece: <summary> ja anuncia aberto/fechado ao leitor de
-                      tela, mas o texto visivel tambem precisa acompanhar. */}
-                  <span className="abrir">
-                    <span className="ver">Ver o que inclui</span>
-                    <span className="fechar">Fechar</span>
-                    <span className="qtd">{p.itens.length} itens</span>
-                  </span>
-                </summary>
-                <ul className="items">
-                  {p.itens.map((item, i) => (
-                    <li key={item.texto} style={{ '--i': i } as CSSProperties}>
-                      {item.texto}
-                      {item.detalhe && <small>{item.detalhe}</small>}
-                    </li>
-                  ))}
-                </ul>
-              </details>
-            ))}
-          </div>
-      
-          <p className="cta-row"><a className="btn" href={CTA}>Quero meu diagnóstico</a></p>
-        </div>
-      </section>
-      
-      {/* 5. PARA QUEM É ======================================================= */}
-      <section className="band band--bordo">
-        <div className="wrap">
-          <p className="eyebrow eyebrow--bordo-band"><span className="n">04</span> Para quem é</p>
-          <h2 className="rise h2-lead h2-lead--w22 h2-lead--paper">Para quem é a Almore?</h2>
-      
-          <div className="audience rise">
-            <div>
-              <h3>Empresários, fundadores e sócios</h3>
-              <p>Que querem parar de descobrir problema por multa e passar a decidir com o número atualizado na mão — preço, pró-labore, contratação, investimento.</p>
-            </div>
-            <div>
-              <h3>Gestores financeiros e administrativos</h3>
-              <p>Que precisam de um contador que responde no mesmo dia e entrega relatório que dá para levar direto para a reunião de diretoria.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-      
-      {/* 6. FECHAMENTO ======================================================== */}
-      <section className="band band--dark closing">
-        <div className="wrap">
-          <h2 className="rise">Almore, a contabilidade <em className="em-sand">para quem decide</em></h2>
-          <p className="rise">É a contabilidade criada para empresas que não querem depender de achismo, prazo perdido ou balanço que ninguém lê para crescer. Se você quer uma rotina fiscal em ordem e um número em que dá para confiar na hora de decidir, comece pelo diagnóstico.</p>
-          <a className="btn rise" href={CTA}>Quero meu diagnóstico</a>
-        </div>
-      </section>
-      
-      {/* 7. FAQ =============================================================== */}
-      <section className="band band--light">
-        <div className="wrap">
-          <p className="eyebrow"><span className="n">05</span> Dúvidas</p>
-          <h2 className="rise h2-lead h2-lead--full">Tire suas dúvidas</h2>
-      
-          <div className="faq">
-            <details>
-              <summary>O que é contabilidade consultiva?</summary>
-              <div className="answer">
-                <p>Contabilidade tradicional apura, entrega e arquiva. Contabilidade consultiva faz isso e mais uma coisa: olha o número antes de você decidir e diz o que ele está mostrando.</p>
-                <p>Na prática, é a diferença entre receber uma guia de imposto para pagar e receber um relatório que explica por que o imposto subiu, o que dá para fazer a respeito e qual o prazo para agir.</p>
-              </div>
-            </details>
-            <details>
-              <summary>Para quem é a Almore?</summary>
-              <div className="answer">
-                <p>Para empresários, fundadores, sócios e gestores de empresas de qualquer porte e setor — de MEI a Lucro Real. Serve tanto para quem está abrindo o primeiro CNPJ quanto para quem já tem operação com folha, sócios e mais de um regime na mesa.</p>
-              </div>
-            </details>
-            <details>
-              <summary>Como sei qual plano é o meu?</summary>
-              <div className="answer">
-                <p>Pelo diagnóstico. O <strong>Bronze</strong> cobre a rotina contábil inteira e resolve para quem precisa da casa em ordem: imposto, folha, relatório e alguém que responde.</p>
-                <p>O <strong>Prata</strong> entra quando há imposto para revisar e movimentação bancária para conciliar. O <strong>Ouro</strong> é para quem usa o número para decidir preço, estrutura e crescimento — é onde ficam a precificação anual, a revisão semestral e o assistente de inteligência artificial.</p>
-                <p>Os planos são cumulativos: o Prata inclui todo o Bronze e o Ouro inclui todo o Prata. Na reunião de alinhamento indicamos qual faz sentido para o seu momento.</p>
-              </div>
-            </details>
-            <details>
-              <summary>Como funciona o atendimento?</summary>
-              <div className="answer">
-                <p>Tudo começa com o diagnóstico e uma reunião de alinhamento. Em seguida vem o Onboarding Premium 360º, onde a sua casa é organizada: documentos, pendências, classificação fiscal e calendário de obrigações.</p>
-                <p>A partir daí a rotina roda em ciclo mensal — apuração, folha, conciliação e o relatório consultivo do mês. O atendimento é digital e direto com quem conhece a sua empresa: você manda a dúvida e recebe resposta, sem fila e sem protocolo.</p>
-              </div>
-            </details>
-            <details>
-              <summary>Trocar de contador dá trabalho ou para a minha operação?</summary>
-              <div className="answer">
-                <p>Não para. A transição é conduzida por nós: solicitamos a documentação do contador anterior, levantamos pendências e negativas e assumimos a rotina sem interromper emissão de nota, folha ou pagamento de imposto. A sua parte é assinar a procuração e responder ao diagnóstico.</p>
-              </div>
-            </details>
-            <details>
-              <summary>Como faço para começar?</summary>
-              <div className="answer">
-                <p>Clique em qualquer botão desta página e preencha o formulário com o nome, a empresa, o regime tributário e a melhor forma de contato. Nossa equipe retorna por WhatsApp, e-mail ou telefone para agendar o diagnóstico.</p>
-              </div>
-            </details>
           </div>
         </div>
       </section>
