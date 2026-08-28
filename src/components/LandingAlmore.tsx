@@ -3,7 +3,8 @@ import type { CSSProperties } from 'react'
 /**
  * Landing page da Almore Inteligência Contábil — página de um fôlego só.
  *
- * A página inteira é o herói: título, vídeo, botão e a esteira de clientes.
+ * A página inteira é o herói: título, vídeo e botão. A esteira de clientes
+ * mora aqui também, mas está desligada — veja MOSTRAR_ESTEIRA abaixo.
  * As seções que vinham depois (método, problema, planos, para quem é,
  * fechamento e FAQ) foram removidas: quem chega aqui vem para assistir ao
  * vídeo e clicar, e cada seção a mais era um motivo a mais para rolar em vez
@@ -46,6 +47,16 @@ const LINKEDIN = 'LINKEDIN_URL'
  */
 const ISOTIPO = { src: '/almore-isotipo.png', w: 307, h: 240 }
 const LOCKUP = { src: '/almore-logo.png', w: 600, h: 148 }
+
+/**
+ * A CHAVE DA ESTEIRA DE CLIENTES.
+ *
+ * `false` esconde a faixa de logos que corre embaixo do vídeo; `true` traz
+ * de volta. É a única coisa que precisa mudar: a marcação continua inteira
+ * logo abaixo, o CSS dela também, e os PNGs seguem em public/logos/. Virar
+ * esta linha e salvar já resolve.
+ */
+const MOSTRAR_ESTEIRA = false
 
 /**
  * Clientes da faixa de prova.
@@ -144,35 +155,37 @@ export default function LandingAlmore() {
           escuros (Mexicatti marrom, ViCor azul, Mymion prata). Como imagem
           colorida, metade desapareceria neste fundo escuro.
         */}
-        <div
-          className="logos-esteira"
-          aria-label="Clientes da Almore"
-          style={{ '--esteira-duracao': DURACAO_DA_ESTEIRA } as CSSProperties}
-        >
-          <div className="logos-trilha">
-            {[0, 1].map((volta) =>
-              CLIENTES.map((c) => {
-                const h = alturaDoLogo(c.prop)
-                return (
-                  <div key={`${volta}-${c.marca}`} aria-hidden={volta === 1 || undefined}>
-                    <span
-                      className="logo-marca"
-                      role="img"
-                      aria-label={c.marca}
-                      style={
-                        {
-                          '--logo': `url(${c.logo})`,
-                          '--logo-h': `${h}px`,
-                          '--logo-w': `${Math.round(h * c.prop)}px`,
-                        } as CSSProperties
-                      }
-                    />
-                  </div>
-                )
-              }),
-            )}
+        {MOSTRAR_ESTEIRA && (
+          <div
+            className="logos-esteira"
+            aria-label="Clientes da Almore"
+            style={{ '--esteira-duracao': DURACAO_DA_ESTEIRA } as CSSProperties}
+          >
+            <div className="logos-trilha">
+              {[0, 1].map((volta) =>
+                CLIENTES.map((c) => {
+                  const h = alturaDoLogo(c.prop)
+                  return (
+                    <div key={`${volta}-${c.marca}`} aria-hidden={volta === 1 || undefined}>
+                      <span
+                        className="logo-marca"
+                        role="img"
+                        aria-label={c.marca}
+                        style={
+                          {
+                            '--logo': `url(${c.logo})`,
+                            '--logo-h': `${h}px`,
+                            '--logo-w': `${Math.round(h * c.prop)}px`,
+                          } as CSSProperties
+                        }
+                      />
+                    </div>
+                  )
+                }),
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </section>
       
       </main>
