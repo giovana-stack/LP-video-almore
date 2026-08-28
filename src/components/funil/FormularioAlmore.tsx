@@ -26,10 +26,18 @@ import Agendamento from "./Agendamento"
  * formulário existir aqui em vez de no Typeform: quem largar depois de dar o
  * nome e o WhatsApp já deixou um canal de contato para trás.
  *
- * TEXTOS: a copy das perguntas de negócio e das telas de valor é final e veio
- * do brief — ela é referenciada pelas mensagens de WhatsApp da automação, então
- * reescrever uma frase aqui desalinha os dois sistemas em silêncio. O que é
- * texto novo meu está marcado com "TEXTO NOVO — PENDENTE DE APROVAÇÃO".
+ * TEXTOS: as perguntas, as opções e as telas de valor são cópia literal do
+ * documento de execução (VERSÃO COM SDR DE VOZ) — elas são referenciadas pelas
+ * mensagens de WhatsApp da automação, então reescrever uma frase aqui
+ * desalinha os dois sistemas em silêncio.
+ *
+ * O que NÃO está no documento (mensagens de erro, botões de navegação, os
+ * rótulos dos decisores e a linha da recusa) está marcado com "TEXTO FORA DO
+ * DOCUMENTO". A marcação fica mesmo depois de aprovado: ela diz de onde a
+ * frase veio, e é o que avisa quem for comparar código e PDF um dia.
+ *
+ * Uma exceção conhecida: o botão do aceite diz "Estou de acordo", enquanto o
+ * documento escreve "Está de acordo" — divergência pedida e deliberada.
  */
 
 type Fase =
@@ -238,7 +246,7 @@ export default function FormularioAlmore() {
       {fase.nome === "perguntas" && indice > 0 ? (
         <div className="funil-voltar-linha">
           <button type="button" className="funil-voltar" onClick={voltar}>
-            {/* TEXTO NOVO — PENDENTE DE APROVAÇÃO. */}
+            {/* TEXTO FORA DO DOCUMENTO — aprovado em 28/08/2026. */}
             Voltar
           </button>
         </div>
@@ -283,7 +291,7 @@ export default function FormularioAlmore() {
                   onClick={() => responderTexto(telaAtual)}
                   disabled={enviando}
                 >
-                  {/* TEXTO NOVO — PENDENTE DE APROVAÇÃO. */}
+                  {/* TEXTO FORA DO DOCUMENTO — aprovado em 28/08/2026. */}
                   Continuar
                 </button>
               </div>
@@ -335,7 +343,7 @@ export default function FormularioAlmore() {
                   disabled={!respostas.consentimento_whatsapp || enviando}
                   onClick={enviarFormulario}
                 >
-                  {/* TEXTO NOVO — PENDENTE DE APROVAÇÃO. */}
+                  {/* TEXTO FORA DO DOCUMENTO — aprovado em 28/08/2026. */}
                   {enviando ? "Enviando…" : "Enviar"}
                 </button>
               </div>
@@ -358,7 +366,7 @@ export default function FormularioAlmore() {
           <fieldset className="funil-tela">
             <legend className="funil-pergunta">{PERGUNTA_DECISORES}</legend>
             <div className="funil-opcoes">
-              {/* TEXTO NOVO — PENDENTE DE APROVAÇÃO (os dois rótulos). O
+              {/* TEXTO FORA DO DOCUMENTO — aprovado em 28/08/2026 (os dois rótulos). O
                   documento descreve os dois caminhos como "decisor único" e
                   "múltiplos decisores", mas não dá o texto dos botões. Estes
                   ecoam as palavras da própria pergunta. */}
@@ -390,7 +398,7 @@ export default function FormularioAlmore() {
 
         {fase.nome === "recusa" ? (
           <div className="funil-tela funil-tela--final">
-            {/* TEXTO NOVO — PENDENTE DE APROVAÇÃO. O documento diz que o fluxo
+            {/* TEXTO FORA DO DOCUMENTO — aprovado em 28/08/2026. O documento diz que o fluxo
                 termina sem tela adicional, mas alguma coisa precisa aparecer
                 na tela do lead depois do clique. */}
             <p className="funil-texto-final">Tudo bem. Obrigado pelo seu tempo.</p>

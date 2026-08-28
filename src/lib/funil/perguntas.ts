@@ -50,7 +50,7 @@ export type Tela =
       /** Formata enquanto digita. Só o telefone usa. */
       mascara?: (v: string) => string
       valida: (v: string) => boolean
-      /** TEXTO NOVO — PENDENTE DE APROVAÇÃO. */
+      /** TEXTO FORA DO DOCUMENTO — aprovado em 28/08/2026. */
       erro: string
     })
   | (Base & {
@@ -68,7 +68,7 @@ export const TELAS: Tela[] = [
   // As perguntas e as opções deste arquivo são cópia literal da tabela 1.3 do
   // documento de execução (VERSÃO COM SDR DE VOZ). Não reescrever: os textos
   // do WhatsApp da automação referenciam frases específicas daqui.
-  // As mensagens de erro, essas sim, são texto meu — PENDENTE DE APROVAÇÃO.
+  // As mensagens de erro, essas sim, são texto fora do documento, aprovadas em 28/08/2026.
   {
     tipo: "texto",
     id: "nome",

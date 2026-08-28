@@ -40,7 +40,7 @@ export default function Agendamento({ nota }: Props) {
 
       {/* Rede de segurança: se o embed falhar, ainda dá para marcar. */}
       <p className="agenda-alternativa">
-        {/* TEXTO NOVO — PENDENTE DE APROVAÇÃO. */}
+        {/* TEXTO FORA DO DOCUMENTO — aprovado em 28/08/2026. */}
         Não está carregando?{" "}
         <a href={URL_AGENDA} target="_blank" rel="noopener noreferrer">
           Abrir a agenda numa nova aba
