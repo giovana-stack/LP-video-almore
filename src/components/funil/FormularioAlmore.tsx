@@ -30,6 +30,19 @@ import Agendamento from "./Agendamento"
  * meu está marcado com "TEXTO NOVO — PENDENTE DE APROVAÇÃO".
  */
 
+/** O que mudou entre duas respostas. Só isso viaja para o banco. */
+function diferenca(antes: Respostas, depois: Respostas): Partial<Respostas> {
+  const saida: Partial<Respostas> = {}
+  for (const chave of Object.keys(depois) as (keyof Respostas)[]) {
+    if (antes[chave] !== depois[chave]) {
+      // @ts-expect-error — chave e valor vêm do mesmo objeto, mas o
+      // mapeamento entre eles não sobrevive à indexação genérica.
+      saida[chave] = depois[chave]
+    }
+  }
+  return saida
+}
+
 type Fase =
   | { nome: "perguntas" }
   | { nome: "valor" }
@@ -113,9 +126,12 @@ export default function FormularioAlmore() {
 
     setRespostas(novas)
 
-    const campos: Partial<Respostas> = { [tela.campo]: valor } as Partial<Respostas>
-    if (tela.campo === "cnpj_aberto") campos.trilha = novas.trilha
-    gravar(campos)
+    // Manda o diff inteiro, e não só o campo respondido. A diferença aparece
+    // quando o lead volta e troca o regime: `limparRespostasOrfas` zera o
+    // `mei_quer_sair`, e esse null precisa chegar ao banco. Gravando só o
+    // campo da tela, o valor velho ficaria lá e a automação leria um MEI que
+    // quer sair onde existe uma empresa do Simples.
+    gravar(diferenca(respostas, novas))
 
     // Avança sozinha, como o brief pede. O índice é calculado sobre a lista
     // nova, porque responder o CNPJ muda quais telas existem daqui pra frente.
