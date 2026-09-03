@@ -202,7 +202,25 @@ export default function LandingAlmore() {
           </div>
         )}
       </section>
-      
+
+      {/* 2. O MÉTODO ========================================================== */}
+      <section className="band band--light">
+        <div className="wrap">
+          <p className="eyebrow"><span className="n">01</span> O método</p>
+          {/* Título em linha cheia; tabela abaixo, e o texto de apoio embaixo dela. */}
+          <h2 className="rise h2-lead">O método que tira a contabilidade do arquivo morto e coloca no centro da sua decisão.</h2>
+
+          <ul className="benefits rise">
+            <li><span className="k">A</span> Pagando o imposto certo</li>
+            <li><span className="k">B</span> Sem perder prazo</li>
+            <li><span className="k">C</span> Sabendo quanto sobra</li>
+          </ul>
+
+          <p className="narrow narrow--ink">O mesmo aplicado em empresas de todos os regimes — MEI, Simples Nacional, Lucro Presumido e Lucro Real —, do primeiro CNPJ à operação com folha e sócios.</p>
+          <p className="cta-row"><a className="btn" href={CTA}>Quero ter uma contabilidade estratégica</a></p>
+        </div>
+      </section>
+
       </main>
       
       <footer>

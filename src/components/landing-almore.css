@@ -51,9 +51,7 @@
 }
 
 /* Filhos de grid/flex não empurram a página para o lado. */
-.wrap > *, .ledger > *, .plans > *, .flow > *,
-.wrap > *,
-.foot-grid > * { min-width: 0; }
+.wrap > *, .foot-grid > * { min-width: 0; }
 
 .lp-almore h1, .lp-almore h2, .lp-almore h3 {
   font-family: "Instrument Serif", Georgia, serif;
@@ -129,6 +127,64 @@
      linhas. Ate 360px ele quebra; de 375px em diante continua numa linha so. */
   .lp-almore header.top .brand { flex: 0 0 auto; }
   .lp-almore header.top .btn { white-space: normal; text-align: center; }
+}
+
+/* -- faixa clara: a seção do método ---------------------------------- *
+ * Voltou em 28/08/2026, depois de a página ter ficado só com o herói por
+ * algumas horas. Só a variante clara existe: as faixas escura e bordô
+ * pertenciam às seções que continuam fora.
+ * -------------------------------------------------------------------- */
+.band { padding: clamp(4rem, 9vw, 7.5rem) 1.5rem; }
+.band--light { background: var(--paper); color: var(--ink); }
+.narrow { /* sem limite: o texto vai até a borda da faixa de conteúdo */ }
+.narrow--ink { color: var(--dim-ink); margin-top: 1.25rem; }
+.h2-lead { font-size: var(--step-3); }
+
+/* -- rótulo de linha (motivo de balancete) --------------------------- */
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  margin: 0 0 1.75rem;
+}
+.eyebrow::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: currentColor;
+  opacity: .28;
+}
+.eyebrow .n {
+  font-variant-numeric: tabular-nums;
+  opacity: .55;
+}
+.band--light .eyebrow { color: var(--bordo); }
+
+/* -- a lista de três linhas ------------------------------------------ */
+.benefits { list-style: none; margin: clamp(2rem, 4vw, 2.75rem) 0 0; padding: 0; display: grid; gap: 0; }
+.benefits li {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--rule-light);
+  font-size: var(--step-1);
+  font-family: "Instrument Serif", Georgia, serif;
+  transition: background-color .22s ease, color .22s ease;
+}
+.benefits li:last-child { border-bottom: 1px solid var(--rule-light); }
+.benefits .k {
+  font-family: Figtree, sans-serif;
+  font-size: .72rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .16em;
+  color: var(--bordo);
+  opacity: .7;
+  transition: color .22s ease, opacity .22s ease;
 }
 
 /* -- hero ------------------------------------------------------------ */
@@ -318,15 +374,27 @@
 .brand--foot { margin-bottom: 1rem; }
 .foot-claim { margin: 1rem 0 0; }
 
-/* -- marcador de conteúdo a preencher -------------------------------- */
-.todo {
-  border-bottom: 1px dashed currentColor;
-  opacity: .8;
-  font-style: italic;
+/*
+ * A revelação no scroll. Voltou junto com a seção do método — enquanto a
+ * página era só o herói, ninguém usava `.rise` e a animação era peso morto.
+ *
+ * O conteúdo é visível por padrão: a animação só existe onde o navegador
+ * entende `animation-timeline: view()`. Quem não entende vê a página inteira,
+ * parada — que é o modo certo de falhar.
+ */
+@keyframes lp-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
 }
 
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
+    .lp-almore .rise {
+      animation: lp-rise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 45%;
+    }
+
 
     /*
      * O herói NÃO anima, de propósito.
@@ -353,14 +421,9 @@
      são escopadas — sem isso o "transition: none" não pegava. */
   .lp-almore .btn,
   .lp-almore .benefits li,
-  .lp-almore .col li,
-  .lp-almore .flow li,
-  .lp-almore .faq summary,
-  .lp-almore .plan .items li,
-  .lp-almore .plan .items li::before,
-  .lp-almore .plan > summary,
-.lp-almore .btn,
-.lp-almore .logos-trilha { transition: none; animation: none; }
+  .lp-almore .benefits .k,
+  .lp-almore .rise,
+  .lp-almore .logos-trilha { transition: none; animation: none; }
 }
 
 /* -- link de salto (teclado e leitor de tela) ------------------------ */
