@@ -137,6 +137,12 @@ export default function LandingAlmore() {
       <section className="hero" id="topo">
         <div className="wrap">
           <span className="tag">Rápido · Consultivo · Sempre</span>
+          {/*
+            PROVISÓRIO — esta frase está DUPLICADA na página.
+            Ela agora é o título da seção 01, e continua aqui só porque o
+            herói não pode ficar sem título enquanto a Giovana escolhe a nova.
+            Trocar esta linha resolve; a seção 01 fica como está.
+          */}
           <h1>Contabilidade consultiva do MEI ao Lucro Real</h1>
           <p className="lead">A contabilidade que traduz número em direção — e responde no dia em que você precisa decidir, não no mês seguinte.</p>
 
@@ -207,8 +213,14 @@ export default function LandingAlmore() {
       <section className="band band--light">
         <div className="wrap">
           <p className="eyebrow"><span className="n">01</span> O método</p>
-          {/* Título em linha cheia; tabela abaixo, e o texto de apoio embaixo dela. */}
-          <h2 className="rise h2-lead">O método que tira a contabilidade do arquivo morto e coloca no centro da sua decisão.</h2>
+          {/*
+            Este título veio do herói em 28/08/2026: lá em cima ele ocupava o
+            espaço mais valioso da página descrevendo o serviço, que é
+            justamente o que esta seção existe para fazer. A frase que era o
+            título daqui não se perdeu — desceu para linha de apoio.
+          */}
+          <h2 className="rise h2-lead">Contabilidade consultiva do MEI ao Lucro Real</h2>
+          <p className="narrow narrow--ink narrow--apoio">O método que tira a contabilidade do arquivo morto e coloca no centro da sua decisão.</p>
 
           <ul className="benefits rise">
             <li><span className="k">A</span> Pagando o imposto certo</li>
@@ -216,6 +228,12 @@ export default function LandingAlmore() {
             <li><span className="k">C</span> Sabendo quanto sobra</li>
           </ul>
 
+          {/*
+            ATENÇÃO: esta frase agora repete o título. Ele diz "do MEI ao
+            Lucro Real" e ela lista "MEI, Simples Nacional, Lucro Presumido e
+            Lucro Real" dois parágrafos abaixo. Não encurtei porque a copy não
+            é minha para cortar — fica anotado para a Giovana decidir.
+          */}
           <p className="narrow narrow--ink">O mesmo aplicado em empresas de todos os regimes — MEI, Simples Nacional, Lucro Presumido e Lucro Real —, do primeiro CNPJ à operação com folha e sócios.</p>
           <p className="cta-row"><a className="btn" href={CTA}>Quero ter uma contabilidade estratégica</a></p>
         </div>

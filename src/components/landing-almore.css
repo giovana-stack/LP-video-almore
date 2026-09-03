@@ -138,6 +138,9 @@
 .band--light { background: var(--paper); color: var(--ink); }
 .narrow { /* sem limite: o texto vai até a borda da faixa de conteúdo */ }
 .narrow--ink { color: var(--dim-ink); margin-top: 1.25rem; }
+/* Linha de apoio logo abaixo do título: cola nele, em vez de flutuar no
+   meio do vão que separa o título da lista. */
+.narrow--apoio { margin-top: .85rem; font-size: var(--step-0); }
 .h2-lead { font-size: var(--step-3); }
 
 /* -- rótulo de linha (motivo de balancete) --------------------------- */
