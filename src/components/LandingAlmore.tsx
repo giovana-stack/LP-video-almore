@@ -145,13 +145,15 @@ export default function LandingAlmore() {
           */}
           <h1>Contabilidade consultiva é ter o número que te ajuda a decidir.</h1>
           {/*
-            ATENÇÃO: esta lead agora divide assunto com o título. Ela diz "traduz
-            número em direção" e "no dia em que você precisa decidir" — as duas
-            metades da mesma ideia que o título passou a carregar sozinho. A outra
-            promessa da marca, a velocidade de resposta, é o que sobra de exclusivo
-            aqui. Não reescrevi porque copy não é minha para trocar; fica anotado.
+            A quebra entre as duas frases é do original e está explícita: são
+            dois movimentos distintos — o incômodo e a saída. Sem ela, viram um
+            parágrafo corrido e a segunda frase perde o peso de resposta.
           */}
-          <p className="lead">A contabilidade que traduz número em direção — e responde no dia em que você precisa decidir, não no mês seguinte.</p>
+          <p className="lead">
+            Chega de depender do contador que só te manda boleto no fim do mês.
+            <br />
+            A Almore traduz número em direcionamento claro, e está sempre disponível pra você.
+          </p>
 
           {/*
             Espaço do vídeo — a peça principal do herói, em largura cheia.
