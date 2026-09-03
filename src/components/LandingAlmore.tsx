@@ -138,12 +138,19 @@ export default function LandingAlmore() {
         <div className="wrap">
           <span className="tag">Rápido · Consultivo · Sempre</span>
           {/*
-            PROVISÓRIO — esta frase está DUPLICADA na página.
-            Ela agora é o título da seção 01, e continua aqui só porque o
-            herói não pode ficar sem título enquanto a Giovana escolhe a nova.
-            Trocar esta linha resolve; a seção 01 fica como está.
+            O título diz o que o serviço ENTREGA, e não o que ele é. "Contabilidade
+            consultiva do MEI ao Lucro Real" descreve a categoria e o alcance —
+            informação de catálogo, que agora mora na seção 01, onde cabe. Aqui em
+            cima, no espaço mais visível da página, fica o motivo de assistir.
           */}
-          <h1>Contabilidade consultiva do MEI ao Lucro Real</h1>
+          <h1>Contabilidade consultiva é ter o número que te ajuda a decidir.</h1>
+          {/*
+            ATENÇÃO: esta lead agora divide assunto com o título. Ela diz "traduz
+            número em direção" e "no dia em que você precisa decidir" — as duas
+            metades da mesma ideia que o título passou a carregar sozinho. A outra
+            promessa da marca, a velocidade de resposta, é o que sobra de exclusivo
+            aqui. Não reescrevi porque copy não é minha para trocar; fica anotado.
+          */}
           <p className="lead">A contabilidade que traduz número em direção — e responde no dia em que você precisa decidir, não no mês seguinte.</p>
 
           {/*
