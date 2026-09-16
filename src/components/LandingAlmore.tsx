@@ -639,29 +639,24 @@ function AnelDeProgresso({ progresso }: { progresso: number }) {
       aria-hidden="true"
       focusable="false"
     >
+      {/*
+        Só a faixa que corre. O trilho era um segundo retângulo desenhado por
+        baixo dela, e apareceu na tela como uma segunda moldura ao lado da
+        borda do botão. Ele não tinha razão de existir: a borda do próprio
+        botão já é o trilho.
+      */}
       {caixa ? (
-        <>
-          <rect
-            className="cta-anel-trilho"
-            x="1"
-            y="1"
-            width={caixa.l - 2}
-            height={caixa.a - 2}
-            rx="2"
-            pathLength={100}
-          />
-          <rect
-            className="cta-anel-corrida"
-            x="1"
-            y="1"
-            width={caixa.l - 2}
-            height={caixa.a - 2}
-            rx="2"
-            pathLength={100}
-            strokeDasharray="100 100"
-            strokeDashoffset={100 - progresso * 100}
-          />
-        </>
+        <rect
+          className="cta-anel-corrida"
+          x="1"
+          y="1"
+          width={caixa.l - 2}
+          height={caixa.a - 2}
+          rx="2"
+          pathLength={100}
+          strokeDasharray="100 100"
+          strokeDashoffset={100 - progresso * 100}
+        />
       ) : null}
     </svg>
   )

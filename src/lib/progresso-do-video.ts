@@ -146,6 +146,7 @@ export function useProgressoDoVideo(
   { iniciarSozinho = false }: { iniciarSozinho?: boolean } = {},
 ): ProgressoDoVideo {
   const [assistido, setAssistido] = useState(0)
+  const [continuo, setContinuo] = useState(0)
   const [semMedicao, setSemMedicao] = useState(false)
   const [mudo, setMudo] = useState(iniciarSozinho)
   const playerRef = useRef<Player | null>(null)
@@ -168,9 +169,34 @@ export function useProgressoDoVideo(
       // Antes de o vídeo carregar os metadados a duração é 0. Dividir por ela
       // daria Infinity, e o anel nasceria cheio.
       if (!total) return
-      segundosVistos.add(Math.floor(player.getCurrentTime()))
-      const fracao = Math.min(1, segundosVistos.size / total)
+
+      const agora = player.getCurrentTime()
+      segundosVistos.add(Math.floor(agora))
+      const inteiros = segundosVistos.size
+
+      const fracao = Math.min(1, inteiros / total)
       if (vivo) setAssistido(fracao)
+
+      /*
+       * A MEDIDA SUAVE, que é a que o anel desenha.
+       *
+       * A conta de cima só muda quando fecha um segundo inteiro, então o anel
+       * andava aos saltos, um por segundo — parecia relógio de ponteiro, e o
+       * que se espera ali é cronômetro.
+       *
+       * Aqui o segundo em curso entra pela metade que já passou: os inteiros
+       * menos o atual, mais a fração dele. Como a amostragem é de 250ms e a
+       * transição do CSS dura exatamente isso, em linha reta, o desenho chega
+       * suave de um valor ao outro.
+       *
+       * As duas contas convivem porque servem a coisas diferentes: a discreta
+       * decide se a trava abre, e é ela que resiste a arrastar a bolinha; a
+       * suave só desenha. `Math.max` guarda o maior valor já atingido, senão
+       * voltar um trecho do vídeo faria o anel andar para trás.
+       */
+      const suave = Math.min(1, Math.max(0, (inteiros - 1 + (agora % 1)) / total))
+      if (vivo) setContinuo((anterior) => Math.max(anterior, suave))
+
       // Chegou na meta: não há mais nada para medir, e o relógio para.
       if (fracao >= META) window.clearInterval(relogio)
     }
@@ -245,7 +271,8 @@ export function useProgressoDoVideo(
 
   return {
     assistido,
-    progresso: semMedicao ? 1 : Math.min(1, assistido / META),
+    // O anel usa a medida suave; a trava, a discreta. Ver o comentario em medir().
+    progresso: semMedicao ? 1 : Math.min(1, continuo / META),
     liberado: semMedicao || assistido >= META,
     semMedicao,
     // Sem player não há como ligar o som pela página: a tarja sumiria sem

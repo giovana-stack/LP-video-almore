@@ -472,19 +472,33 @@
    espessura pedida. */
 .lp-almore .cta-travado--anel { overflow: visible; }
 .lp-almore .cta-rotulo { position: relative; }
+/*
+ * O SVG sobe para a caixa da BORDA, com inset de -1px.
+ *
+ * Com inset zero ele parava na caixa do padding -- para um elemento
+ * posicionado, o zero e medido por dentro da borda, nao por fora. O anel
+ * nascia 1px para dentro e aparecia como uma SEGUNDA moldura, logo ao lado
+ * da borda do botao. Era o que a Giovana viu como duas bordas.
+ *
+ * O -1px e exatamente a espessura da borda do .btn. Sem largura nem altura
+ * declaradas, os quatro insets e que dao o tamanho, e ele bate com o que o
+ * JavaScript mede no botao -- a conta do viewBox fecha em 1:1.
+ */
 .lp-almore .cta-anel {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  inset: -1px;
   overflow: visible;
   pointer-events: none;
 }
+/*
+ * So a faixa que corre. O trilho era um segundo retangulo desenhado por baixo
+ * dela, e ele nao tem mais razao de existir: a propria borda do botao ja e o
+ * trilho, e desenhar os dois era o que dobrava a moldura.
+ */
 .lp-almore .cta-anel rect {
   fill: none;
   stroke-width: 2;
 }
-.lp-almore .cta-anel-trilho { stroke: var(--rule-dark); }
 .lp-almore .cta-anel-corrida {
   stroke: var(--sand);
   /* `linear`, e nao uma curva: e um relogio, e relogio que acelera e
