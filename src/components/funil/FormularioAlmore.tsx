@@ -7,6 +7,7 @@ import { atualizarLead, criarLead, idDaSessao } from "@/lib/funil/persistencia"
 import { RESPOSTAS_VAZIAS, type Respostas } from "@/lib/funil/tipos"
 import {
   CONFIRMACAO_PADRAO,
+  CONFIRMACAO_PADRAO_TITULO,
   NOTA_MULTIPLOS_DECISORES,
   PERGUNTA_DECISORES,
   telaDeValorPara,
@@ -67,6 +68,10 @@ export default function FormularioAlmore() {
   const [fase, setFase] = useState<Fase>({ nome: "perguntas" })
   const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
+  // O aceite tem erro próprio porque tem lugar próprio na tela: o do número
+  // aparece colado no campo, o do aceite embaixo da caixa. Num state só, marcar
+  // a caixa com o número errado trocava a mensagem de lugar.
+  const [erroConsentimento, setErroConsentimento] = useState<string | null>(null)
 
   // O id da linha vive num ref, e não no state: ele muda uma vez só e nenhuma
   // renderização depende dele. Em state, causaria um render à toa no meio do
@@ -100,6 +105,7 @@ export default function FormularioAlmore() {
   const irPara = (novoIndice: number) => {
     setIndice(novoIndice)
     setErro(null)
+    setErroConsentimento(null)
     // Cada tela nova começa do topo: no celular, avançar sem isso deixa o lead
     // olhando para o meio da pergunta seguinte.
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "auto" })
@@ -117,6 +123,15 @@ export default function FormularioAlmore() {
       return
     }
 
+    // O aceite trava o avanço, não o botão. Botão desabilitado sem explicação é
+    // um beco: o lead clica, nada acontece e ele não sabe o que falta. Assim
+    // ele clica, e a tela responde dizendo o que falta.
+    // TEXTO FORA DO DOCUMENTO — 16/09/2026.
+    if (tela.pedeConsentimento && !respostas.consentimento_whatsapp) {
+      setErroConsentimento("Marque a caixa acima para continuar.")
+      return
+    }
+
     // O estado guarda o que o lead VÊ — `(19) 99999-9999`. A conversão para
     // E.164 acontece só na fronteira do banco, em persistencia.ts. Convertendo
     // aqui, voltar uma tela mostrava `+5519999999999` no campo, e bastava
@@ -131,7 +146,18 @@ export default function FormularioAlmore() {
     // `diferenca` costuma sair vazia aqui — o `.trim()` não muda nada. Confiar
     // no diff fazia o e-mail nunca ser gravado: o nome e o WhatsApp só
     // escapavam por acaso, porque o telefone vira E.164 e isso mudava o valor.
-    gravar({ ...diferenca(respostas, novas), [tela.campo]: limpo }, novas)
+    // O aceite vai junto, pelo mesmo motivo do campo: ele já está no estado
+    // desde o clique na caixa, então o diff não o vê. E ele precisa chegar ao
+    // banco AQUI, na tela em que foi dado — quem largar o formulário depois
+    // disso já deixou o consentimento registrado, com hora e tudo.
+    gravar(
+      {
+        ...diferenca(respostas, novas),
+        [tela.campo]: limpo,
+        ...(tela.pedeConsentimento ? { consentimento_whatsapp: true } : {}),
+      },
+      novas,
+    )
     irPara(indice + 1)
   }
 
@@ -285,6 +311,38 @@ export default function FormularioAlmore() {
                   />
                   {erro ? <span className="funil-erro">{erro}</span> : null}
                 </div>
+
+                {/*
+                  O aceite mora aqui, na tela do WhatsApp, e não numa tela sua
+                  no fim: ele autoriza o contato NESTE número, e é este número
+                  que está logo acima. Numa tela solta lá na frente, o lead lia
+                  "no número informado" sem ter mais o número à vista.
+                */}
+                {telaAtual.pedeConsentimento ? (
+                  <div className="funil-consentimento-bloco">
+                    <label className="funil-consentimento">
+                      <input
+                        type="checkbox"
+                        checked={respostas.consentimento_whatsapp}
+                        onChange={(e) => {
+                          setRespostas((r) => ({
+                            ...r,
+                            consentimento_whatsapp: e.target.checked,
+                          }))
+                          setErroConsentimento(null)
+                        }}
+                      />
+                      <span>
+                        Concordo em receber contato pelo WhatsApp e por ligação, no número
+                        informado
+                      </span>
+                    </label>
+                    {erroConsentimento ? (
+                      <span className="funil-erro">{erroConsentimento}</span>
+                    ) : null}
+                  </div>
+                ) : null}
+
                 <button
                   type="button"
                   className="funil-botao"
@@ -322,21 +380,29 @@ export default function FormularioAlmore() {
 
             {telaAtual.tipo === "fechamento" ? (
               <div className="funil-tela">
-                {/* Sem título aqui: a tabela 1.3 marca o consentimento como
-                    "(checkbox, não é pergunta)". O texto do consentimento é
-                    a única coisa que a tela precisa dizer. */}
-                <label className="funil-consentimento funil-consentimento--sozinho">
-                  <input
-                    type="checkbox"
-                    checked={respostas.consentimento_whatsapp}
-                    onChange={(e) =>
-                      setRespostas((r) => ({ ...r, consentimento_whatsapp: e.target.checked }))
-                    }
-                  />
-                  <span>
-                    Concordo em receber contato pelo WhatsApp e por ligação, no número informado
-                  </span>
-                </label>
+                {/*
+                  O aceite saiu daqui para a tela do WhatsApp (16/09/2026), e
+                  esta tela ficaria sendo um botão sozinho no meio do nada. Em
+                  vez de encher com frase de efeito, ela mostra o que o lead
+                  acabou de digitar: é a última chance de ver um dígito trocado
+                  no telefone antes de a especialista ligar para o número errado.
+                  TEXTO FORA DO DOCUMENTO — 16/09/2026.
+                */}
+                <h2 className="funil-pergunta">Confira seus dados antes de enviar</h2>
+                <dl className="funil-revisao">
+                  <div>
+                    <dt>Nome</dt>
+                    <dd>{respostas.nome}</dd>
+                  </div>
+                  <div>
+                    <dt>WhatsApp</dt>
+                    <dd>{respostas.whatsapp}</dd>
+                  </div>
+                  <div>
+                    <dt>E-mail</dt>
+                    <dd>{respostas.email}</dd>
+                  </div>
+                </dl>
                 <button
                   type="button"
                   className="funil-botao"
@@ -358,6 +424,7 @@ export default function FormularioAlmore() {
 
         {fase.nome === "padrao" ? (
           <div className="funil-tela funil-tela--final">
+            <h2 className="funil-final-titulo">{CONFIRMACAO_PADRAO_TITULO}</h2>
             <p className="funil-texto-final">{CONFIRMACAO_PADRAO}</p>
           </div>
         ) : null}
@@ -401,7 +468,7 @@ export default function FormularioAlmore() {
             {/* TEXTO FORA DO DOCUMENTO — aprovado em 28/08/2026. O documento diz que o fluxo
                 termina sem tela adicional, mas alguma coisa precisa aparecer
                 na tela do lead depois do clique. */}
-            <p className="funil-texto-final">Tudo bem. Obrigado pelo seu tempo.</p>
+            <h2 className="funil-final-titulo">Tudo bem. Obrigado pelo seu tempo.</h2>
             <p className="funil-texto-final funil-texto-final--menor">
               Acompanhe a Almore e veja como trabalhamos.
             </p>
@@ -449,7 +516,52 @@ function TelaValor({
 
   return (
     <div className="funil-tela funil-tela--final">
-      <p className="funil-texto-valor">{tela.texto(respostas)}</p>
+      {/*
+        A hierarquia da tela, de cima para baixo: o que o lead quer (título),
+        quanto custa (o número), o que vem junto, a ressalva e só então a
+        chamada para o botão. Antes tudo isso era um parágrafo só, e o preço
+        ficava do mesmo tamanho da conjunção ao lado dele.
+
+        As palavras são as mesmas do documento de execução — quem for conferir
+        compara com `texto`, que continua em valor.ts ao lado de cada regra.
+      */}
+      <h2 className="funil-valor-titulo">{tela.titulo(respostas)}</h2>
+
+      <div className="funil-valor-cartao">
+        <p className="funil-valor-preco">
+          {tela.precoPrefixo ? (
+            <span className="funil-valor-prefixo">{tela.precoPrefixo}</span>
+          ) : null}
+          <span className="funil-valor-numero">{tela.preco}</span>
+          <span className="funil-valor-sufixo">{tela.precoSufixo}</span>
+        </p>
+
+        {tela.inclui.length > 0 ? (
+          <>
+            <p className="funil-valor-rotulo">Incluindo</p>
+            <ul className="funil-valor-itens">
+              {tela.inclui.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </>
+        ) : null}
+
+        {tela.naoInclui ? (
+          <>
+            <p className="funil-valor-rotulo">Esse valor não inclui</p>
+            <ul className="funil-valor-itens funil-valor-itens--fora">
+              {tela.naoInclui.itens.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+            <p className="funil-valor-nota">{tela.naoInclui.nota}</p>
+          </>
+        ) : null}
+      </div>
+
+      <p className="funil-texto-valor">{tela.chamada}</p>
+
       <div className="funil-acoes">
         <button type="button" className="funil-botao" onClick={onAceitar}>
           {/* O documento (1.2.1) escreve "Está de acordo, quero agendar", em

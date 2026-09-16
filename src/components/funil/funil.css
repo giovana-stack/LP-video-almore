@@ -116,10 +116,12 @@
 
 .funil-opcoes,
 .funil-campo,
-.funil-consentimento,
+.funil-consentimento-bloco,
 .funil-acoes,
 .funil-texto-valor,
 .funil-texto-final,
+.funil-revisao,
+.funil-valor-cartao,
 .agenda-nota {
   max-width: 620px;
 }
@@ -309,11 +311,18 @@
 }
 
 /* -- consentimento ---------------------------------------------------- */
+/* Desde 16/09/2026 ele mora na tela do WhatsApp, entre o campo e o botão:
+   autoriza o contato naquele número, e o número está logo acima. A margem de
+   baixo é do bloco, não da caixa — a mensagem de erro entra entre as duas. */
+.funil-consentimento-bloco {
+  display: grid;
+  gap: 0.55rem;
+  margin-bottom: 2.2rem;
+}
 .funil-consentimento {
   display: flex;
   align-items: flex-start;
   gap: 0.7rem;
-  margin-bottom: 1.6rem;
   padding: 1rem;
   background: var(--branco);
   border: 1px solid var(--linha);
@@ -321,12 +330,12 @@
   cursor: pointer;
   font-size: 0.95rem;
 }
-/* Sem título em cima, o consentimento é o conteúdo da tela: ganha o corpo de
-   texto maior e respira mais. */
-.funil-consentimento--sozinho {
-  font-size: 1.05rem;
-  line-height: 1.6;
-  padding: 1.35rem;
+@media (hover: hover) {
+  .funil-consentimento:hover { border-color: var(--cinza-medio); }
+}
+.funil-consentimento:has(input:checked) {
+  border-color: var(--bordo);
+  background: rgba(124, 22, 56, 0.05);
 }
 .funil-consentimento input {
   /* 22px porque o padrão do navegador dá um quadrado de 13px, pequeno demais
@@ -338,6 +347,38 @@
   accent-color: var(--bordo);
 }
 
+/* -- revisão (última tela antes do envio) ----------------------------- */
+/* Os três dados de contato, como o lead digitou. Rótulo miúdo em cima, valor
+   em cima do rótulo — não é tabela de duas colunas porque no celular o
+   e-mail quebraria feio numa coluna de 40% da tela. */
+.funil-revisao {
+  display: grid;
+  gap: 0.15rem;
+  margin: 0 0 2.2rem;
+  padding: 1.15rem 1.25rem;
+  background: var(--branco);
+  border: 1px solid var(--linha);
+  border-radius: 10px;
+}
+.funil-revisao > div + div {
+  margin-top: 0.9rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--linha);
+}
+.funil-revisao dt {
+  font-family: var(--titulo);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cinza-medio);
+}
+.funil-revisao dd {
+  margin: 0.15rem 0 0;
+  font-size: 1.05rem;
+  overflow-wrap: anywhere;
+}
+
 /* -- telas finais ----------------------------------------------------- */
 .funil-tela--final { text-align: left; }
 .funil-texto-valor,
@@ -347,6 +388,119 @@
   margin: 0 0 2rem;
 }
 .funil-texto-final { font-size: 1.15rem; }
+
+/* O título das telas que terminam o fluxo: confirmação, recusa e valor. Mesma
+   medida da pergunta, porque continua sendo a frase que a tela veio dizer. */
+.funil-almore .funil-final-titulo,
+.funil-almore .funil-valor-titulo {
+  font-size: clamp(1.35rem, 1.15rem + 1vw, 1.9rem);
+  max-width: 620px;
+  margin: 0 0 1.6rem;
+}
+
+/* -- tela de valor ----------------------------------------------------- */
+/*
+ * O cartão existe para tirar o preço do meio do texto corrido.
+ *
+ * Antes a tela era um parágrafo só: o lead precisava LER até o fim para
+ * descobrir quanto custava. Agora o número é a primeira coisa que o olho
+ * encontra depois do título, e o que vem junto está listado embaixo dele.
+ */
+.funil-valor-cartao {
+  margin: 0 0 1.8rem;
+  padding: 1.4rem 1.5rem 1.5rem;
+  background: var(--branco);
+  border: 1px solid var(--linha);
+  border-radius: 14px;
+  /* Sombra baixa e fria, quase invisível: levanta o cartão do fundo bege sem
+     virar caixa de dashboard. */
+  box-shadow: 0 1px 2px rgba(26, 26, 26, 0.04), 0 8px 24px rgba(26, 26, 26, 0.04);
+}
+.funil-valor-preco {
+  display: grid;
+  gap: 0.1rem;
+  margin: 0;
+}
+.funil-valor-prefixo,
+.funil-valor-sufixo {
+  font-family: var(--titulo);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cinza-medio);
+  line-height: 1.4;
+}
+.funil-valor-numero {
+  font-family: var(--titulo);
+  font-weight: 800;
+  /* Grande de propósito: é o único número da tela e é ele que decide o clique.
+     O teto é modesto porque "R$1.100,00" tem dez caracteres — passar disso
+     começa a quebrar em duas linhas no celular. */
+  font-size: clamp(2.3rem, 1.7rem + 2.6vw, 3.2rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--bordo);
+}
+
+/* O rótulo de cada lista dentro do cartão: "Incluindo" e "Esse valor não
+   inclui". Separado do preço por uma linha, para a lista não parecer legenda
+   do número. */
+.funil-valor-rotulo {
+  margin: 1.35rem 0 0.7rem;
+  padding-top: 1.35rem;
+  border-top: 1px solid var(--linha);
+  font-family: var(--titulo);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cinza-esc);
+}
+.funil-valor-itens {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.funil-valor-itens li {
+  position: relative;
+  padding-left: 1.9rem;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+/* O marcador é desenhado em CSS e não é texto: `content: ""` com borda
+   rotacionada não entra na leitura do leitor de tela nem é copiado junto com
+   o item quando alguém seleciona a lista. */
+.funil-valor-itens li::before {
+  content: "";
+  position: absolute;
+  left: 0.3rem;
+  top: 0.32em;
+  width: 0.42rem;
+  height: 0.78rem;
+  border: solid var(--bordo);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+/* A lista do que NÃO entra usa um traço, e não um check invertido: um "X"
+   vermelho ao lado de "Alvarás" faz parecer que alguma coisa deu errado. */
+.funil-valor-itens--fora li { color: var(--cinza-esc); }
+.funil-valor-itens--fora li::before {
+  top: 0.68em;
+  width: 0.7rem;
+  height: 0;
+  border-width: 0 0 2px 0;
+  border-color: var(--cinza-medio);
+  transform: none;
+}
+.funil-valor-nota {
+  margin: 0.9rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--cinza-esc);
+}
 /* A segunda linha da recusa: o convite para conhecer a Almore não pode ter o
    mesmo peso do agradecimento que vem antes dele. */
 .funil-texto-final--menor {
@@ -431,6 +585,7 @@
   .funil-topo { padding: 1.2rem 2rem; }
   .funil-marca img { height: 42px; }
   .funil-palco { padding: 3rem 2rem 4rem; }
+  .funil-valor-cartao { padding: 1.7rem 1.9rem 1.8rem; }
   /* Acompanha o recuo do palco: sem isto o "Voltar" nasce 22px à esquerda do
      rótulo da seção, porque a linha ficaria com o recuo do celular. */
   .funil-voltar-linha { padding-inline: 2rem; }

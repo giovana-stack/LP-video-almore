@@ -52,6 +52,12 @@ export type Tela =
       valida: (v: string) => boolean
       /** TEXTO FORA DO DOCUMENTO — aprovado em 28/08/2026. */
       erro: string
+      /**
+       * Mostra o aceite de contato nesta tela e trava o avanço até ele ser
+       * marcado. Só o WhatsApp usa: o consentimento fala do número, e é aqui
+       * que o número é dado.
+       */
+      pedeConsentimento?: boolean
     })
   | (Base & {
       tipo: "escolha"
@@ -95,6 +101,7 @@ export const TELAS: Tela[] = [
     mascara: mascararTelefone,
     valida: telefoneValido,
     erro: "Esse número não parece completo.",
+    pedeConsentimento: true,
   },
   {
     tipo: "texto",
