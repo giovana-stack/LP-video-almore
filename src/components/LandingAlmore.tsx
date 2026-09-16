@@ -156,14 +156,25 @@ export default function LandingAlmore() {
           </p>
 
           {/*
-            Espaço do vídeo — a peça principal do herói, em largura cheia.
-            Para colocar o vídeo, troque os dois <span> por um <iframe>
-            (YouTube/Vimeo) ou um <video>: o CSS já posiciona qualquer um dos
-            dois preenchendo o quadro em 16:9.
+            O vídeo — a peça principal do herói, em largura cheia. O CSS fixa a
+            proporção em 16:9, então a página não salta enquanto ele carrega.
+
+            O domínio é o `youtube-nocookie.com`: o YouTube comum grava cookie
+            de rastreio assim que o quadro aparece, antes de a pessoa dar play.
+            Nesta página isso importa mais do que o normal — ela é destino de
+            anúncio e já carrega o pixel do Meta.
+
+            `rel=0` tira os vídeos sugeridos de outros canais na tela final, e
+            `modestbranding=1` some com a logo no canto. O ID sai do link:
+            youtu.be/sYR4COvbSN0.
           */}
           <div className="hero-video">
-            <span className="play" aria-hidden="true"></span>
-            <span className="rotulo">Espaço do vídeo · 16:9</span>
+            <iframe
+              src="https://www.youtube-nocookie.com/embed/sYR4COvbSN0?rel=0&modestbranding=1"
+              title="Almore Inteligência Contábil"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
           </div>
 
           {/* Botao no tamanho natural, centralizado sob o video. */}
