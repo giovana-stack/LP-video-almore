@@ -1,4 +1,4 @@
-import { useEffect, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 
 import { capturarOrigem } from '@/lib/funil/origem'
 import { INSTAGRAM, LINKEDIN } from '@/lib/redes'
@@ -18,13 +18,20 @@ import { useProgressoDoVideo, type ProgressoDoVideo } from '@/lib/progresso-do-v
  * Tudo vive dentro de .lp-almore, então os estilos não vazam para o resto
  * do app e não brigam com o reset do Tailwind.
  *
- * O JavaScript da página é uma linha só: guardar a UTM da chegada, porque o
- * botão leva para /formulario e a query string não viaja no clique. Nada na
- * aparência depende disso — sem JS a página desenha inteira.
+ * O QUE A PÁGINA FAZ EM JAVASCRIPT, desde 16/09/2026:
  *
- * FALTA PREENCHER: o vídeo. O quadro 16:9 no herói ainda é placeholder — veja
- * o comentário em cima dele. Nada é inventado no ar: enquanto o dado não
- * existe, o espaço fica marcado em vez de receber conteúdo de mentira.
+ *  - guarda a UTM da chegada, porque o botão leva para /formulario e a query
+ *    string não viaja no clique;
+ *  - desce sozinha até deixar o vídeo no meio da tela, conferindo o resultado
+ *    e corrigindo, porque o layout ainda se mexe depois do primeiro cálculo;
+ *  - mede quanto do vídeo foi assistido e só então libera os quatro botões de
+ *    agendamento (a regra vive em progresso-do-video.ts);
+ *  - responde ao clique num botão travado com um balão dizendo o porquê.
+ *
+ * Nada disso é enfeite que possa faltar em silêncio: sem JavaScript não há
+ * medição, e sem medição os botões nascem abertos — a trava falha para o lado
+ * de deixar passar, nunca para o de barrar. O texto e o vídeo desenham
+ * normalmente de qualquer jeito.
  */
 
 // O único lugar onde o destino dos botões é definido: a rota do formulário
@@ -127,6 +134,96 @@ export default function LandingAlmore() {
   // A regra de o que conta como assistido está em progresso-do-video.ts.
   const video = useProgressoDoVideo(ID_DO_VIDEO, { iniciarSozinho: true })
 
+  /*
+   * A página abre já no vídeo.
+   *
+   * Ela nasce no topo, e o topo é título e subtítulo: quem chega do anúncio via
+   * texto antes de ver a peça que ele veio ver. O ajuste desce o suficiente
+   * para o quadro ficar no meio da tela.
+   *
+   * Duas ressalvas, as duas de respeito a quem chegou: se a URL trouxer uma
+   * âncora, ela manda, e não este ajuste; e se a pessoa mexer na rolagem antes
+   * de ele acontecer, ele desiste. Página que rouba a rolagem de quem já está
+   * rolando é das coisas mais irritantes que existem.
+   */
+  useEffect(() => {
+    if (window.location.hash) return
+
+    let desistir = false
+    const cancelar = () => {
+      desistir = true
+    }
+    const eventos = ['wheel', 'touchstart', 'keydown'] as const
+    eventos.forEach((e) => window.addEventListener(e, cancelar, { once: true, passive: true }))
+
+    /*
+     * O ajuste se confere e se corrige, em vez de acreditar na primeira conta.
+     *
+     * Rolar uma vez e pronto errava por 119px, medidos: o título é Instrument
+     * Serif, e enquanto ela não chega o navegador desenha com a fonte de
+     * reserva, que ocupa uma linha a mais. Quando a verdadeira entra, o bloco
+     * acima do vídeo encolhe e o vídeo sobe — mas a rolagem já tinha sido
+     * calculada para onde ele estava antes.
+     *
+     * Esperar `document.fonts.ready` não resolve, e isso também foi testado
+     * aqui: ela promete as fontes JÁ PEDIDAS, e a fonte do título ainda nem
+     * tinha sido pedida quando a promessa resolveu.
+     *
+     * Então em vez de adivinhar quando o layout para de se mexer, ele mede o
+     * erro e corrige — até três vezes, parando assim que estiver perto o
+     * bastante. Isso vale para qualquer coisa que reposicione a página tarde,
+     * não só para a fonte.
+     */
+    const FOLGA = 24
+    let tentativas = 0
+    let relogio = 0
+
+    const centralizar = () => {
+      if (desistir) return
+      const quadro = document.getElementById(ID_DO_VIDEO)?.closest('.hero-video')
+      if (!quadro) return
+
+      const r = quadro.getBoundingClientRect()
+      const erro = r.top - (window.innerHeight - r.height) / 2
+      if (Math.abs(erro) <= FOLGA) return
+
+      // A primeira vai animada, porque é a que o visitante vê. As correções
+      // vão de salto: elas são pequenas, e animar cada uma daria a impressão
+      // de uma página que não decide onde parar.
+      quadro.scrollIntoView({ behavior: tentativas === 0 ? 'smooth' : 'auto', block: 'center' })
+      tentativas += 1
+      if (tentativas < 3) relogio = window.setTimeout(centralizar, 700)
+    }
+
+    relogio = window.setTimeout(centralizar, 400)
+
+    return () => {
+      desistir = true
+      window.clearTimeout(relogio)
+      eventos.forEach((e) => window.removeEventListener(e, cancelar))
+    }
+  }, [])
+
+  /*
+   * O balão que responde ao clique num botão travado. Guarda QUAL botão e
+   * QUANDO: o instante é o que faz o balão reaparecer quando a pessoa clica
+   * duas vezes no mesmo botão — sem ele, o estado não mudaria e o balão
+   * ficaria parado, apagando no meio.
+   */
+  const [balao, setBalao] = useState<{ alvo: string; em: number } | null>(null)
+  const mostrarBalao = (alvo: string) => setBalao({ alvo, em: Date.now() })
+
+  useEffect(() => {
+    if (!balao) return
+    const relogio = window.setTimeout(() => setBalao(null), 4000)
+    return () => window.clearTimeout(relogio)
+  }, [balao])
+
+  // Destravou: o balão perde o assunto e sai da tela na hora.
+  useEffect(() => {
+    if (video.liberado) setBalao(null)
+  }, [video.liberado])
+
   return (
     <div className="lp-almore">
       <a className="skip" href="#conteudo">Ir para o conteúdo</a>
@@ -140,7 +237,7 @@ export default function LandingAlmore() {
             height={ISOTIPO.h}
           />
         </a>
-        <BotaoCta video={video} />
+        <BotaoCta video={video} id="topo" balao={balao} aoBloquear={mostrarBalao} />
       </header>
       
       <main id="conteudo">
@@ -236,7 +333,7 @@ export default function LandingAlmore() {
             o anel nos outros três encheria a página de relógios.
           */}
           <p className="cta-row cta-row--centro">
-            <BotaoCta video={video} comAnel />
+            <BotaoCta video={video} id="heroi" balao={balao} aoBloquear={mostrarBalao} comAnel />
           </p>
           <AvisoDaTrava video={video} />
         </div>
@@ -313,7 +410,7 @@ export default function LandingAlmore() {
             é minha para cortar — fica anotado para a Giovana decidir.
           */}
           <p className="narrow narrow--ink">O mesmo aplicado em empresas de todos os regimes — MEI, Simples Nacional, Lucro Presumido e Lucro Real —, do primeiro CNPJ à operação com folha e sócios.</p>
-          <p className="cta-row"><BotaoCta video={video} /></p>
+          <p className="cta-row"><BotaoCta video={video} id="metodo" balao={balao} aoBloquear={mostrarBalao} /></p>
         </div>
       </section>
 
@@ -350,7 +447,7 @@ export default function LandingAlmore() {
           <span>© 2026 Almore Inteligência Contábil · Todos os direitos reservados</span>
           {/* Link de texto, não botão — mas travado igual: senão o rodapé vira
               a porta dos fundos da trava do vídeo. */}
-          <BotaoCta video={video} comoTexto />
+          <BotaoCta video={video} id="rodape" balao={balao} aoBloquear={mostrarBalao} comoTexto />
         </div>
       </footer>
     </div>
@@ -389,12 +486,22 @@ function rolarAteOVideo() {
   }, 500)
 }
 
+/** TEXTO FORA DO DOCUMENTO — 16/09/2026. */
+const AVISO_AO_CLICAR = 'Assista ao vídeo para continuar'
+
 function BotaoCta({
   video,
+  id,
+  balao,
+  aoBloquear,
   comAnel = false,
   comoTexto = false,
 }: {
   video: ProgressoDoVideo
+  /** Qual dos quatro botões é este — o balão só aparece no que foi clicado. */
+  id: string
+  balao: { alvo: string; em: number } | null
+  aoBloquear: (id: string) => void
   /** Desenha a faixa de progresso em volta. Só o botão do herói usa. */
   comAnel?: boolean
   /** Link de texto em vez de botão. Só o rodapé usa. */
@@ -420,14 +527,33 @@ function BotaoCta({
       // tirar o href deixaria o link fora da navegação por teclado. Assim ele
       // continua alcançável e anunciado como indisponível.
       aria-disabled="true"
-      aria-describedby="cta-aviso"
       onClick={(e) => {
         e.preventDefault()
+        aoBloquear(id)
         rolarAteOVideo()
       }}
     >
       {comAnel ? <AnelDeProgresso progresso={video.progresso} /> : null}
       <span className="cta-rotulo">{ROTULO_CTA}</span>
+
+      {/*
+        Rolar até o vídeo respondia ao clique com um movimento, e movimento não
+        é explicação: a página subia e o visitante não sabia por quê. O balão
+        diz o motivo, some sozinho e nasce no botão que ele clicou — não nos
+        quatro.
+
+        No botão do herói ele sai por cima, porque logo abaixo já existe o
+        aviso permanente e os dois se cobririam.
+      */}
+      {balao?.alvo === id ? (
+        <span
+          className={`cta-balao${comAnel ? ' cta-balao--acima' : ''}`}
+          role="status"
+          key={balao.em}
+        >
+          {AVISO_AO_CLICAR}
+        </span>
+      ) : null}
     </a>
   )
 }
@@ -459,43 +585,84 @@ function AvisoDaTrava({ video }: { video: ProgressoDoVideo }) {
 /**
  * A faixa que corre em volta do botão conforme o vídeo avança.
  *
- * É um <rect> de SVG com o mesmo raio da borda do botão, desenhado por cima
- * dele. `pathLength={100}` normaliza o perímetro: não importa a largura real
- * do botão, o traço sempre vai de 0 a 100, então a fração vira o
- * `strokeDashoffset` direto, sem medir nada com JavaScript.
+ * ---------------------------------------------------------------------------
+ * POR QUE ELE MEDE O BOTÃO, EM VEZ DE USAR UM viewBox FIXO
  *
- * O `vector-effect` mantém a espessura do traço constante mesmo com o viewBox
- * esticado — sem ele, a faixa engrossaria nos lados curtos.
+ * A primeira versão desenhava um quadrado de 100×100 e deixava o
+ * `preserveAspectRatio="none"` esticá-lo até a forma do botão. Era mais curta
+ * de escrever e estava errada: esticada, a mesma distância em unidades do SVG
+ * vira muito mais pixels na horizontal do que na vertical, então o traço
+ * andava devagar nos lados compridos e disparava nos curtos. Somado ao
+ * `vector-effect`, que passa a medir o tracejado no espaço já esticado, o
+ * resultado na tela era o que a Giovana descreveu: duas pontas soltas se
+ * mexendo ao mesmo tempo, em vez de uma ponta parada e a outra correndo.
+ *
+ * Agora o SVG recebe um viewBox do tamanho real do botão em pixels. A escala
+ * passa a ser 1:1, o tracejado volta a ser uniforme, e a faixa faz o que se
+ * espera: começa no canto de cima à esquerda, esse canto NÃO se mexe, e a
+ * outra ponta corre no sentido horário até fechar a volta.
+ *
+ * `pathLength={100}` continua, e agora sim faz o que promete: normaliza o
+ * perímetro, então a fração assistida vira `strokeDashoffset` sem conta
+ * nenhuma.
  */
 function AnelDeProgresso({ progresso }: { progresso: number }) {
+  const referencia = useRef<SVGSVGElement>(null)
+  const [medida, setMedida] = useState<{ l: number; a: number } | null>(null)
+
+  useEffect(() => {
+    const botao = referencia.current?.parentElement
+    if (!botao) return
+
+    const medir = () => {
+      const r = botao.getBoundingClientRect()
+      setMedida({ l: Math.round(r.width), a: Math.round(r.height) })
+    }
+
+    medir()
+    // O botão muda de tamanho sem a janela mudar: o rótulo quebra em duas
+    // linhas quando a fonte termina de carregar, e no celular ele é fluido.
+    const observador = new ResizeObserver(medir)
+    observador.observe(botao)
+    return () => observador.disconnect()
+  }, [])
+
+  // Antes da medida não há viewBox possível — e um viewBox de largura zero
+  // faria o navegador ignorar o SVG inteiro.
+  const caixa = medida && medida.l > 0 && medida.a > 0 ? medida : null
+
   return (
     <svg
+      ref={referencia}
       className="cta-anel"
-      viewBox="0 0 100 100"
-      preserveAspectRatio="none"
+      viewBox={caixa ? `0 0 ${caixa.l} ${caixa.a}` : undefined}
       aria-hidden="true"
       focusable="false"
     >
-      <rect
-        className="cta-anel-trilho"
-        x="0.5"
-        y="0.5"
-        width="99"
-        height="99"
-        pathLength={100}
-        vectorEffect="non-scaling-stroke"
-      />
-      <rect
-        className="cta-anel-corrida"
-        x="0.5"
-        y="0.5"
-        width="99"
-        height="99"
-        pathLength={100}
-        strokeDasharray={100}
-        strokeDashoffset={100 - progresso * 100}
-        vectorEffect="non-scaling-stroke"
-      />
+      {caixa ? (
+        <>
+          <rect
+            className="cta-anel-trilho"
+            x="1"
+            y="1"
+            width={caixa.l - 2}
+            height={caixa.a - 2}
+            rx="2"
+            pathLength={100}
+          />
+          <rect
+            className="cta-anel-corrida"
+            x="1"
+            y="1"
+            width={caixa.l - 2}
+            height={caixa.a - 2}
+            rx="2"
+            pathLength={100}
+            strokeDasharray="100 100"
+            strokeDashoffset={100 - progresso * 100}
+          />
+        </>
+      ) : null}
     </svg>
   )
 }
