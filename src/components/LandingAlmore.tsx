@@ -2,6 +2,7 @@ import { useEffect, type CSSProperties } from 'react'
 
 import { capturarOrigem } from '@/lib/funil/origem'
 import { INSTAGRAM, LINKEDIN } from '@/lib/redes'
+import { useProgressoDoVideo, type ProgressoDoVideo } from '@/lib/progresso-do-video'
 
 /**
  * Landing page da Almore Inteligência Contábil — página de um fôlego só.
@@ -32,6 +33,13 @@ import { INSTAGRAM, LINKEDIN } from '@/lib/redes'
 // LandingAlmore) — sem isso, todo lead vindo de anúncio chegaria ao banco sem
 // UTM nenhuma, e nada quebraria para avisar.
 const CTA = '/formulario'
+
+// O rótulo dos quatro botões, num lugar só. Eram quatro cópias da mesma frase.
+const ROTULO_CTA = 'Quero ter uma contabilidade estratégica'
+
+// O id do iframe do vídeo. A API do YouTube se liga ao player por id, e a
+// âncora do "role até o vídeo" usa o mesmo elemento.
+const ID_DO_VIDEO = 'video-heroi'
 
 // Os endereços das redes moram em src/lib/redes.ts. O LinkedIn era uma
 // constante aqui e o Instagram estava escrito à mão no rodapé, com um handle
@@ -115,6 +123,10 @@ export default function LandingAlmore() {
     capturarOrigem()
   }, [])
 
+  // A trava do agendamento: o botão só abre depois de 90% do vídeo assistido.
+  // A regra de o que conta como assistido está em progresso-do-video.ts.
+  const video = useProgressoDoVideo(ID_DO_VIDEO)
+
   return (
     <div className="lp-almore">
       <a className="skip" href="#conteudo">Ir para o conteúdo</a>
@@ -128,7 +140,7 @@ export default function LandingAlmore() {
             height={ISOTIPO.h}
           />
         </a>
-        <a className="btn" href={CTA}>Quero ter uma contabilidade estratégica</a>
+        <BotaoCta video={video} />
       </header>
       
       <main id="conteudo">
@@ -170,17 +182,27 @@ export default function LandingAlmore() {
           */}
           <div className="hero-video">
             <iframe
-              src="https://www.youtube-nocookie.com/embed/sYR4COvbSN0?rel=0&modestbranding=1"
+              id={ID_DO_VIDEO}
+              // `enablejsapi=1` é o que deixa a página conversar com o player e
+              // medir o quanto foi assistido. Sem isso a trava do botão não tem
+              // como saber nada, e ela abre por segurança.
+              src={`https://www.youtube-nocookie.com/embed/sYR4COvbSN0?rel=0&modestbranding=1&enablejsapi=1`}
               title="Almore Inteligência Contábil"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             />
           </div>
 
-          {/* Botao no tamanho natural, centralizado sob o video. */}
+          {/*
+            Botao no tamanho natural, centralizado sob o video. É o único que
+            leva o anel: ele fica logo abaixo do vídeo, onde o visitante está
+            olhando, e é lá que a espera precisa ter uma forma visível. Repetir
+            o anel nos outros três encheria a página de relógios.
+          */}
           <p className="cta-row cta-row--centro">
-            <a className="btn" href={CTA}>Quero ter uma contabilidade estratégica</a>
+            <BotaoCta video={video} comAnel />
           </p>
+          <AvisoDaTrava video={video} />
         </div>
 
         {/*
@@ -255,7 +277,7 @@ export default function LandingAlmore() {
             é minha para cortar — fica anotado para a Giovana decidir.
           */}
           <p className="narrow narrow--ink">O mesmo aplicado em empresas de todos os regimes — MEI, Simples Nacional, Lucro Presumido e Lucro Real —, do primeiro CNPJ à operação com folha e sócios.</p>
-          <p className="cta-row"><a className="btn" href={CTA}>Quero ter uma contabilidade estratégica</a></p>
+          <p className="cta-row"><BotaoCta video={video} /></p>
         </div>
       </section>
 
@@ -290,9 +312,154 @@ export default function LandingAlmore() {
         </div>
         <div className="wrap copy">
           <span>© 2026 Almore Inteligência Contábil · Todos os direitos reservados</span>
-          <a href={CTA}>Quero ter uma contabilidade estratégica</a>
+          {/* Link de texto, não botão — mas travado igual: senão o rodapé vira
+              a porta dos fundos da trava do vídeo. */}
+          <BotaoCta video={video} comoTexto />
         </div>
       </footer>
     </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// A TRAVA DO AGENDAMENTO
+//
+// Os quatro botões que levam ao formulário só abrem depois de 90% do vídeo.
+// Travar só o do herói não travaria nada: o do cabeçalho está visível desde o
+// primeiro pixel da página, e bastaria clicar nele.
+//
+// Travado, o botão não vira um alvo morto — ele rola até o vídeo. Quem clicou
+// ali quer agendar, e o vídeo é o caminho; um clique que não faz nada só
+// ensina que o site está quebrado.
+// ---------------------------------------------------------------------------
+
+function rolarAteOVideo() {
+  const quadro = document.getElementById(ID_DO_VIDEO)?.closest('.hero-video')
+  if (!quadro) return
+
+  const suave = !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  quadro.scrollIntoView({ behavior: suave ? 'smooth' : 'auto', block: 'center' })
+  if (!suave) return
+
+  // Há ambiente que engole o `smooth` e não rola nada — vi acontecer ao testar
+  // esta página. Meio segundo depois, se o quadro ainda não estiver à vista,
+  // vai de salto: chegar ao vídeo importa mais do que a animação. Quando o
+  // `smooth` funciona, a checagem não encontra nada fora de vista e não faz
+  // nada.
+  window.setTimeout(() => {
+    const r = quadro.getBoundingClientRect()
+    const foraDaVista = r.bottom < 0 || r.top > window.innerHeight
+    if (foraDaVista) quadro.scrollIntoView({ behavior: 'auto', block: 'center' })
+  }, 500)
+}
+
+function BotaoCta({
+  video,
+  comAnel = false,
+  comoTexto = false,
+}: {
+  video: ProgressoDoVideo
+  /** Desenha a faixa de progresso em volta. Só o botão do herói usa. */
+  comAnel?: boolean
+  /** Link de texto em vez de botão. Só o rodapé usa. */
+  comoTexto?: boolean
+}) {
+  const classe = comoTexto ? '' : 'btn'
+
+  if (video.liberado) {
+    return (
+      <a className={classe || undefined} href={CTA}>
+        {ROTULO_CTA}
+      </a>
+    )
+  }
+
+  return (
+    <a
+      className={[classe, 'cta-travado', comAnel ? 'cta-travado--anel' : '']
+        .filter(Boolean)
+        .join(' ')}
+      href={CTA}
+      // `aria-disabled`, e não o atributo `disabled`: <a> não tem `disabled`, e
+      // tirar o href deixaria o link fora da navegação por teclado. Assim ele
+      // continua alcançável e anunciado como indisponível.
+      aria-disabled="true"
+      aria-describedby="cta-aviso"
+      onClick={(e) => {
+        e.preventDefault()
+        rolarAteOVideo()
+      }}
+    >
+      {comAnel ? <AnelDeProgresso progresso={video.progresso} /> : null}
+      <span className="cta-rotulo">{ROTULO_CTA}</span>
+    </a>
+  )
+}
+
+/**
+ * O aviso embaixo do botão do herói.
+ *
+ * `role="status"` para o leitor de tela anunciar a virada sozinho: sem isso, o
+ * botão destravaria em silêncio para quem não está olhando a tela.
+ */
+function AvisoDaTrava({ video }: { video: ProgressoDoVideo }) {
+  // Sem medição não há trava, e um aviso sobre uma trava que não existe só
+  // confunde.
+  if (video.semMedicao) return null
+
+  return (
+    <p
+      id="cta-aviso"
+      className={`cta-aviso${video.liberado ? ' cta-aviso--liberado' : ''}`}
+      role="status"
+    >
+      {video.liberado
+        ? 'Pronto — o agendamento está liberado.'
+        : 'Assista ao vídeo para liberar o agendamento.'}
+    </p>
+  )
+}
+
+/**
+ * A faixa que corre em volta do botão conforme o vídeo avança.
+ *
+ * É um <rect> de SVG com o mesmo raio da borda do botão, desenhado por cima
+ * dele. `pathLength={100}` normaliza o perímetro: não importa a largura real
+ * do botão, o traço sempre vai de 0 a 100, então a fração vira o
+ * `strokeDashoffset` direto, sem medir nada com JavaScript.
+ *
+ * O `vector-effect` mantém a espessura do traço constante mesmo com o viewBox
+ * esticado — sem ele, a faixa engrossaria nos lados curtos.
+ */
+function AnelDeProgresso({ progresso }: { progresso: number }) {
+  return (
+    <svg
+      className="cta-anel"
+      viewBox="0 0 100 100"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <rect
+        className="cta-anel-trilho"
+        x="0.5"
+        y="0.5"
+        width="99"
+        height="99"
+        pathLength={100}
+        vectorEffect="non-scaling-stroke"
+      />
+      <rect
+        className="cta-anel-corrida"
+        x="0.5"
+        y="0.5"
+        width="99"
+        height="99"
+        pathLength={100}
+        strokeDasharray={100}
+        strokeDashoffset={100 - progresso * 100}
+        vectorEffect="non-scaling-stroke"
+      />
+    </svg>
   )
 }

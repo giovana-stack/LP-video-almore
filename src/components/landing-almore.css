@@ -442,3 +442,80 @@
   text-decoration: none;
 }
 .lp-almore .skip:focus { left: .5rem; top: .5rem; }
+
+/* ====================================================================
+   A TRAVA DO AGENDAMENTO
+
+   Os botoes que levam ao formulario so abrem depois de 90% do video.
+   Travado, o botao vira fantasma: fundo transparente, borda e texto
+   apagados. O contraste com o bordo cheio do estado liberado e o que
+   diz, sem palavra nenhuma, que ainda falta alguma coisa.
+
+   Ele continua clicavel de proposito -- o clique rola ate o video --,
+   entao o cursor continua sendo o de link, e nao o de proibido.
+   ==================================================================== */
+.lp-almore .cta-travado {
+  cursor: pointer;
+}
+.lp-almore .btn.cta-travado {
+  background: transparent;
+  border-color: var(--rule-dark);
+  color: var(--dim);
+}
+.lp-almore .btn.cta-travado:hover {
+  background: rgba(235, 224, 201, .04);
+  border-color: var(--dim);
+  color: var(--sand);
+  transform: none;
+}
+/* A seta promete ida. Travado, o botao nao leva a lugar nenhum ainda. */
+.lp-almore .btn.cta-travado::after { content: none; }
+
+/* O link de texto do rodape, travado. */
+.lp-almore .copy a.cta-travado {
+  opacity: .55;
+  text-decoration-style: dashed;
+}
+
+/* -- a faixa que corre em volta ---------------------------------------
+   O SVG cobre o botao inteiro e fica fora do fluxo, entao ele nao entra
+   na conta do inline-flex nem empurra o rotulo. O `overflow: visible`
+   deixa a metade externa do traco aparecer: sem isso o SVG cortaria
+   exatamente na linha do retangulo e a faixa ficaria com metade da
+   espessura pedida. */
+.lp-almore .cta-travado--anel {
+  position: relative;
+  overflow: visible;
+}
+.lp-almore .cta-rotulo { position: relative; }
+.lp-almore .cta-anel {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.lp-almore .cta-anel rect {
+  fill: none;
+  stroke-width: 2;
+}
+.lp-almore .cta-anel-trilho { stroke: var(--rule-dark); }
+.lp-almore .cta-anel-corrida {
+  stroke: var(--sand);
+  /* `linear`, e nao uma curva: e um relogio, e relogio que acelera e
+     desacelera mente sobre quanto falta. */
+  transition: stroke-dashoffset .25s linear;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lp-almore .cta-anel-corrida { transition: none; }
+}
+
+/* -- o aviso ---------------------------------------------------------- */
+.lp-almore .cta-aviso {
+  margin: .9rem 0 0;
+  font-size: var(--step--1);
+  color: var(--dim);
+  text-align: center;
+}
+.lp-almore .cta-aviso--liberado { color: var(--sand); }
