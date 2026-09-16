@@ -125,7 +125,7 @@ export default function LandingAlmore() {
 
   // A trava do agendamento: o botão só abre depois de 90% do vídeo assistido.
   // A regra de o que conta como assistido está em progresso-do-video.ts.
-  const video = useProgressoDoVideo(ID_DO_VIDEO)
+  const video = useProgressoDoVideo(ID_DO_VIDEO, { iniciarSozinho: true })
 
   return (
     <div className="lp-almore">
@@ -179,6 +179,15 @@ export default function LandingAlmore() {
             `rel=0` tira os vídeos sugeridos de outros canais na tela final, e
             `modestbranding=1` some com a logo no canto. O ID sai do link:
             youtu.be/sYR4COvbSN0.
+
+            SOBRE O `mute=1`: ele NÃO é opcional. Desde 2018 nenhum navegador
+            deixa um vídeo começar sozinho com som — Chrome, Safari e Firefox
+            simplesmente recusam o play, e o resultado de pedir `autoplay=1`
+            sem `mute=1` não é um vídeo com som, é um vídeo parado. Mudo, ele
+            toca; o visitante liga o som no próprio player.
+
+            `playsinline=1` é para o iPhone: sem isso o Safari joga o vídeo em
+            tela cheia sozinho, e a pessoa perde a página de vista.
           */}
           <div className="hero-video">
             <iframe
@@ -186,7 +195,7 @@ export default function LandingAlmore() {
               // `enablejsapi=1` é o que deixa a página conversar com o player e
               // medir o quanto foi assistido. Sem isso a trava do botão não tem
               // como saber nada, e ela abre por segurança.
-              src={`https://www.youtube-nocookie.com/embed/sYR4COvbSN0?rel=0&modestbranding=1&enablejsapi=1`}
+              src={`https://www.youtube-nocookie.com/embed/sYR4COvbSN0?rel=0&modestbranding=1&enablejsapi=1&autoplay=1&mute=1&playsinline=1`}
               title="Almore Inteligência Contábil"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen

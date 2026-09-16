@@ -46,6 +46,8 @@ const INTERVALO_MS = 250
 type Player = {
   getCurrentTime?: () => number
   getDuration?: () => number
+  mute?: () => void
+  playVideo?: () => void
   destroy?: () => void
 }
 
@@ -109,7 +111,24 @@ export type ProgressoDoVideo = {
   semMedicao: boolean
 }
 
-export function useProgressoDoVideo(idDoIframe: string): ProgressoDoVideo {
+/**
+ * @param iniciarSozinho manda tocar assim que o player fica pronto.
+ *
+ * O `autoplay=1` na URL do embed NÃO basta quando o `enablejsapi=1` está
+ * ligado: o player passa a esperar comando, e o parâmetro é ignorado. Medido
+ * nesta página — com os dois parâmetros na URL o vídeo ficava parado, e um
+ * `playVideo()` depois do `onReady` tocava na hora, sem gesto nenhum do
+ * visitante. O parâmetro continua na URL como plano B, para o caso de a API
+ * não carregar; quem realmente dá o play é esta chamada.
+ *
+ * O `mute()` antes do play não é preferência: navegador nenhum deixa um vídeo
+ * começar sozinho com som. Pedir play sem tirar o som não resulta em som —
+ * resulta em vídeo parado.
+ */
+export function useProgressoDoVideo(
+  idDoIframe: string,
+  { iniciarSozinho = false }: { iniciarSozinho?: boolean } = {},
+): ProgressoDoVideo {
   const [assistido, setAssistido] = useState(0)
   const [semMedicao, setSemMedicao] = useState(false)
 
@@ -132,7 +151,10 @@ export function useProgressoDoVideo(idDoIframe: string): ProgressoDoVideo {
       // daria Infinity, e o anel nasceria cheio.
       if (!total) return
       segundosVistos.add(Math.floor(player.getCurrentTime()))
-      if (vivo) setAssistido(Math.min(1, segundosVistos.size / total))
+      const fracao = Math.min(1, segundosVistos.size / total)
+      if (vivo) setAssistido(fracao)
+      // Chegou na meta: não há mais nada para medir, e o relógio para.
+      if (fracao >= META) window.clearInterval(relogio)
     }
 
     carregarApi()
@@ -140,18 +162,40 @@ export function useProgressoDoVideo(idDoIframe: string): ProgressoDoVideo {
         if (!vivo) return
         player = new YT.Player(idDoIframe, {
           events: {
-            onReady: () => window.clearTimeout(prazo),
-            onError: desistir,
-            onStateChange: (evento: { data: number }) => {
-              window.clearInterval(relogio)
-              if (evento.data === YT.PlayerState.PLAYING) {
-                relogio = window.setInterval(medir, INTERVALO_MS)
+            onReady: (evento: { target: Player }) => {
+              window.clearTimeout(prazo)
+              // O player também vem por aqui, e não só pelo retorno do
+              // construtor: `onReady` pode disparar antes de o `new` devolver,
+              // e aí a variável ainda estaria vazia na primeira medição.
+              player = evento.target
+
+              if (iniciarSozinho) {
+                player.mute?.()
+                player.playVideo?.()
               }
-              // Medir também na parada: sem isto, o último segundo antes de
-              // pausar ou terminar ficava de fora, e um vídeo visto inteiro
-              // podia parar em 89%.
-              medir()
+
+              /*
+               * O relógio roda solto daqui em diante, e não só entre o
+               * "começou a tocar" e o "parou".
+               *
+               * O motivo é um caso real, que quebrou esta página: com autoplay
+               * o vídeo JÁ ESTÁ tocando quando a página se liga ao player, então
+               * o evento de "começou a tocar" nunca chega — ele aconteceu antes
+               * de alguém estar ouvindo. Uma medição presa nesse evento nunca
+               * começava: o vídeo rodava inteiro e o anel ficava em zero.
+               *
+               * Amostrar sempre custa um timer de 250ms e não depende de evento
+               * nenhum. Com o vídeo parado, cada amostra repete o mesmo segundo,
+               * e o `Set` descarta — parado não conta como assistido.
+               */
+              window.clearInterval(relogio)
+              relogio = window.setInterval(medir, INTERVALO_MS)
             },
+            onError: desistir,
+            // Medir também na virada: sem isto, o último segundo antes de
+            // pausar ou terminar podia ficar de fora, e um vídeo visto inteiro
+            // parava em 89%.
+            onStateChange: medir,
           },
         })
       })
@@ -163,7 +207,7 @@ export function useProgressoDoVideo(idDoIframe: string): ProgressoDoVideo {
       window.clearInterval(relogio)
       player?.destroy?.()
     }
-  }, [idDoIframe])
+  }, [idDoIframe, iniciarSozinho])
 
   return {
     assistido,
