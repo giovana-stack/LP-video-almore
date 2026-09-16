@@ -522,28 +522,26 @@
 .lp-almore .hero-som {
   position: absolute;
   /*
-   * Ancorada pelo TOPO, a 26% da altura do quadro.
+   * Canto de baixo a direita.
    *
-   * Embaixo ela caia em cima do letreiro do video -- o "Larissa Mroczko /
-   * Especialista em Gestao Tributaria" ocupa a faixa dos 55% aos 80%. Mais
-   * embaixo ainda, batia na legenda e na barra de controles. A 26% ela fica
-   * abaixo do titulo do YouTube (que some sozinho depois de alguns segundos) e
-   * bem acima do letreiro, sobre o fundo da parede de plantas.
+   * Os 22% do rodape sao medidos: no quadro do video a barra de progresso fica
+   * a 9% da base, o botao de tela cheia a 13% e a legenda a 15%. A 22% a tarja
+   * passa acima dos tres, inclusive quando a legenda quebra em duas linhas.
    *
-   * Aqui em cima o ancoramento pelo topo e seguro: o risco de a segunda linha
-   * cair para fora do quadro existia quando a tarja estava colada no rodape.
+   * A direita ela tambem sai da frente do letreiro do video (o "Larissa
+   * Mroczko / Especialista em Gestao Tributaria"), que entra pela esquerda.
    */
-  left: clamp(.7rem, 2.2%, 1.4rem);
-  top: 26%;
+  right: clamp(.7rem, 2.2%, 1.4rem);
+  bottom: 22%;
   z-index: 2;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: flex-end;
   gap: .4rem;
   max-width: calc(100% - 2.8rem);
   padding: 0;
   font-family: inherit;
-  text-align: left;
+  text-align: right;
   background: none;
   border: 0;
   cursor: pointer;
@@ -587,7 +585,7 @@
 .lp-almore .hero-som-pilula svg path:first-child { fill: currentColor; }
 
 .lp-almore .hero-som-nota {
-  padding-left: .15rem;
+  padding-right: .15rem;
   font-size: var(--step--1);
   color: var(--sand);
   /* Sem veu atras, a sombra do texto e o que garante leitura quando o
@@ -601,11 +599,10 @@
 }
 
 /* No celular o quadro e baixo: a tarja perde a segunda linha e encolhe, para
-   nao virar uma faixa atravessada no video. Com uma linha so ela sobe um
-   pouco, para o letreiro -- que no quadro pequeno comeca mais cedo -- passar
-   por baixo dela. */
+   nao virar uma faixa atravessada no video. Com uma linha so ela desce um
+   pouco, porque a altura que ela ocupava com duas linhas deixou de existir. */
 @media (max-width: 560px) {
-  .lp-almore .hero-som { top: 22%; }
+  .lp-almore .hero-som { bottom: 20%; }
   .lp-almore .hero-som-pilula { padding: .55rem 1rem; font-size: var(--step--1); }
   .lp-almore .hero-som-nota { display: none; }
 }
