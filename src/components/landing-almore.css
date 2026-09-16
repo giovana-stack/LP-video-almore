@@ -199,55 +199,41 @@
      Quem devolve a margem e a .wrap logo abaixo. */
   padding: clamp(4rem, 8vw, 7rem) 0 clamp(2.5rem, 5vw, 4rem);
 }
+/*
+ * O heroi corre mais largo que o resto da pagina, de proposito.
+ *
+ * A medida geral (--measure: 1140px) foi feita para texto corrido, onde linha
+ * longa cansa de ler. No heroi o que manda e o video: cada pixel a mais de
+ * largura e rosto maior e legenda mais legivel, e o titulo tem duas linhas,
+ * nao vinte. Por isso ele tem teto proprio.
+ *
+ * O teto e min(), e nao um valor fixo: em tela estreita o 100% vence e sobra
+ * so o respiro lateral; em tela larga o 1480px segura, para o video nao virar
+ * uma faixa de cinema de ponta a ponta.
+ */
 .hero > .wrap {
-  padding-inline: 1.5rem;
-  max-width: calc(var(--measure) + 3rem);
+  padding-inline: clamp(1.25rem, 3vw, 2.75rem);
+  max-width: min(1480px, 100%);
 }
 /*
  * O vídeo é a peça principal do herói: título em linha cheia, subtítulo
  * menor, e o vídeo em largura total logo abaixo.
  *
- * Para colocar o vídeo, ponha um <iframe> ou <video> dentro de .hero-video
- * e apague os dois <span>. A proporção 16:9 está fixa, então a página não
- * salta quando ele entrar.
+ * A borda pontilhada e o miolo com o botão de play desenhado saíram junto com
+ * o placeholder: eles marcavam um espaço vazio, e com o vídeo dentro viravam
+ * moldura tracejada em volta de conteúdo de verdade.
+ *
+ * A proporção 16:9 continua fixa, e é ela que impede a página de saltar no
+ * instante entre o quadro existir e o player pintar. O fundo escuro preenche
+ * esse instante.
  */
 .hero-video {
   position: relative;
   aspect-ratio: 16 / 9;
   margin-top: clamp(2rem, 4vw, 3rem);
-  border: 1px dashed rgba(235, 224, 201, 0.32);
   border-radius: 3px;
-  background:
-    radial-gradient(120% 120% at 50% 0%, rgba(124, 22, 56, 0.38), rgba(20, 10, 15, 0) 72%),
-    var(--ink-2);
-  display: grid;
-  justify-items: center;
-  align-content: center;
-  gap: 1.25rem;
-  color: var(--dim);
-}
-.hero-video .play {
-  width: clamp(64px, 7vw, 96px);
-  aspect-ratio: 1;
-  border: 1px solid rgba(235, 224, 201, 0.42);
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  transition: border-color .25s ease, background-color .25s ease;
-}
-.hero-video:hover .play { border-color: var(--sand); background: rgba(235, 224, 201, 0.06); }
-.hero-video .play::before {
-  content: "";
-  margin-left: 6px;
-  border-left: clamp(16px, 1.6vw, 22px) solid var(--sand);
-  border-top: clamp(10px, 1vw, 14px) solid transparent;
-  border-bottom: clamp(10px, 1vw, 14px) solid transparent;
-}
-.hero-video .rotulo {
-  font-size: .68rem;
-  font-weight: 600;
-  letter-spacing: .18em;
-  text-transform: uppercase;
+  overflow: hidden;
+  background: var(--ink-2);
 }
 .hero-video iframe,
 .hero-video video {
@@ -535,12 +521,20 @@
    ==================================================================== */
 .lp-almore .hero-som {
   position: absolute;
-  /* Ancorada EMBAIXO, e nao pelo topo: o quadro e 16:9 e muda de altura
-     junto com a largura da tela. Presa pelo topo, no celular a segunda
-     linha caia para fora do video. Os 18% deixam a tarja acima da barra
-     de controles e da legenda do YouTube. */
+  /*
+   * Ancorada pelo TOPO, a 26% da altura do quadro.
+   *
+   * Embaixo ela caia em cima do letreiro do video -- o "Larissa Mroczko /
+   * Especialista em Gestao Tributaria" ocupa a faixa dos 55% aos 80%. Mais
+   * embaixo ainda, batia na legenda e na barra de controles. A 26% ela fica
+   * abaixo do titulo do YouTube (que some sozinho depois de alguns segundos) e
+   * bem acima do letreiro, sobre o fundo da parede de plantas.
+   *
+   * Aqui em cima o ancoramento pelo topo e seguro: o risco de a segunda linha
+   * cair para fora do quadro existia quando a tarja estava colada no rodape.
+   */
   left: clamp(.7rem, 2.2%, 1.4rem);
-  bottom: 18%;
+  top: 26%;
   z-index: 2;
   display: flex;
   flex-direction: column;
@@ -606,10 +600,12 @@
   .lp-almore .hero-som:hover .hero-som-pilula { transform: none; }
 }
 
-/* No celular o quadro e baixo e a legenda sobe: a tarja perde a segunda
-   linha e encolhe, para nao virar uma faixa atravessada no video. */
+/* No celular o quadro e baixo: a tarja perde a segunda linha e encolhe, para
+   nao virar uma faixa atravessada no video. Com uma linha so ela sobe um
+   pouco, para o letreiro -- que no quadro pequeno comeca mais cedo -- passar
+   por baixo dela. */
 @media (max-width: 560px) {
-  .lp-almore .hero-som { bottom: 14%; }
+  .lp-almore .hero-som { top: 22%; }
   .lp-almore .hero-som-pilula { padding: .55rem 1rem; font-size: var(--step--1); }
   .lp-almore .hero-som-nota { display: none; }
 }
