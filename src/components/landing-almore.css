@@ -528,59 +528,48 @@
    YouTube. O caminho de volta e um clique do visitante, e e o que esta
    tarja pede.
 
-   Ela cobre o quadro inteiro: enquanto o video esta mudo, ligar o som e
-   a unica coisa que faz sentido ali. Sumir depois do primeiro clique
-   devolve os controles do proprio player.
+   Ela e SO a tarja: ocupa o canto de baixo a esquerda e nao cobre o
+   quadro. Cobrindo, o visitante nao via o video normalmente nem
+   alcancava os controles do proprio player sem antes clicar em alguma
+   coisa -- parecia um veu esperando ser dispensado, e nao um aviso.
    ==================================================================== */
 .lp-almore .hero-som {
   position: absolute;
-  inset: 0;
+  /* Ancorada EMBAIXO, e nao pelo topo: o quadro e 16:9 e muda de altura
+     junto com a largura da tela. Presa pelo topo, no celular a segunda
+     linha caia para fora do video. Os 18% deixam a tarja acima da barra
+     de controles e da legenda do YouTube. */
+  left: clamp(.7rem, 2.2%, 1.4rem);
+  bottom: 18%;
   z-index: 2;
-  display: block;
-  font-family: inherit;
-  text-align: center;
-  cursor: pointer;
-  border: 0;
-  /* Escurece so a faixa de baixo, onde a pilula esta. O rosto continua
-     visivel, e a pessoa ve que o video ja esta rodando. */
-  background: linear-gradient(to top, rgba(20, 10, 15, .78) 8%, rgba(20, 10, 15, .34) 38%, rgba(20, 10, 15, 0) 62%);
-  -webkit-tap-highlight-color: transparent;
-}
-
-/*
- * A pilula nao fica no rodape do quadro nem no meio dele.
- *
- * Colada embaixo, ela batia na legenda do video e na barra de controles do
- * YouTube; no meio, cobria o rosto de quem fala. Ela fica ancorada a 16% do
- * rodape -- e ancorada EMBAIXO, e nao no topo, porque o quadro e 16:9 e muda
- * de altura junto com a largura da tela: preso pelo topo, no celular a
- * segunda linha caia para fora do video.
- */
-.lp-almore .hero-som-grupo {
-  position: absolute;
-  left: 50%;
-  bottom: 16%;
-  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: .45rem;
-  width: max-content;
-  max-width: calc(100% - 2rem);
+  align-items: flex-start;
+  gap: .4rem;
+  max-width: calc(100% - 2.8rem);
+  padding: 0;
+  font-family: inherit;
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .lp-almore .hero-som-pilula {
   display: inline-flex;
   align-items: center;
   gap: .55rem;
-  padding: .7rem 1.35rem;
+  padding: .65rem 1.25rem;
   font-size: var(--step-0);
   font-weight: 600;
   color: #fff;
   background: var(--bordo-soft);
   border: 1px solid rgba(235, 224, 201, .28);
   border-radius: 999px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, .35);
+  /* A sombra faz o trabalho que o veu fazia: separa a pilula do video
+     atras dela, sem escurecer o video. */
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .45);
   transition: background .2s ease, transform .2s ease;
 }
 .lp-almore .hero-som:hover .hero-som-pilula {
@@ -604,12 +593,23 @@
 .lp-almore .hero-som-pilula svg path:first-child { fill: currentColor; }
 
 .lp-almore .hero-som-nota {
+  padding-left: .15rem;
   font-size: var(--step--1);
   color: var(--sand);
-  text-shadow: 0 1px 6px rgba(0, 0, 0, .6);
+  /* Sem veu atras, a sombra do texto e o que garante leitura quando o
+     quadro do video esta claro naquele instante. */
+  text-shadow: 0 1px 4px rgba(0, 0, 0, .9), 0 0 12px rgba(0, 0, 0, .7);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .lp-almore .hero-som-pilula { transition: none; }
   .lp-almore .hero-som:hover .hero-som-pilula { transform: none; }
+}
+
+/* No celular o quadro e baixo e a legenda sobe: a tarja perde a segunda
+   linha e encolhe, para nao virar uma faixa atravessada no video. */
+@media (max-width: 560px) {
+  .lp-almore .hero-som { bottom: 14%; }
+  .lp-almore .hero-som-pilula { padding: .55rem 1rem; font-size: var(--step--1); }
+  .lp-almore .hero-som-nota { display: none; }
 }
