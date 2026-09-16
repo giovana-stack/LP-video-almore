@@ -200,6 +200,34 @@ export default function LandingAlmore() {
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             />
+
+            {/*
+              A tarja do som.
+
+              Ela cobre o quadro inteiro de propósito: enquanto o vídeo está
+              mudo, ligar o som é a única coisa que faz sentido ali, e um alvo
+              do tamanho do vídeo não tem como ser errado no celular. A pílula
+              fica embaixo, e não no meio, para não cobrir o rosto de quem fala.
+
+              O clique aqui é o que autoriza o som — navegador não aceita menos
+              que isso. Ele também dá play, para o caso de o autoplay ter sido
+              barrado: aí a mesma tarja começa o vídeo e liga o som de uma vez.
+            */}
+            {video.mudo ? (
+              <button type="button" className="hero-som" onClick={video.ativarSom}>
+                <span className="hero-som-grupo">
+                  <span className="hero-som-pilula">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <path d="M4 9.5h3.2L12 5.4v13.2L7.2 14.5H4z" />
+                      <path d="M15.6 9a4 4 0 0 1 0 6" />
+                      <path d="M18.2 6.6a7.5 7.5 0 0 1 0 10.8" />
+                    </svg>
+                    Ativar o som
+                  </span>
+                  <span className="hero-som-nota">O vídeo começou sem som</span>
+                </span>
+              </button>
+            ) : null}
           </div>
 
           {/*

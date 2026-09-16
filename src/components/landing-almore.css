@@ -519,3 +519,97 @@
   text-align: center;
 }
 .lp-almore .cta-aviso--liberado { color: var(--sand); }
+
+/* ====================================================================
+   A TARJA DO SOM
+
+   O video comeca mudo porque navegador nenhum deixa comecar com som --
+   isso e politica do Chrome, Safari e Firefox desde 2018, nao do
+   YouTube. O caminho de volta e um clique do visitante, e e o que esta
+   tarja pede.
+
+   Ela cobre o quadro inteiro: enquanto o video esta mudo, ligar o som e
+   a unica coisa que faz sentido ali. Sumir depois do primeiro clique
+   devolve os controles do proprio player.
+   ==================================================================== */
+.lp-almore .hero-som {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: block;
+  font-family: inherit;
+  text-align: center;
+  cursor: pointer;
+  border: 0;
+  /* Escurece so a faixa de baixo, onde a pilula esta. O rosto continua
+     visivel, e a pessoa ve que o video ja esta rodando. */
+  background: linear-gradient(to top, rgba(20, 10, 15, .78) 8%, rgba(20, 10, 15, .34) 38%, rgba(20, 10, 15, 0) 62%);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/*
+ * A pilula nao fica no rodape do quadro nem no meio dele.
+ *
+ * Colada embaixo, ela batia na legenda do video e na barra de controles do
+ * YouTube; no meio, cobria o rosto de quem fala. Ela fica ancorada a 16% do
+ * rodape -- e ancorada EMBAIXO, e nao no topo, porque o quadro e 16:9 e muda
+ * de altura junto com a largura da tela: preso pelo topo, no celular a
+ * segunda linha caia para fora do video.
+ */
+.lp-almore .hero-som-grupo {
+  position: absolute;
+  left: 50%;
+  bottom: 16%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .45rem;
+  width: max-content;
+  max-width: calc(100% - 2rem);
+}
+
+.lp-almore .hero-som-pilula {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  padding: .7rem 1.35rem;
+  font-size: var(--step-0);
+  font-weight: 600;
+  color: #fff;
+  background: var(--bordo-soft);
+  border: 1px solid rgba(235, 224, 201, .28);
+  border-radius: 999px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .35);
+  transition: background .2s ease, transform .2s ease;
+}
+.lp-almore .hero-som:hover .hero-som-pilula {
+  background: var(--bordo-deep);
+  transform: translateY(-1px);
+}
+.lp-almore .hero-som:active .hero-som-pilula { transform: none; }
+
+/* O icone e desenhado a traco, no mesmo peso do resto da pagina. As duas
+   ondas do lado sao <path> sem preenchimento; o alto-falante e cheio. */
+.lp-almore .hero-som-pilula svg {
+  width: 1.15em;
+  height: 1.15em;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.lp-almore .hero-som-pilula svg path:first-child { fill: currentColor; }
+
+.lp-almore .hero-som-nota {
+  font-size: var(--step--1);
+  color: var(--sand);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, .6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-almore .hero-som-pilula { transition: none; }
+  .lp-almore .hero-som:hover .hero-som-pilula { transform: none; }
+}

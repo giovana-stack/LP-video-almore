@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 /**
  * Mede quanto do vídeo do herói foi REALMENTE assistido.
@@ -47,6 +47,8 @@ type Player = {
   getCurrentTime?: () => number
   getDuration?: () => number
   mute?: () => void
+  unMute?: () => void
+  setVolume?: (v: number) => void
   playVideo?: () => void
   destroy?: () => void
 }
@@ -109,6 +111,10 @@ export type ProgressoDoVideo = {
   liberado: boolean
   /** Não deu para medir, e por isso está liberado. */
   semMedicao: boolean
+  /** O vídeo está tocando sem som, esperando o visitante ligar. */
+  mudo: boolean
+  /** Liga o som. Precisa sair de um clique de verdade do visitante. */
+  ativarSom: () => void
 }
 
 /**
@@ -121,9 +127,19 @@ export type ProgressoDoVideo = {
  * visitante. O parâmetro continua na URL como plano B, para o caso de a API
  * não carregar; quem realmente dá o play é esta chamada.
  *
- * O `mute()` antes do play não é preferência: navegador nenhum deixa um vídeo
- * começar sozinho com som. Pedir play sem tirar o som não resulta em som —
- * resulta em vídeo parado.
+ * ---------------------------------------------------------------------------
+ * O SOM NÃO PODE VIR LIGADO, E ISSO NÃO É ESCOLHA
+ *
+ * Chrome, Safari, Firefox e Edge bloqueiam autoplay com som desde 2018. Pedir
+ * play sem tirar o som não resulta em som: resulta em vídeo PARADO. Não existe
+ * parâmetro, domínio ou permissão que contorne isso — é política do navegador,
+ * não do YouTube.
+ *
+ * O que existe é o caminho de volta: `mute()` antes do play, e `unMute()` no
+ * primeiro clique de verdade do visitante. Um clique conta como permissão, e a
+ * partir dele o som é liberado. É por isso que `ativarSom` existe e por isso
+ * que ela SÓ funciona chamada de dentro de um evento de clique — chamá-la
+ * sozinha, na carga da página, é o mesmo beco de antes.
  */
 export function useProgressoDoVideo(
   idDoIframe: string,
@@ -131,6 +147,8 @@ export function useProgressoDoVideo(
 ): ProgressoDoVideo {
   const [assistido, setAssistido] = useState(0)
   const [semMedicao, setSemMedicao] = useState(false)
+  const [mudo, setMudo] = useState(iniciarSozinho)
+  const playerRef = useRef<Player | null>(null)
 
   useEffect(() => {
     let vivo = true
@@ -168,6 +186,7 @@ export function useProgressoDoVideo(
               // construtor: `onReady` pode disparar antes de o `new` devolver,
               // e aí a variável ainda estaria vazia na primeira medição.
               player = evento.target
+              playerRef.current = player
 
               if (iniciarSozinho) {
                 player.mute?.()
@@ -206,13 +225,32 @@ export function useProgressoDoVideo(
       window.clearTimeout(prazo)
       window.clearInterval(relogio)
       player?.destroy?.()
+      playerRef.current = null
     }
   }, [idDoIframe, iniciarSozinho])
+
+  const ativarSom = useCallback(() => {
+    const player = playerRef.current
+    if (!player) return
+    player.unMute?.()
+    // O volume vem junto porque um `unMute()` sozinho devolve o volume que
+    // estava guardado na sessão do visitante — e se ele tinha deixado em zero
+    // em algum outro vídeo do YouTube, o som "ligava" em silêncio.
+    player.setVolume?.(100)
+    // O play é para o caso de o autoplay ter sido barrado: aí a tarja não é só
+    // o botão do som, é o botão que começa o vídeo. Um toque resolve os dois.
+    player.playVideo?.()
+    setMudo(false)
+  }, [])
 
   return {
     assistido,
     progresso: semMedicao ? 1 : Math.min(1, assistido / META),
     liberado: semMedicao || assistido >= META,
     semMedicao,
+    // Sem player não há como ligar o som pela página: a tarja sumiria sem
+    // fazer nada, e o visitante ficaria com os controles do próprio YouTube.
+    mudo: mudo && !semMedicao,
+    ativarSom,
   }
 }
