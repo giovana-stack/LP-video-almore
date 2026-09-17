@@ -32,7 +32,7 @@ describe("tracker do funil", () => {
           enviados.push(evento)
         }),
     }
-    const ids = ["session-uuid", "event-1", "event-2"]
+    const ids = ["session-uuid", "event-1", "event-2", "event-3", "event-4"]
     const proximoId = () => ids.shift() ?? "unused"
     const tracker = criarTrackerDoFunil({ armazenamento: storage, transporte, proximoId })
 
@@ -45,6 +45,8 @@ describe("tracker do funil", () => {
       step_key: "contact_name",
       step_index: 1,
     })
+    tracker.registrar({ event_name: "form_submitted", step_key: "form_review", step_index: 14 })
+    tracker.registrar({ event_name: "funnel_completed", step_key: "form_review", step_index: 14 })
 
     expect(primeiro.session_id).toBe("session-uuid")
     expect(segundo.session_id).toBe("session-uuid")
@@ -52,10 +54,15 @@ describe("tracker do funil", () => {
 
     await tracker.tentarNovamente()
 
-    expect(enviados.map((evento) => evento.event_name)).toEqual(["funnel_started", "step_viewed"])
+    expect(enviados.map((evento) => evento.event_name)).toEqual([
+      "funnel_started",
+      "step_viewed",
+      "form_submitted",
+      "funnel_completed",
+    ])
     expect(enviados[0]?.event_id).toBe(primeiro.event_id)
     expect(enviados[1]?.event_id).toBe(segundo.event_id)
-    expect(transporte.enviar).toHaveBeenCalledTimes(3)
+    expect(transporte.enviar).toHaveBeenCalledTimes(5)
   })
 
   it("associa o lead à sessão assim que ele passa a existir e persiste a preferência canônica", async () => {

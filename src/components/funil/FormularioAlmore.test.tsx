@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react"
+import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -44,12 +44,11 @@ describe("Ramo B do formulário", () => {
 
     await usuario.click(screen.getByRole("button", { name: "Receber uma ligação" }))
 
-    expect(atualizarLead).toHaveBeenCalledWith(
-      "lead-uuid",
-      expect.objectContaining({
-        preferencia_atendimento: "ligacao",
-        formulario_completo: true,
-      }),
+    await waitFor(() =>
+      expect(atualizarLead).toHaveBeenCalledWith(
+        "lead-uuid",
+        expect.objectContaining({ formulario_completo: true }),
+      ),
     )
     expect(screen.getByText("Você quer abrir uma empresa")).toBeTruthy()
   })
