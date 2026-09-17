@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, type CSSProperties } from 'react'
 
 import { capturarOrigem } from '@/lib/funil/origem'
 import { INSTAGRAM, LINKEDIN } from '@/lib/redes'
-import { useProgressoDoVideo, type ProgressoDoVideo } from '@/lib/progresso-do-video'
+import { useVideoDoHeroi } from '@/lib/video-do-heroi'
 
 /**
  * Landing page da Almore Inteligência Contábil — página de um fôlego só.
@@ -18,20 +18,22 @@ import { useProgressoDoVideo, type ProgressoDoVideo } from '@/lib/progresso-do-v
  * Tudo vive dentro de .lp-almore, então os estilos não vazam para o resto
  * do app e não brigam com o reset do Tailwind.
  *
- * O QUE A PÁGINA FAZ EM JAVASCRIPT, desde 16/09/2026:
+ * O QUE A PÁGINA FAZ EM JAVASCRIPT:
  *
  *  - guarda a UTM da chegada, porque o botão leva para /formulario e a query
  *    string não viaja no clique;
  *  - desce sozinha até deixar o vídeo no meio da tela, conferindo o resultado
  *    e corrigindo, porque o layout ainda se mexe depois do primeiro cálculo;
- *  - mede quanto do vídeo foi assistido e só então libera os quatro botões de
- *    agendamento (a regra vive em progresso-do-video.ts);
- *  - responde ao clique num botão travado com um balão dizendo o porquê.
+ *  - manda o vídeo tocar e devolve o som no clique da tarja (video-do-heroi.ts).
  *
- * Nada disso é enfeite que possa faltar em silêncio: sem JavaScript não há
- * medição, e sem medição os botões nascem abertos — a trava falha para o lado
- * de deixar passar, nunca para o de barrar. O texto e o vídeo desenham
- * normalmente de qualquer jeito.
+ * Nada disso é obrigatório para a página existir: sem JavaScript o texto
+ * desenha, o vídeo toca pelo `autoplay` da URL e os botões levam ao formulário
+ * do mesmo jeito.
+ *
+ * O QUE SAIU EM 17/09/2026: entre 16 e 17/09 os quatro botões nasciam travados
+ * e só abriam depois de 90% do vídeo assistido, com faixa de progresso e balão
+ * de aviso. A Giovana pediu para tirar — o caminho até o formulário está
+ * aberto de novo. O código da trava está inteiro no histórico do git.
  */
 
 // O único lugar onde o destino dos botões é definido: a rota do formulário
@@ -130,9 +132,9 @@ export default function LandingAlmore() {
     capturarOrigem()
   }, [])
 
-  // A trava do agendamento: o botão só abre depois de 90% do vídeo assistido.
-  // A regra de o que conta como assistido está em progresso-do-video.ts.
-  const video = useProgressoDoVideo(ID_DO_VIDEO, { iniciarSozinho: true })
+  // O vídeo começa sozinho e mudo; a tarja sobre ele liga o som. Ver
+  // video-do-heroi.ts, inclusive para o que ESTE arquivo já fez e não faz mais.
+  const video = useVideoDoHeroi(ID_DO_VIDEO, { iniciarSozinho: true })
 
   /*
    * A página abre já no vídeo.
@@ -204,26 +206,6 @@ export default function LandingAlmore() {
     }
   }, [])
 
-  /*
-   * O balão que responde ao clique num botão travado. Guarda QUAL botão e
-   * QUANDO: o instante é o que faz o balão reaparecer quando a pessoa clica
-   * duas vezes no mesmo botão — sem ele, o estado não mudaria e o balão
-   * ficaria parado, apagando no meio.
-   */
-  const [balao, setBalao] = useState<{ alvo: string; em: number } | null>(null)
-  const mostrarBalao = (alvo: string) => setBalao({ alvo, em: Date.now() })
-
-  useEffect(() => {
-    if (!balao) return
-    const relogio = window.setTimeout(() => setBalao(null), 4000)
-    return () => window.clearTimeout(relogio)
-  }, [balao])
-
-  // Destravou: o balão perde o assunto e sai da tela na hora.
-  useEffect(() => {
-    if (video.liberado) setBalao(null)
-  }, [video.liberado])
-
   return (
     <div className="lp-almore">
       <a className="skip" href="#conteudo">Ir para o conteúdo</a>
@@ -237,7 +219,7 @@ export default function LandingAlmore() {
             height={ISOTIPO.h}
           />
         </a>
-        <BotaoCta video={video} id="topo" balao={balao} aoBloquear={mostrarBalao} />
+        <BotaoCta />
       </header>
       
       <main id="conteudo">
@@ -326,16 +308,10 @@ export default function LandingAlmore() {
             ) : null}
           </div>
 
-          {/*
-            Botao no tamanho natural, centralizado sob o video. É o único que
-            leva o anel: ele fica logo abaixo do vídeo, onde o visitante está
-            olhando, e é lá que a espera precisa ter uma forma visível. Repetir
-            o anel nos outros três encheria a página de relógios.
-          */}
+          {/* Botao no tamanho natural, centralizado sob o video. */}
           <p className="cta-row cta-row--centro">
-            <BotaoCta video={video} id="heroi" balao={balao} aoBloquear={mostrarBalao} comAnel />
+            <BotaoCta />
           </p>
-          <AvisoDaTrava video={video} />
         </div>
 
         {/*
@@ -410,7 +386,7 @@ export default function LandingAlmore() {
             é minha para cortar — fica anotado para a Giovana decidir.
           */}
           <p className="narrow narrow--ink">O mesmo aplicado em empresas de todos os regimes — MEI, Simples Nacional, Lucro Presumido e Lucro Real —, do primeiro CNPJ à operação com folha e sócios.</p>
-          <p className="cta-row"><BotaoCta video={video} id="metodo" balao={balao} aoBloquear={mostrarBalao} /></p>
+          <p className="cta-row"><BotaoCta /></p>
         </div>
       </section>
 
@@ -447,7 +423,7 @@ export default function LandingAlmore() {
           <span>© 2026 Almore Inteligência Contábil · Todos os direitos reservados</span>
           {/* Link de texto, não botão — mas travado igual: senão o rodapé vira
               a porta dos fundos da trava do vídeo. */}
-          <BotaoCta video={video} id="rodape" balao={balao} aoBloquear={mostrarBalao} comoTexto />
+          <BotaoCta comoTexto />
         </div>
       </footer>
     </div>
@@ -486,178 +462,21 @@ function rolarAteOVideo() {
   }, 500)
 }
 
-/** TEXTO FORA DO DOCUMENTO — 16/09/2026. */
-const AVISO_AO_CLICAR = 'Assista ao vídeo para continuar'
-
-function BotaoCta({
-  video,
-  id,
-  balao,
-  aoBloquear,
-  comAnel = false,
-  comoTexto = false,
-}: {
-  video: ProgressoDoVideo
-  /** Qual dos quatro botões é este — o balão só aparece no que foi clicado. */
-  id: string
-  balao: { alvo: string; em: number } | null
-  aoBloquear: (id: string) => void
-  /** Desenha a faixa de progresso em volta. Só o botão do herói usa. */
-  comAnel?: boolean
-  /** Link de texto em vez de botão. Só o rodapé usa. */
-  comoTexto?: boolean
-}) {
-  const classe = comoTexto ? '' : 'btn'
-
-  if (video.liberado) {
-    return (
-      <a className={classe || undefined} href={CTA}>
-        {ROTULO_CTA}
-      </a>
-    )
-  }
-
+/*
+ * O botao que leva ao formulario, nos quatro lugares em que ele aparece.
+ *
+ * Ele ja foi mais complicado: entre 16 e 17/09/2026 nascia travado e so abria
+ * depois de 90% do video, com uma faixa de progresso correndo em volta e um
+ * balao explicando o clique bloqueado. A trava saiu a pedido da Giovana, e com
+ * ela o componente volta a ser o que aparenta -- um link.
+ *
+ * O que sobra e a razao de ele existir: o rotulo e o destino moram num lugar
+ * so, em vez de quatro copias envelhecendo separadas.
+ */
+function BotaoCta({ comoTexto = false }: { comoTexto?: boolean }) {
   return (
-    <a
-      className={[classe, 'cta-travado', comAnel ? 'cta-travado--anel' : '']
-        .filter(Boolean)
-        .join(' ')}
-      href={CTA}
-      // `aria-disabled`, e não o atributo `disabled`: <a> não tem `disabled`, e
-      // tirar o href deixaria o link fora da navegação por teclado. Assim ele
-      // continua alcançável e anunciado como indisponível.
-      aria-disabled="true"
-      onClick={(e) => {
-        e.preventDefault()
-        aoBloquear(id)
-        rolarAteOVideo()
-      }}
-    >
-      {comAnel ? <AnelDeProgresso progresso={video.progresso} /> : null}
-      <span className="cta-rotulo">{ROTULO_CTA}</span>
-
-      {/*
-        Rolar até o vídeo respondia ao clique com um movimento, e movimento não
-        é explicação: a página subia e o visitante não sabia por quê. O balão
-        diz o motivo, some sozinho e nasce no botão que ele clicou — não nos
-        quatro.
-
-        No botão do herói ele sai por cima, porque logo abaixo já existe o
-        aviso permanente e os dois se cobririam.
-      */}
-      {balao?.alvo === id ? (
-        <span
-          className={`cta-balao${comAnel ? ' cta-balao--acima' : ''}`}
-          role="status"
-          key={balao.em}
-        >
-          {AVISO_AO_CLICAR}
-        </span>
-      ) : null}
+    <a className={comoTexto ? undefined : 'btn'} href={CTA}>
+      {ROTULO_CTA}
     </a>
-  )
-}
-
-/**
- * O aviso embaixo do botão do herói.
- *
- * `role="status"` para o leitor de tela anunciar a virada sozinho: sem isso, o
- * botão destravaria em silêncio para quem não está olhando a tela.
- */
-function AvisoDaTrava({ video }: { video: ProgressoDoVideo }) {
-  // Sem medição não há trava, e um aviso sobre uma trava que não existe só
-  // confunde.
-  if (video.semMedicao) return null
-
-  return (
-    <p
-      id="cta-aviso"
-      className={`cta-aviso${video.liberado ? ' cta-aviso--liberado' : ''}`}
-      role="status"
-    >
-      {video.liberado
-        ? 'Pronto — o agendamento está liberado.'
-        : 'Assista ao vídeo para liberar o agendamento.'}
-    </p>
-  )
-}
-
-/**
- * A faixa que corre em volta do botão conforme o vídeo avança.
- *
- * ---------------------------------------------------------------------------
- * POR QUE ELE MEDE O BOTÃO, EM VEZ DE USAR UM viewBox FIXO
- *
- * A primeira versão desenhava um quadrado de 100×100 e deixava o
- * `preserveAspectRatio="none"` esticá-lo até a forma do botão. Era mais curta
- * de escrever e estava errada: esticada, a mesma distância em unidades do SVG
- * vira muito mais pixels na horizontal do que na vertical, então o traço
- * andava devagar nos lados compridos e disparava nos curtos. Somado ao
- * `vector-effect`, que passa a medir o tracejado no espaço já esticado, o
- * resultado na tela era o que a Giovana descreveu: duas pontas soltas se
- * mexendo ao mesmo tempo, em vez de uma ponta parada e a outra correndo.
- *
- * Agora o SVG recebe um viewBox do tamanho real do botão em pixels. A escala
- * passa a ser 1:1, o tracejado volta a ser uniforme, e a faixa faz o que se
- * espera: começa no canto de cima à esquerda, esse canto NÃO se mexe, e a
- * outra ponta corre no sentido horário até fechar a volta.
- *
- * `pathLength={100}` continua, e agora sim faz o que promete: normaliza o
- * perímetro, então a fração assistida vira `strokeDashoffset` sem conta
- * nenhuma.
- */
-function AnelDeProgresso({ progresso }: { progresso: number }) {
-  const referencia = useRef<SVGSVGElement>(null)
-  const [medida, setMedida] = useState<{ l: number; a: number } | null>(null)
-
-  useEffect(() => {
-    const botao = referencia.current?.parentElement
-    if (!botao) return
-
-    const medir = () => {
-      const r = botao.getBoundingClientRect()
-      setMedida({ l: Math.round(r.width), a: Math.round(r.height) })
-    }
-
-    medir()
-    // O botão muda de tamanho sem a janela mudar: o rótulo quebra em duas
-    // linhas quando a fonte termina de carregar, e no celular ele é fluido.
-    const observador = new ResizeObserver(medir)
-    observador.observe(botao)
-    return () => observador.disconnect()
-  }, [])
-
-  // Antes da medida não há viewBox possível — e um viewBox de largura zero
-  // faria o navegador ignorar o SVG inteiro.
-  const caixa = medida && medida.l > 0 && medida.a > 0 ? medida : null
-
-  return (
-    <svg
-      ref={referencia}
-      className="cta-anel"
-      viewBox={caixa ? `0 0 ${caixa.l} ${caixa.a}` : undefined}
-      aria-hidden="true"
-      focusable="false"
-    >
-      {/*
-        Só a faixa que corre. O trilho era um segundo retângulo desenhado por
-        baixo dela, e apareceu na tela como uma segunda moldura ao lado da
-        borda do botão. Ele não tinha razão de existir: a borda do próprio
-        botão já é o trilho.
-      */}
-      {caixa ? (
-        <rect
-          className="cta-anel-corrida"
-          x="1"
-          y="1"
-          width={caixa.l - 2}
-          height={caixa.a - 2}
-          rx="2"
-          pathLength={100}
-          strokeDasharray="100 100"
-          strokeDashoffset={100 - progresso * 100}
-        />
-      ) : null}
-    </svg>
   )
 }
