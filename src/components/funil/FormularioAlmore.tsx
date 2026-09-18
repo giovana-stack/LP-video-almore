@@ -212,14 +212,28 @@ export default function FormularioAlmore() {
   // ---------------------------------------------------------------- envio
   const enviarFormulario = async (preferencia?: "ligacao" | "whatsapp") => {
     if (!respostas.consentimento_whatsapp) return
-    if (respostas.trilha === "B" && !preferencia) {
+    // A tela de valor é calculada aqui, antes de tudo, porque é ela que
+    // decide o caminho inteiro daqui pra frente.
+    const tela = telaDeValorPara(respostas)
+
+    // SEM preço para mostrar, o lead escolhe o canal antes da confirmação.
+    //
+    // Quem não recebe valor não agenda nada: ele vai ser PROCURADO pela
+    // especialista, e a única coisa que falta saber é por onde. Quem recebe
+    // valor não passa por aqui — aceitando o preço, ele mesmo marca dia e hora
+    // na agenda, e perguntar o canal a quem já marcou não muda nada.
+    //
+    // Regra trocada em 18/09/2026. Antes a pergunta era de quem queria abrir
+    // empresa (`trilha === "B"`), que é justamente quem VÊ preço e agenda — o
+    // caminho em que ela menos fazia sentido.
+    if (!tela && !preferencia) {
       registrarEvento({ event_name: "step_completed", step_key: "form_review", step_index: 14 })
       setFase({ nome: "preferencia" })
       return
     }
+
     setEnviando(true)
 
-    const tela = telaDeValorPara(respostas)
     // O valor é gravado no envio, ANTES de qualquer clique do lead — assim o
     // CRM sabe qual preço foi mostrado mesmo para quem fechou a aba na hora.
     const campos: Partial<Respostas> = {
