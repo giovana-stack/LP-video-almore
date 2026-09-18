@@ -341,6 +341,25 @@ select pg_temp.assert_true(
 );
 
 select pg_temp.assert_true(
+  (
+    public.sdr_bridge(
+      'test-token',
+      'tracker_pull',
+      jsonb_build_object('since', now() - interval '1 hour')
+    ) @> jsonb_build_array(
+      jsonb_build_object(
+        'session_id', '33000000-0000-4000-8000-000000000001',
+        'lead_id', null,
+        'status', 'abandoned',
+        'last_step', 'contato',
+        'last_step_index', 3
+      )
+    )
+  ),
+  'tracker_pull devolve sessão abandonada sem lead, com o resumo operacional'
+);
+
+select pg_temp.assert_true(
   (public.sdr_bridge('test-token', 'ping', '{}'::jsonb)->>'ok')::boolean,
   'acoes antigas de sdr_bridge continuam funcionando'
 );
