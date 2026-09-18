@@ -12,7 +12,7 @@ import {
   passoDaTela,
   type PassoDoFunil,
 } from "@/lib/funil/passos"
-import { atualizarLead, criarLead, idDaSessao } from "@/lib/funil/persistencia"
+import { atualizarLead, criarLead, idDaSessao, limparSessao } from "@/lib/funil/persistencia"
 import { criarTrackerDoNavegador, type EventoNovoDoTracker, type TrackerDoFunil } from "@/lib/funil/tracker"
 import { RESPOSTAS_VAZIAS, type Respostas } from "@/lib/funil/tipos"
 import {
@@ -89,6 +89,7 @@ export default function FormularioAlmore() {
   // preenchimento.
   const idLead = useRef<string | null>(idDaSessao())
   const tracker = useRef<TrackerDoFunil | null>(null)
+  const trackerIniciado = useRef(false)
   if (!tracker.current) tracker.current = criarTrackerDoNavegador()
 
   const registrarEvento = useCallback((evento: EventoNovoDoTracker) => {
@@ -242,6 +243,13 @@ export default function FormularioAlmore() {
     registrarEvento({ event_name: "form_submitted", step_key: "form_review", step_index: 14 })
     registrarEvento({ event_name: "funnel_completed", step_key: "form_review", step_index: 14 })
 
+    // A próxima abertura do formulário é um novo contato. Espera a fila do
+    // tracker antes de limpar os IDs: se estiver offline, mantém a sessão para
+    // retry em vez de perder a conclusão ou atualizar o lead anterior.
+    void tracker.current?.encerrar().then((encerrou) => {
+      if (encerrou) limparSessao()
+    })
+
     setEnviando(false)
     setFase(tela ? { nome: "valor" } : { nome: "padrao" })
   }
@@ -307,11 +315,13 @@ export default function FormularioAlmore() {
   }, [])
 
   useEffect(() => {
-    registrarEvento({ event_name: "funnel_started" })
-  }, [registrarEvento])
-
-  useEffect(() => {
     if (!passoAtual) return
+    // O primeiro evento já carrega a etapa. Se a aba for fechada cedo demais
+    // para o segundo evento sair, ainda sabemos que a pessoa chegou nela.
+    if (!trackerIniciado.current) {
+      trackerIniciado.current = true
+      registrarEvento({ event_name: "funnel_started", ...passoAtual })
+    }
     registrarEvento({ event_name: "step_viewed", ...passoAtual })
     if (passoAtual.key === PASSO_AGENDAMENTO.key) {
       registrarEvento({ event_name: "booking_viewed", ...PASSO_AGENDAMENTO })
