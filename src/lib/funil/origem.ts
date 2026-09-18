@@ -15,13 +15,29 @@
 
 export type Utms = {
   utm_source: string | null
+  utm_medium: string | null
   utm_campaign: string | null
   utm_content: string | null
+  utm_term: string | null
 }
 
-const CHAVES = ["utm_source", "utm_campaign", "utm_content"] as const
+export type UtmsPermitidas = {
+  source: string | null
+  medium: string | null
+  campaign: string | null
+  content: string | null
+  term: string | null
+}
+
+const CHAVES = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"] as const
 const CHAVE_SESSAO = "almore_funil_origem"
-const VAZIO: Utms = { utm_source: null, utm_campaign: null, utm_content: null }
+const VAZIO: Utms = {
+  utm_source: null,
+  utm_medium: null,
+  utm_campaign: null,
+  utm_content: null,
+  utm_term: null,
+}
 
 function daUrl(): Utms {
   const q = new URLSearchParams(window.location.search)
@@ -65,12 +81,20 @@ export function lerOrigem(): Utms {
     const guardado = sessionStorage.getItem(CHAVE_SESSAO)
     if (!guardado) return VAZIO
     const lido = JSON.parse(guardado) as Partial<Utms>
-    return {
-      utm_source: lido.utm_source ?? null,
-      utm_campaign: lido.utm_campaign ?? null,
-      utm_content: lido.utm_content ?? null,
-    }
+    return { ...VAZIO, ...lido }
   } catch {
     return VAZIO
+  }
+}
+
+/** UTM filtrada no formato do contrato do tracker; nunca lê outros parâmetros. */
+export function lerUtmsPermitidas(): UtmsPermitidas {
+  const origem = lerOrigem()
+  return {
+    source: origem.utm_source,
+    medium: origem.utm_medium,
+    campaign: origem.utm_campaign,
+    content: origem.utm_content,
+    term: origem.utm_term,
   }
 }

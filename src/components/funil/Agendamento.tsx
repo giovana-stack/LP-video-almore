@@ -13,15 +13,32 @@
  * jeito. Um lead que chegou até aqui não pode ficar sem conseguir marcar.
  */
 
+import { useEffect } from "react"
+
 const URL_AGENDA = "https://agendar.devantsolucoes.com.br/p/almore-inteligencia-contabil"
+const ORIGEM_AGENDA = new URL(URL_AGENDA).origin
 
 type Props = {
   /** Quando há mais de um decisor, a nota do documento aparece acima da agenda. */
   // `| undefined` explícito porque o projeto usa exactOptionalPropertyTypes.
   nota?: string | undefined
+  /** A agenda cross-origin confirma por postMessage quando a reserva termina. */
+  onConcluir?: (() => void) | undefined
 }
 
-export default function Agendamento({ nota }: Props) {
+export default function Agendamento({ nota, onConcluir }: Props) {
+  useEffect(() => {
+    if (!onConcluir) return
+    const receberConclusao = (evento: MessageEvent<unknown>) => {
+      if (evento.origin !== ORIGEM_AGENDA) return
+      if (typeof evento.data !== "object" || evento.data === null) return
+      if (!("type" in evento.data) || evento.data.type !== "almore_booking_completed") return
+      onConcluir()
+    }
+    window.addEventListener("message", receberConclusao)
+    return () => window.removeEventListener("message", receberConclusao)
+  }, [onConcluir])
+
   return (
     <div className="agenda">
       {nota ? <p className="agenda-nota">{nota}</p> : null}

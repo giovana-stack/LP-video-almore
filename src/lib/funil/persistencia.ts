@@ -23,8 +23,8 @@ import type { Respostas } from "./tipos"
  * de cada lado. O que a função não lista, o navegador não escreve: ligações,
  * score e horário agendado são território da automação.
  */
-const SUPABASE_URL = "https://ffdbojtidzmoklcpvnsz.supabase.co"
-const SUPABASE_PUBLISHABLE = "sb_publishable__LklhoT23NAzaPHjb5mZWQ_aE3DHG7F"
+export const SUPABASE_URL = "https://ffdbojtidzmoklcpvnsz.supabase.co"
+export const SUPABASE_PUBLISHABLE = "sb_publishable__LklhoT23NAzaPHjb5mZWQ_aE3DHG7F"
 
 const RPC_SALVAR = `${SUPABASE_URL}/rest/v1/rpc/funil_salvar`
 

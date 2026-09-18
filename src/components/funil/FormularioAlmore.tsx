@@ -1,9 +1,19 @@
-import { useCallback, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { paraE164 } from "@/lib/funil/contato"
 import { INSTAGRAM, LINKEDIN } from "@/lib/redes"
 import { limparRespostasOrfas, telasVisiveis, type Opcao, type Tela } from "@/lib/funil/perguntas"
+import {
+  PASSO_AGENDAMENTO,
+  PASSO_DECISORES,
+  PASSO_PREFERENCIA_ATENDIMENTO,
+  PASSO_RECUSA,
+  PASSO_VALOR,
+  passoDaTela,
+  type PassoDoFunil,
+} from "@/lib/funil/passos"
 import { atualizarLead, criarLead, idDaSessao } from "@/lib/funil/persistencia"
+import { criarTrackerDoNavegador, type EventoNovoDoTracker, type TrackerDoFunil } from "@/lib/funil/tracker"
 import { RESPOSTAS_VAZIAS, type Respostas } from "@/lib/funil/tipos"
 import {
   CONFIRMACAO_PADRAO,
@@ -44,6 +54,7 @@ import Agendamento from "./Agendamento"
 type Fase =
   | { nome: "perguntas" }
   | { nome: "valor" }
+  | { nome: "preferencia" }
   | { nome: "padrao" }
   | { nome: "decisores" }
   | { nome: "agendamento" }
@@ -76,7 +87,13 @@ export default function FormularioAlmore() {
   // O id da linha vive num ref, e não no state: ele muda uma vez só e nenhuma
   // renderização depende dele. Em state, causaria um render à toa no meio do
   // preenchimento.
-  const idLead = useRef<string | null>(null)
+  const idLead = useRef<string | null>(idDaSessao())
+  const tracker = useRef<TrackerDoFunil | null>(null)
+  if (!tracker.current) tracker.current = criarTrackerDoNavegador()
+
+  const registrarEvento = useCallback((evento: EventoNovoDoTracker) => {
+    tracker.current?.registrar(evento)
+  }, [])
 
   const visiveis = useMemo(() => telasVisiveis(respostas), [respostas])
   const telaAtual: Tela | undefined = visiveis[indice]
@@ -96,7 +113,10 @@ export default function FormularioAlmore() {
       }
       // Primeira gravação: nasce a linha, já com a origem da campanha.
       void criarLead(tudo).then((r) => {
-        if (r.ok) idLead.current = r.id
+        if (r.ok) {
+          idLead.current = r.id
+          tracker.current?.associarLead(r.id)
+        }
       })
     },
     [],
@@ -120,6 +140,7 @@ export default function FormularioAlmore() {
     const bruto = respostas[tela.campo]
     if (!tela.valida(bruto)) {
       setErro(tela.erro)
+      registrarEvento({ event_name: "step_validation_failed", ...passoDaTela(tela) })
       return
     }
 
@@ -129,6 +150,7 @@ export default function FormularioAlmore() {
     // TEXTO FORA DO DOCUMENTO — 16/09/2026.
     if (tela.pedeConsentimento && !respostas.consentimento_whatsapp) {
       setErroConsentimento("Marque a caixa acima para continuar.")
+      registrarEvento({ event_name: "step_validation_failed", ...passoDaTela(tela) })
       return
     }
 
@@ -158,6 +180,7 @@ export default function FormularioAlmore() {
       },
       novas,
     )
+    registrarEvento({ event_name: "step_completed", ...passoDaTela(tela) })
     irPara(indice + 1)
   }
 
@@ -176,6 +199,7 @@ export default function FormularioAlmore() {
     // quando o lead volta e troca o regime: `limparRespostasOrfas` zera o
     // `mei_quer_sair`, e esse null precisa chegar ao banco.
     gravar(diferenca(respostas, novas), novas)
+    registrarEvento({ event_name: "step_completed", ...passoDaTela(tela) })
 
     // Avança sozinha, como o brief pede. O índice é calculado sobre a lista
     // nova, porque responder o CNPJ muda quais telas existem daqui pra frente.
@@ -185,8 +209,13 @@ export default function FormularioAlmore() {
   }
 
   // ---------------------------------------------------------------- envio
-  const enviarFormulario = async () => {
+  const enviarFormulario = async (preferencia?: "ligacao" | "whatsapp") => {
     if (!respostas.consentimento_whatsapp) return
+    if (respostas.trilha === "B" && !preferencia) {
+      registrarEvento({ event_name: "step_completed", step_key: "form_review", step_index: 14 })
+      setFase({ nome: "preferencia" })
+      return
+    }
     setEnviando(true)
 
     const tela = telaDeValorPara(respostas)
@@ -202,13 +231,23 @@ export default function FormularioAlmore() {
     const novas = { ...respostas, ...campos } as Respostas
     setRespostas(novas)
     const id = idLead.current ?? idDaSessao()
-    if (id) await atualizarLead(id, campos)
+    if (id) {
+      const resultado = await atualizarLead(id, campos)
+      if (resultado.ok) {
+        idLead.current = resultado.id
+        tracker.current?.associarLead(resultado.id)
+      }
+    }
+
+    registrarEvento({ event_name: "form_submitted", step_key: "form_review", step_index: 14 })
+    registrarEvento({ event_name: "funnel_completed", step_key: "form_review", step_index: 14 })
 
     setEnviando(false)
     setFase(tela ? { nome: "valor" } : { nome: "padrao" })
   }
 
   const aceitarValor = () => {
+    registrarEvento({ event_name: "step_completed", ...PASSO_VALOR })
     const campos: Partial<Respostas> = { status: "valor_aceito_sem_agendamento" }
     setRespostas((r) => ({ ...r, ...campos }))
     gravar(campos, { ...respostas, ...campos } as Respostas)
@@ -216,6 +255,7 @@ export default function FormularioAlmore() {
   }
 
   const recusarValor = () => {
+    registrarEvento({ event_name: "step_completed", ...PASSO_VALOR })
     const campos: Partial<Respostas> = { status: "nao_atende_preco" }
     setRespostas((r) => ({ ...r, ...campos }))
     gravar(campos, { ...respostas, ...campos } as Respostas)
@@ -223,16 +263,60 @@ export default function FormularioAlmore() {
   }
 
   const responderDecisores = (multiplos: boolean) => {
+    registrarEvento({ event_name: "step_completed", ...PASSO_DECISORES })
     const campos: Partial<Respostas> = { multiplos_decisores: multiplos }
     setRespostas((r) => ({ ...r, ...campos }))
     gravar(campos, { ...respostas, ...campos } as Respostas)
     setFase({ nome: "agendamento" })
   }
 
+  const selecionarPreferencia = (preferencia: "ligacao" | "whatsapp") => {
+    registrarEvento({
+      event_name: "contact_preference_selected",
+      ...PASSO_PREFERENCIA_ATENDIMENTO,
+      metadata: { preferencia_atendimento: preferencia },
+    })
+    registrarEvento({ event_name: "step_completed", ...PASSO_PREFERENCIA_ATENDIMENTO })
+    void enviarFormulario(preferencia)
+  }
+
   // ================================================================= render
   const totalDePassos = visiveis.length
   const progresso = fase.nome === "perguntas" ? (indice / totalDePassos) * 100 : 100
   const secao = telaAtual && telaAtual.tipo !== "fechamento" ? telaAtual.secao : null
+  const passoAtual: PassoDoFunil | undefined =
+    fase.nome === "perguntas"
+      ? passoDaTela(telaAtual)
+      : fase.nome === "preferencia"
+        ? PASSO_PREFERENCIA_ATENDIMENTO
+        : fase.nome === "valor"
+          ? PASSO_VALOR
+          : fase.nome === "decisores"
+            ? PASSO_DECISORES
+            : fase.nome === "agendamento"
+              ? PASSO_AGENDAMENTO
+              : fase.nome === "recusa"
+                ? PASSO_RECUSA
+                : undefined
+
+  useEffect(() => {
+    if (idLead.current) tracker.current?.associarLead(idLead.current)
+    const tentarNovamente = () => void tracker.current?.tentarNovamente()
+    window.addEventListener("online", tentarNovamente)
+    return () => window.removeEventListener("online", tentarNovamente)
+  }, [])
+
+  useEffect(() => {
+    registrarEvento({ event_name: "funnel_started" })
+  }, [registrarEvento])
+
+  useEffect(() => {
+    if (!passoAtual) return
+    registrarEvento({ event_name: "step_viewed", ...passoAtual })
+    if (passoAtual.key === PASSO_AGENDAMENTO.key) {
+      registrarEvento({ event_name: "booking_viewed", ...PASSO_AGENDAMENTO })
+    }
+  }, [passoAtual?.key, registrarEvento])
 
   return (
     <div className="funil-almore">
@@ -407,7 +491,7 @@ export default function FormularioAlmore() {
                   type="button"
                   className="funil-botao"
                   disabled={!respostas.consentimento_whatsapp || enviando}
-                  onClick={enviarFormulario}
+                  onClick={() => void enviarFormulario()}
                 >
                   {/* TEXTO FORA DO DOCUMENTO — aprovado em 28/08/2026. */}
                   {enviando ? "Enviando…" : "Enviar"}
@@ -420,6 +504,33 @@ export default function FormularioAlmore() {
 
         {fase.nome === "valor" ? (
           <TelaValor respostas={respostas} onAceitar={aceitarValor} onRecusar={recusarValor} />
+        ) : null}
+
+        {fase.nome === "preferencia" ? (
+          <div className="funil-tela funil-tela--final">
+            <h2 className="funil-final-titulo">Como você prefere ser atendido?</h2>
+            <p className="funil-texto-final">
+              Escolha uma opção para concluirmos seu diagnóstico.
+            </p>
+            <div className="funil-acoes">
+              <button
+                type="button"
+                className="funil-botao"
+                disabled={enviando}
+                onClick={() => selecionarPreferencia("ligacao")}
+              >
+                Receber uma ligação
+              </button>
+              <button
+                type="button"
+                className="funil-botao funil-botao--fantasma"
+                disabled={enviando}
+                onClick={() => selecionarPreferencia("whatsapp")}
+              >
+                Continuar pelo WhatsApp
+              </button>
+            </div>
+          </div>
         ) : null}
 
         {fase.nome === "padrao" ? (
@@ -459,6 +570,9 @@ export default function FormularioAlmore() {
           <div className="funil-tela funil-tela--larga">
             <Agendamento
               nota={respostas.multiplos_decisores ? NOTA_MULTIPLOS_DECISORES : undefined}
+              onConcluir={() =>
+                registrarEvento({ event_name: "booking_completed", ...PASSO_AGENDAMENTO })
+              }
             />
           </div>
         ) : null}
