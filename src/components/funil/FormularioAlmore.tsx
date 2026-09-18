@@ -10,6 +10,7 @@ import {
   PASSO_RECUSA,
   PASSO_VALOR,
   passoDaTela,
+  passoParaEvento,
   type PassoDoFunil,
 } from "@/lib/funil/passos"
 import { atualizarLead, criarLead, idDaSessao, limparSessao } from "@/lib/funil/persistencia"
@@ -141,7 +142,7 @@ export default function FormularioAlmore() {
     const bruto = respostas[tela.campo]
     if (!tela.valida(bruto)) {
       setErro(tela.erro)
-      registrarEvento({ event_name: "step_validation_failed", ...passoDaTela(tela) })
+      registrarEvento({ event_name: "step_validation_failed", ...passoParaEvento(passoDaTela(tela)) })
       return
     }
 
@@ -151,7 +152,7 @@ export default function FormularioAlmore() {
     // TEXTO FORA DO DOCUMENTO — 16/09/2026.
     if (tela.pedeConsentimento && !respostas.consentimento_whatsapp) {
       setErroConsentimento("Marque a caixa acima para continuar.")
-      registrarEvento({ event_name: "step_validation_failed", ...passoDaTela(tela) })
+      registrarEvento({ event_name: "step_validation_failed", ...passoParaEvento(passoDaTela(tela)) })
       return
     }
 
@@ -181,7 +182,7 @@ export default function FormularioAlmore() {
       },
       novas,
     )
-    registrarEvento({ event_name: "step_completed", ...passoDaTela(tela) })
+    registrarEvento({ event_name: "step_completed", ...passoParaEvento(passoDaTela(tela)) })
     irPara(indice + 1)
   }
 
@@ -200,7 +201,7 @@ export default function FormularioAlmore() {
     // quando o lead volta e troca o regime: `limparRespostasOrfas` zera o
     // `mei_quer_sair`, e esse null precisa chegar ao banco.
     gravar(diferenca(respostas, novas), novas)
-    registrarEvento({ event_name: "step_completed", ...passoDaTela(tela) })
+    registrarEvento({ event_name: "step_completed", ...passoParaEvento(passoDaTela(tela)) })
 
     // Avança sozinha, como o brief pede. O índice é calculado sobre a lista
     // nova, porque responder o CNPJ muda quais telas existem daqui pra frente.
@@ -269,7 +270,7 @@ export default function FormularioAlmore() {
   }
 
   const aceitarValor = () => {
-    registrarEvento({ event_name: "step_completed", ...PASSO_VALOR })
+    registrarEvento({ event_name: "step_completed", ...passoParaEvento(PASSO_VALOR) })
     const campos: Partial<Respostas> = { status: "valor_aceito_sem_agendamento" }
     setRespostas((r) => ({ ...r, ...campos }))
     gravar(campos, { ...respostas, ...campos } as Respostas)
@@ -277,7 +278,7 @@ export default function FormularioAlmore() {
   }
 
   const recusarValor = () => {
-    registrarEvento({ event_name: "step_completed", ...PASSO_VALOR })
+    registrarEvento({ event_name: "step_completed", ...passoParaEvento(PASSO_VALOR) })
     const campos: Partial<Respostas> = { status: "nao_atende_preco" }
     setRespostas((r) => ({ ...r, ...campos }))
     gravar(campos, { ...respostas, ...campos } as Respostas)
@@ -285,7 +286,7 @@ export default function FormularioAlmore() {
   }
 
   const responderDecisores = (multiplos: boolean) => {
-    registrarEvento({ event_name: "step_completed", ...PASSO_DECISORES })
+    registrarEvento({ event_name: "step_completed", ...passoParaEvento(PASSO_DECISORES) })
     const campos: Partial<Respostas> = { multiplos_decisores: multiplos }
     setRespostas((r) => ({ ...r, ...campos }))
     gravar(campos, { ...respostas, ...campos } as Respostas)
@@ -295,10 +296,10 @@ export default function FormularioAlmore() {
   const selecionarPreferencia = (preferencia: "ligacao" | "whatsapp") => {
     registrarEvento({
       event_name: "contact_preference_selected",
-      ...PASSO_PREFERENCIA_ATENDIMENTO,
+      ...passoParaEvento(PASSO_PREFERENCIA_ATENDIMENTO),
       metadata: { preferencia_atendimento: preferencia },
     })
-    registrarEvento({ event_name: "step_completed", ...PASSO_PREFERENCIA_ATENDIMENTO })
+    registrarEvento({ event_name: "step_completed", ...passoParaEvento(PASSO_PREFERENCIA_ATENDIMENTO) })
     void enviarFormulario(preferencia)
   }
 
@@ -334,11 +335,11 @@ export default function FormularioAlmore() {
     // para o segundo evento sair, ainda sabemos que a pessoa chegou nela.
     if (!trackerIniciado.current) {
       trackerIniciado.current = true
-      registrarEvento({ event_name: "funnel_started", ...passoAtual })
+      registrarEvento({ event_name: "funnel_started", ...passoParaEvento(passoAtual) })
     }
-    registrarEvento({ event_name: "step_viewed", ...passoAtual })
+    registrarEvento({ event_name: "step_viewed", ...passoParaEvento(passoAtual) })
     if (passoAtual.key === PASSO_AGENDAMENTO.key) {
-      registrarEvento({ event_name: "booking_viewed", ...PASSO_AGENDAMENTO })
+      registrarEvento({ event_name: "booking_viewed", ...passoParaEvento(PASSO_AGENDAMENTO) })
     }
   }, [passoAtual?.key, registrarEvento])
 
@@ -595,7 +596,7 @@ export default function FormularioAlmore() {
             <Agendamento
               nota={respostas.multiplos_decisores ? NOTA_MULTIPLOS_DECISORES : undefined}
               onConcluir={() =>
-                registrarEvento({ event_name: "booking_completed", ...PASSO_AGENDAMENTO })
+                registrarEvento({ event_name: "booking_completed", ...passoParaEvento(PASSO_AGENDAMENTO) })
               }
             />
           </div>

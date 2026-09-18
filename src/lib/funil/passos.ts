@@ -5,6 +5,7 @@ import type { Tela } from "./perguntas"
  * operacional dependem destes valores, nunca do texto que aparece ao lead.
  */
 export type PassoDoFunil = { key: string; index: number }
+export type DadosDaEtapaDoTracker = { step_key?: string; step_index?: number }
 
 const PASSOS_DAS_TELAS: Record<string, PassoDoFunil> = {
   nome: { key: "contact_name", index: 1 },
@@ -35,4 +36,10 @@ export const PASSO_RECUSA: PassoDoFunil = { key: "pricing_declined", index: 19 }
 export function passoDaTela(tela: Tela | undefined): PassoDoFunil | undefined {
   if (!tela) return undefined
   return PASSOS_DAS_TELAS[tela.id]
+}
+
+/** Traduz a etapa interna para os nomes estáveis exigidos pela RPC do tracker. */
+export function passoParaEvento(passo: PassoDoFunil | undefined): DadosDaEtapaDoTracker {
+  if (!passo) return {}
+  return { step_key: passo.key, step_index: passo.index }
 }
