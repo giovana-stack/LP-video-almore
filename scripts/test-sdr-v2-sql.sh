@@ -41,7 +41,7 @@ psql "${psql_args[@]}" --file "$repo_dir/sql/leads.sql" >/dev/null
 
 mapfile -t migrations < <(
   find "$repo_dir/supabase/migrations" -maxdepth 1 -type f \
-    -name '*_add_sdr_v2_tracker.sql' 2>/dev/null | sort
+    -name '*sdr*tracker*.sql' 2>/dev/null | sort
 )
 
 for migration in "${migrations[@]}"; do

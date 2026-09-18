@@ -90,6 +90,14 @@ function guardarFila(armazenamento: Storage, fila: EventoDoTracker[]): void {
   guardar(armazenamento, CHAVE_DA_FILA, JSON.stringify(fila))
 }
 
+function remover(armazenamento: Storage, chave: string): void {
+  try {
+    armazenamento.removeItem(chave)
+  } catch {
+    // A limpeza é uma melhoria de ciclo de vida; falhar aqui não apaga eventos.
+  }
+}
+
 function metadataSegura(metadata: Record<string, unknown> | undefined): EventoDoTracker["metadata"] {
   const preferencia = metadata?.["preferencia_atendimento"]
   if (preferencia === "ligacao" || preferencia === "whatsapp") {
@@ -164,6 +172,21 @@ export function criarTrackerDoFunil(opcoes: OpcoesDoTracker) {
     async tentarNovamente(): Promise<void> {
       if (envioEmAndamento) await envioEmAndamento
       await enviarFila()
+    },
+
+    /**
+     * Só esquece a sessão depois que a fila foi efetivamente entregue. Assim a
+     * próxima visita não atualiza o lead anterior, sem perder conclusão offline.
+     */
+    async encerrar(): Promise<boolean> {
+      if (envioEmAndamento) await envioEmAndamento
+      await enviarFila()
+      if (fila.length > 0) return false
+      leadId = null
+      remover(opcoes.armazenamento, CHAVE_DA_SESSAO)
+      remover(opcoes.armazenamento, CHAVE_DA_FILA)
+      remover(opcoes.armazenamento, CHAVE_DO_LEAD)
+      return true
     },
   }
 }
