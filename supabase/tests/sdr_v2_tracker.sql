@@ -229,6 +229,12 @@ select pg_temp.assert_true(
   'eventos fora de ordem preservam a etapa mais avancada'
 );
 select pg_temp.assert_true(
+  (select last_completed_step = 'etapa_avancada' and last_completed_step_index = 5
+     from public.funnel_sessions
+    where session_id = '32000000-0000-4000-8000-000000000001'),
+  'ultima pergunta respondida considera apenas step_completed'
+);
+select pg_temp.assert_true(
   (select last_activity_at > now() - interval '2 minutes'
      from public.funnel_sessions
     where session_id = '32000000-0000-4000-8000-000000000001'),
@@ -310,6 +316,8 @@ select pg_temp.assert_true(
       'funnel_status',
       'funnel_last_step',
       'funnel_last_step_index',
+      'funnel_last_completed_step',
+      'funnel_last_completed_step_index',
       'funnel_last_activity_at',
       'funnel_completed_at'
     ]
@@ -326,6 +334,8 @@ select pg_temp.assert_true(
       'funnel_status',
       'funnel_last_step',
       'funnel_last_step_index',
+      'funnel_last_completed_step',
+      'funnel_last_completed_step_index',
       'funnel_last_activity_at',
       'funnel_completed_at'
     ])
@@ -352,11 +362,30 @@ select pg_temp.assert_true(
         'lead_id', null,
         'status', 'abandoned',
         'last_step', 'contato',
-        'last_step_index', 3
+        'last_step_index', 3,
+        'last_completed_step', null,
+        'last_completed_step_index', null
       )
     )
   ),
   'tracker_pull devolve sessão abandonada sem lead, com o resumo operacional'
+);
+
+select pg_temp.assert_true(
+  (
+    select item->'form_snapshot' @> jsonb_build_object(
+      'nome', 'Associacao tardia'
+    )
+    from jsonb_array_elements(
+      public.sdr_bridge(
+        'test-token',
+        'tracker_pull',
+        jsonb_build_object('since', now() - interval '1 hour')
+      )
+    ) as items(item)
+    where item->>'lead_id' = '10000000-0000-4000-8000-000000000002'
+  ),
+  'tracker_pull devolve o snapshot das respostas já gravadas apenas pela ponte autenticada'
 );
 
 select pg_temp.assert_true(

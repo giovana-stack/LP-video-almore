@@ -93,6 +93,26 @@ describe("tracker do funil", () => {
     })
   })
 
+  it("vincula eventos que já foram entregues quando a criação assíncrona do lead termina", async () => {
+    const enviados: EventoDoTracker[] = []
+    const ids = ["session-uuid", "event-start", "event-association"]
+    const tracker = criarTrackerDoFunil({
+      armazenamento: armazenamentoEmMemoria(),
+      transporte: { enviar: async (evento) => void enviados.push(evento) },
+      proximoId: () => ids.shift() ?? "unused",
+    })
+
+    tracker.registrar({ event_name: "funnel_started", step_key: "contact_name", step_index: 1 })
+    await tracker.tentarNovamente()
+    tracker.associarLead("lead-uuid")
+    await tracker.tentarNovamente()
+
+    expect(enviados).toMatchObject([
+      { event_name: "funnel_started", lead_id: null },
+      { event_name: "funnel_started", lead_id: "lead-uuid" },
+    ])
+  })
+
   it("encerra uma sessão concluída só depois de entregar os eventos e faz a próxima visita nascer em outra sessão", async () => {
     const storage = armazenamentoEmMemoria()
     const enviados: EventoDoTracker[] = []

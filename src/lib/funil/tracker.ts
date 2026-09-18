@@ -119,6 +119,7 @@ export function criarTrackerDoFunil(opcoes: OpcoesDoTracker) {
   let leadId = ler(opcoes.armazenamento, CHAVE_DO_LEAD)
   let fila = lerFila(opcoes.armazenamento)
   let envioEmAndamento: Promise<void> | null = null
+  let eventosEnviadosSemLead = false
 
   const enviarFila = async (): Promise<void> => {
     if (envioEmAndamento) return envioEmAndamento
@@ -131,6 +132,7 @@ export function criarTrackerDoFunil(opcoes: OpcoesDoTracker) {
         } catch {
           return
         }
+        if (!evento.lead_id) eventosEnviadosSemLead = true
         fila.shift()
         guardarFila(opcoes.armazenamento, fila)
       }
@@ -162,11 +164,29 @@ export function criarTrackerDoFunil(opcoes: OpcoesDoTracker) {
     },
 
     associarLead(id: string): void {
+      if (leadId === id) return
       leadId = id
       guardar(opcoes.armazenamento, CHAVE_DO_LEAD, id)
       // Eventos ainda pendentes passam a carregar o vínculo logo que existe.
       fila = fila.map((evento) => (evento.lead_id ? evento : { ...evento, lead_id: id }))
+      // A criação do lead é assíncrona. Se o visitante foi muito rápido, os
+      // primeiros eventos podem já ter saído sem lead_id; este evento neutro
+      // faz a RPC associar também o histórico já entregue daquela sessão.
+      if (eventosEnviadosSemLead) {
+        fila.push({
+          event_id: proximoId(),
+          session_id: sessionId,
+          lead_id: id,
+          event_name: "funnel_started",
+          step_key: null,
+          step_index: null,
+          occurred_at: agora().toISOString(),
+          utm: utm(),
+          metadata: {},
+        })
+      }
       guardarFila(opcoes.armazenamento, fila)
+      if (eventosEnviadosSemLead) void enviarFila()
     },
 
     async tentarNovamente(): Promise<void> {
