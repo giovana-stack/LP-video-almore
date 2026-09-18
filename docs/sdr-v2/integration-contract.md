@@ -27,6 +27,8 @@ Além dos campos existentes, `get` e `pull` devem devolver:
 | `funnel_status` | texto | `in_progress`, `abandoned` ou `completed` |
 | `funnel_last_step` | texto nulo | chave estável da última etapa alcançada |
 | `funnel_last_step_index` | inteiro nulo | ordem da etapa no funil |
+| `funnel_last_completed_step` | texto nulo | chave da última pergunta efetivamente respondida (`step_completed`) |
+| `funnel_last_completed_step_index` | inteiro nulo | ordem da última pergunta efetivamente respondida |
 | `funnel_last_activity_at` | timestamptz nulo | último evento aceito |
 | `funnel_completed_at` | timestamptz nulo | conclusão do formulário |
 
@@ -68,6 +70,8 @@ Cada evento contém:
 - Não enviar conteúdo digitado, documento, CNPJ, telefone ou e-mail em
   `metadata`.
 - Repetir um `event_id` não cria outro evento.
+- `last_step` representa a última tela alcançada; `last_completed_step` é calculado
+  somente a partir de `step_completed` e representa a última resposta confirmada.
 - O endpoint público só insere eventos validados; não permite leitura pública.
 - `pagehide`/`beforeunload` não define abandono, pois não é confiável.
 - Abandono é derivado: sessão sem `funnel_completed` e sem atividade por 30
