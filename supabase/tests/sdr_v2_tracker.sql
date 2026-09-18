@@ -113,6 +113,30 @@ select pg_temp.assert_true(
   has_function_privilege('anon', 'public.funnel_track_event(jsonb)', 'execute'),
   'anon pode executar somente a RPC de insercao'
 );
+select pg_temp.assert_true(
+  not has_function_privilege(
+    'anon',
+    'private.funnel_refresh_session(uuid,timestamp with time zone)',
+    'execute'
+  )
+  and not has_function_privilege(
+    'authenticated',
+    'private.funnel_refresh_abandonment(timestamp with time zone)',
+    'execute'
+  ),
+  'helpers privilegiados nao sao executaveis por clientes'
+);
+select pg_temp.assert_true(
+  (
+    select proconfig @> array['search_path=""']
+    from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public'
+      and p.proname = 'funnel_track_event'
+      and pg_get_function_identity_arguments(p.oid) = 'p_event jsonb'
+  ),
+  'RPC publica fixa search_path vazio'
+);
 
 select pg_temp.assert_raises(
   $$select public.funnel_track_event('{"event_id":"21000000-0000-4000-8000-000000000001","session_id":"31000000-0000-4000-8000-000000000001","event_name":"evento_inventado","occurred_at":"2026-09-17T12:00:00Z"}'::jsonb)$$,
@@ -129,6 +153,35 @@ select pg_temp.assert_raises(
   'campos nao permitidos',
   'campo de payload fora da allowlist e rejeitado'
 );
+
+set local role anon;
+
+do $$
+declare
+  v_index integer;
+  v_rate_limited boolean := false;
+begin
+  for v_index in 1..61 loop
+    begin
+      perform public.funnel_track_event(jsonb_build_object(
+        'event_id', gen_random_uuid(),
+        'session_id', '31000000-0000-4000-8000-000000000099',
+        'event_name', 'funnel_started',
+        'occurred_at', now()
+      ));
+    exception when sqlstate 'PGRST' then
+      v_rate_limited := true;
+      exit;
+    end;
+  end loop;
+
+  if not v_rate_limited then
+    raise exception 'ASSERTION FAILED: rate limit por sessao nao bloqueou a 61a chamada';
+  end if;
+end;
+$$;
+
+reset role;
 
 set local role anon;
 
@@ -242,6 +295,8 @@ select pg_temp.assert_true(
   'payload antigo de funil_salvar continua funcionando'
 );
 
+set local role anon;
+
 select pg_temp.assert_true(
   (
     public.sdr_bridge(
@@ -289,6 +344,8 @@ select pg_temp.assert_true(
   (public.sdr_bridge('test-token', 'ping', '{}'::jsonb)->>'ok')::boolean,
   'acoes antigas de sdr_bridge continuam funcionando'
 );
+
+reset role;
 
 select pg_temp.assert_true(
   exists (
