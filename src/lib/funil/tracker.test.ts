@@ -139,6 +139,44 @@ describe("tracker do funil", () => {
     expect(eventoDaNovaVisita.session_id).toBe("sessao-2")
   })
 
+  it("descarta eventos antigos sem etapa para destravar a fila após a correção", async () => {
+    const storage = armazenamentoEmMemoria()
+    storage.setItem("almore_sdr_funnel_session_id", "sessao-legada")
+    storage.setItem("almore_sdr_funnel_event_queue", JSON.stringify([
+      {
+        event_id: "evento-invalido",
+        session_id: "sessao-legada",
+        lead_id: null,
+        event_name: "step_viewed",
+        step_key: null,
+        step_index: null,
+        occurred_at: "2026-09-18T12:00:00.000Z",
+        utm: {},
+        metadata: {},
+      },
+      {
+        event_id: "evento-valido",
+        session_id: "sessao-legada",
+        lead_id: null,
+        event_name: "step_viewed",
+        step_key: "contact_name",
+        step_index: 1,
+        occurred_at: "2026-09-18T12:00:01.000Z",
+        utm: {},
+        metadata: {},
+      },
+    ]))
+    const enviados: EventoDoTracker[] = []
+    const tracker = criarTrackerDoFunil({
+      armazenamento: storage,
+      transporte: { enviar: async (evento) => void enviados.push(evento) },
+    })
+
+    await tracker.tentarNovamente()
+
+    expect(enviados).toMatchObject([{ event_id: "evento-valido" }])
+  })
+
   it("chama a RPC do Supabase com p_event e a chave publicável", async () => {
     const requisitar = vi.fn().mockResolvedValue({ ok: true, status: 200 })
     const transporte = criarTransporteSupabase({

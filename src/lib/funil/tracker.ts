@@ -50,6 +50,11 @@ type OpcoesDoTracker = {
 const CHAVE_DA_SESSAO = "almore_sdr_funnel_session_id"
 const CHAVE_DA_FILA = "almore_sdr_funnel_event_queue"
 const CHAVE_DO_LEAD = "almore_sdr_funnel_lead_id"
+const EVENTOS_QUE_EXIGEM_ETAPA: NomeDoEventoDoTracker[] = [
+  "step_viewed",
+  "step_completed",
+  "step_validation_failed",
+]
 
 function novoUuid(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID()
@@ -80,7 +85,11 @@ function lerFila(armazenamento: Storage): EventoDoTracker[] {
     const bruto = armazenamento.getItem(CHAVE_DA_FILA)
     if (!bruto) return []
     const fila = JSON.parse(bruto) as unknown
-    return Array.isArray(fila) ? (fila as EventoDoTracker[]) : []
+    if (!Array.isArray(fila)) return []
+    return (fila as EventoDoTracker[]).filter((evento) =>
+      !EVENTOS_QUE_EXIGEM_ETAPA.includes(evento.event_name)
+      || (typeof evento.step_key === "string" && Number.isInteger(evento.step_index)),
+    )
   } catch {
     return []
   }
@@ -118,6 +127,9 @@ export function criarTrackerDoFunil(opcoes: OpcoesDoTracker) {
   guardar(opcoes.armazenamento, CHAVE_DA_SESSAO, sessionId)
   let leadId = ler(opcoes.armazenamento, CHAVE_DO_LEAD)
   let fila = lerFila(opcoes.armazenamento)
+  // Remove da persistência a fila legada com eventos que a RPC rejeita. Sem
+  // isso, o primeiro 400 bloqueia todas as novas etapas que vierem depois.
+  guardarFila(opcoes.armazenamento, fila)
   let envioEmAndamento: Promise<void> | null = null
   let eventosEnviadosSemLead = false
 
