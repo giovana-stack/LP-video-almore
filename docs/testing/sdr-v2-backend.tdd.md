@@ -71,10 +71,11 @@ repositório. A cobertura foi medida por requisitos: todos os dez itens do
 briefing têm ao menos uma asserção de contrato, e os caminhos de erro públicos
 possuem testes dedicados.
 
-Os advisors foram consultados somente no banco remoto ainda não migrado. Eles
-registraram avisos já existentes para tabelas com RLS deny-all e funções
-`SECURITY DEFINER` públicas. Esse padrão é intencional para as RPCs públicas,
-mas deve ser revisto novamente em staging após aplicar a migration.
+Os advisors foram consultados antes e depois do deploy. Após a migration, eles
+registraram avisos para tabelas com RLS deny-all, funções `SECURITY DEFINER`
+públicas e índices novos ainda sem uso. Esse padrão é intencional: as tabelas
+não têm grants públicos, as RPCs são as portas validadas e as tabelas do
+tracker estavam vazias na verificação pós-deploy.
 
 O lint de frontend continua falhando por 531 ocorrências de Prettier já
 existentes em arquivos fora deste escopo. Nenhum arquivo de interface foi

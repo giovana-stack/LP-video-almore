@@ -12,7 +12,29 @@ A migration é aditiva e preserva as assinaturas públicas existentes:
   `message`;
 - `get` e `pull` passam a devolver as novas colunas porque serializam a linha
   completa de `leads`;
-- nenhuma migration foi aplicada ao projeto remoto durante o desenvolvimento.
+
+## Estado do deploy
+
+Aplicada em produção em 18/09/2026 no projeto Supabase
+`ffdbojtidzmoklcpvnsz`. O histórico remoto registrou
+`20260918114523_add_sdr_v2_tracker`.
+
+A verificação imediatamente após o deploy confirmou:
+
+- sete colunas novas em `public.leads`;
+- `public.funnel_events` e `public.funnel_sessions` vazias, sem dados de teste;
+- RLS habilitado e nenhum `SELECT`/`INSERT` direto para `anon` ou
+  `authenticated`;
+- todos os sete índices previstos presentes;
+- `search_path` vazio nas funções privilegiadas;
+- helpers do schema `private` sem `EXECUTE` para clientes;
+- migration registrada no histórico do Supabase.
+
+Os advisors classificam como avisos as tabelas deny-all sem policies e as RPCs
+`SECURITY DEFINER` executáveis pelo público. Neste desenho isso é intencional:
+as tabelas não têm grants públicos e as RPCs são as únicas portas validadas.
+Índices novos aparecem inicialmente como não usados porque o tracker ainda não
+recebeu eventos.
 
 ## Endpoint público
 
