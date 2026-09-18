@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest"
 
 import {
+  criarTransporteSupabase,
   criarTrackerDoFunil,
   type EventoDoTracker,
   type TransporteDoTracker,
@@ -88,7 +89,42 @@ describe("tracker do funil", () => {
     expect(enviados).toHaveLength(1)
     expect(enviados[0]).toMatchObject({
       lead_id: "lead-uuid",
-      metadata: { preferencia_atendimento: "ligacao" },
+      metadata: { preference: "ligacao" },
     })
+  })
+
+  it("chama a RPC do Supabase com p_event e a chave publicável", async () => {
+    const requisitar = vi.fn().mockResolvedValue({ ok: true, status: 200 })
+    const transporte = criarTransporteSupabase({
+      url: "https://ffdbojtidzmoklcpvnsz.supabase.co",
+      chavePublicavel: "sb_publishable_test",
+      requisitar,
+    })
+    const evento: EventoDoTracker = {
+      event_id: "event-uuid",
+      session_id: "session-uuid",
+      lead_id: null,
+      event_name: "contact_preference_selected",
+      step_key: "contact_preference",
+      step_index: 15,
+      occurred_at: "2026-09-18T12:00:00.000Z",
+      utm: { source: "meta", medium: null, campaign: null, content: null, term: null },
+      metadata: { preference: "whatsapp" },
+    }
+
+    await transporte.enviar(evento)
+
+    expect(requisitar).toHaveBeenCalledWith(
+      "https://ffdbojtidzmoklcpvnsz.supabase.co/rest/v1/rpc/funnel_track_event",
+      expect.objectContaining({
+        method: "POST",
+        headers: expect.objectContaining({
+          apikey: "sb_publishable_test",
+          Authorization: "Bearer sb_publishable_test",
+          "Content-Type": "application/json",
+        }),
+        body: JSON.stringify({ p_event: evento }),
+      }),
+    )
   })
 })
