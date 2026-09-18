@@ -93,6 +93,32 @@ describe("tracker do funil", () => {
     })
   })
 
+  it("encerra uma sessão concluída só depois de entregar os eventos e faz a próxima visita nascer em outra sessão", async () => {
+    const storage = armazenamentoEmMemoria()
+    const enviados: EventoDoTracker[] = []
+    const ids = ["sessao-1", "evento-1", "sessao-2", "evento-2"]
+    const proximoId = () => ids.shift() ?? "unused"
+    const transporte: TransporteDoTracker = {
+      enviar: async (evento) => void enviados.push(evento),
+    }
+    const primeiro = criarTrackerDoFunil({ armazenamento: storage, transporte, proximoId })
+
+    primeiro.associarLead("lead-1")
+    primeiro.registrar({ event_name: "funnel_completed", step_key: "form_review", step_index: 14 })
+
+    await primeiro.encerrar()
+
+    const segundo = criarTrackerDoFunil({ armazenamento: storage, transporte, proximoId })
+    const eventoDaNovaVisita = segundo.registrar({ event_name: "funnel_started" })
+    await segundo.tentarNovamente()
+
+    expect(enviados).toMatchObject([
+      { session_id: "sessao-1", lead_id: "lead-1", event_name: "funnel_completed" },
+      { session_id: "sessao-2", lead_id: null, event_name: "funnel_started" },
+    ])
+    expect(eventoDaNovaVisita.session_id).toBe("sessao-2")
+  })
+
   it("chama a RPC do Supabase com p_event e a chave publicável", async () => {
     const requisitar = vi.fn().mockResolvedValue({ ok: true, status: 200 })
     const transporte = criarTransporteSupabase({
