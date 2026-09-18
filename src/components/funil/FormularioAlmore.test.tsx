@@ -14,27 +14,50 @@ vi.mock("@/lib/funil/persistencia", () => ({
   idDaSessao: () => "lead-uuid",
 }))
 
-describe("Ramo B do formulário", () => {
+/**
+ * O que decide a tela de canal é TER OU NÃO preço — não a trilha.
+ *
+ * Quem não recebe valor vai ser procurado pela especialista, e a escolha de
+ * canal é a última coisa que falta saber. Quem recebe valor marca a própria
+ * reunião na agenda, e por isso passa direto do preço para os decisores.
+ *
+ * Os dois testes abaixo existem em par de propósito: um prova que a tela
+ * aparece onde deve, o outro que ela NÃO aparece no outro caminho. Sozinho, o
+ * primeiro passaria mesmo se a tela voltasse a aparecer para todo mundo.
+ */
+async function preencherContato(usuario: ReturnType<typeof userEvent.setup>) {
+  await usuario.type(screen.getByLabelText("Qual é o seu nome?"), "Maria")
+  await usuario.click(screen.getByRole("button", { name: "Continuar" }))
+
+  await usuario.type(screen.getByLabelText("Qual é o seu WhatsApp?"), "19999999999")
+  await usuario.click(screen.getByRole("checkbox"))
+  await usuario.click(screen.getByRole("button", { name: "Continuar" }))
+
+  await usuario.type(screen.getByLabelText("Qual é o seu e-mail?"), "maria@empresa.com")
+  await usuario.click(screen.getByRole("button", { name: "Continuar" }))
+}
+
+describe("Telas finais do formulário", () => {
   beforeEach(() => {
     atualizarLead.mockReset()
     atualizarLead.mockResolvedValue({ ok: true, id: "lead-uuid" })
   })
 
-  it("navega por chaves estáveis e exige a escolha de canal antes de concluir", async () => {
+  it("sem preço: escolhe o canal e cai na confirmação", async () => {
     const usuario = userEvent.setup()
     render(<FormularioAlmore />)
 
-    await usuario.type(screen.getByLabelText("Qual é o seu nome?"), "Maria")
-    await usuario.click(screen.getByRole("button", { name: "Continuar" }))
+    await preencherContato(usuario)
 
-    await usuario.type(screen.getByLabelText("Qual é o seu WhatsApp?"), "19999999999")
-    await usuario.click(screen.getByRole("checkbox"))
-    await usuario.click(screen.getByRole("button", { name: "Continuar" }))
-
-    await usuario.type(screen.getByLabelText("Qual é o seu e-mail?"), "maria@empresa.com")
-    await usuario.click(screen.getByRole("button", { name: "Continuar" }))
-    await usuario.click(screen.getByRole("button", { name: "Não, quero abrir uma empresa" }))
-    await usuario.click(screen.getByRole("button", { name: "Prestação de serviços" }))
+    // Simples Nacional acima de R$300.000 não bate nenhuma regra de valor.
+    await usuario.click(screen.getByRole("button", { name: "Sim" }))
+    await usuario.click(screen.getByRole("button", { name: "Simples Nacional" }))
+    await usuario.click(screen.getByRole("button", { name: "Acima de R$300.000" }))
+    await usuario.click(screen.getByRole("button", { name: "Não tenho" }))
+    await usuario.click(screen.getByRole("button", { name: "De 1 a 5" }))
+    await usuario.click(
+      screen.getByRole("button", { name: "Pago muito imposto e quero pagar menos" }),
+    )
     await usuario.click(screen.getByRole("button", { name: "Essa semana" }))
     await usuario.click(screen.getByRole("button", { name: "Tarde (12h-18h)" }))
 
@@ -52,6 +75,24 @@ describe("Ramo B do formulário", () => {
         expect.objectContaining({ formulario_completo: true }),
       ),
     )
-    expect(screen.getByText("Você quer abrir uma empresa")).toBeTruthy()
+    expect(screen.getByText("Recebemos seus dados!")).toBeTruthy()
+  })
+
+  it("com preço: vai direto para o valor, sem perguntar o canal", async () => {
+    const usuario = userEvent.setup()
+    render(<FormularioAlmore />)
+
+    await preencherContato(usuario)
+
+    // Abertura de CNPJ tem valor fixo, então é um caminho COM preço.
+    await usuario.click(screen.getByRole("button", { name: "Não, quero abrir uma empresa" }))
+    await usuario.click(screen.getByRole("button", { name: "Prestação de serviços" }))
+    await usuario.click(screen.getByRole("button", { name: "Essa semana" }))
+    await usuario.click(screen.getByRole("button", { name: "Tarde (12h-18h)" }))
+
+    await usuario.click(screen.getByRole("button", { name: "Enviar" }))
+
+    await waitFor(() => expect(screen.getByText("Você quer abrir uma empresa")).toBeTruthy())
+    expect(screen.queryByRole("heading", { name: "Como você prefere ser atendido?" })).toBeNull()
   })
 })
