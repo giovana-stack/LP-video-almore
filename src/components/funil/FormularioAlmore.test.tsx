@@ -7,6 +7,8 @@ import FormularioAlmore from "./FormularioAlmore"
 const { atualizarLead } = vi.hoisted(() => ({ atualizarLead: vi.fn() }))
 
 vi.mock("@/lib/funil/persistencia", () => ({
+  SUPABASE_URL: "https://ffdbojtidzmoklcpvnsz.supabase.co",
+  SUPABASE_PUBLISHABLE: "sb_publishable_test",
   atualizarLead,
   criarLead: vi.fn().mockResolvedValue({ ok: true, id: "lead-uuid" }),
   idDaSessao: () => "lead-uuid",

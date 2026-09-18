@@ -19,3 +19,11 @@
 RED: `npm test` falhou em 17/09/2026 porque o Ramo B ia direto à tela de
 valor e `./tracker` não existia. GREEN: `npm test`, `npm run typecheck` e
 `npm run build` passaram após a implementação.
+
+## Compatibilidade com a RPC
+
+Um segundo ciclo RED/GREEN corrigiu a integração com a migration SDR v2:
+`npm test -- src/lib/funil/tracker.test.ts` falhou porque o cliente emitia
+`metadata.preferencia_atendimento` e não tinha o envelope `p_event`. O mesmo
+comando e `npm run typecheck` passaram após o adaptador passar a chamar
+`/rest/v1/rpc/funnel_track_event` com a chave publicável.

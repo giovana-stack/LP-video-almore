@@ -42,7 +42,7 @@ type TrackerEvent = {
 ```
 
 `metadata` não recebe PII ou respostas. A única metadata emitida pela landing
-no momento é `preferencia_atendimento`, com `ligacao` ou `whatsapp`, no evento
+no momento é `preference`, com `ligacao` ou `whatsapp`, no evento
 `contact_preference_selected`.
 
 Repetir o mesmo `event_id` não pode criar novo evento. Abandono é derivado por
@@ -60,6 +60,17 @@ O payload de preferência canônico é:
 O Pantera normaliza `ligacao`, `ligação`, `telefone`, `voice` e `call` para
 `voice`; `whatsapp` permanece `whatsapp`; valor ausente/desconhecido cai em
 WhatsApp.
+
+O cliente envia cada evento para a RPC do tracker:
+
+```http
+POST https://ffdbojtidzmoklcpvnsz.supabase.co/rest/v1/rpc/funnel_track_event
+apikey: <chave-publicavel>
+Authorization: Bearer <chave-publicavel>
+Content-Type: application/json
+
+{ "p_event": { /* TrackerEvent */ } }
+```
 
 O evento `booking_completed` só é emitido após a agenda cross-origin enviar
 `postMessage({ type: "almore_booking_completed" })` de

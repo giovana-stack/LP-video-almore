@@ -1,4 +1,5 @@
 import { lerUtmsPermitidas, type UtmsPermitidas } from "./origem"
+import { SUPABASE_PUBLISHABLE, SUPABASE_URL } from "./persistencia"
 
 export type NomeDoEventoDoTracker =
   | "funnel_started"
@@ -92,7 +93,7 @@ function guardarFila(armazenamento: Storage, fila: EventoDoTracker[]): void {
 function metadataSegura(metadata: Record<string, unknown> | undefined): EventoDoTracker["metadata"] {
   const preferencia = metadata?.["preferencia_atendimento"]
   if (preferencia === "ligacao" || preferencia === "whatsapp") {
-    return { preferencia_atendimento: preferencia }
+    return { preference: preferencia }
   }
   return {}
 }
@@ -167,17 +168,39 @@ export function criarTrackerDoFunil(opcoes: OpcoesDoTracker) {
   }
 }
 
-class TransporteHttpDoTracker implements TransporteDoTracker {
-  constructor(private readonly endpoint: string) {}
+type Requisitar = (
+  input: RequestInfo | URL,
+  init?: RequestInit,
+) => Promise<{ ok: boolean; status: number }>
 
-  async enviar(evento: EventoDoTracker): Promise<void> {
-    const resposta = await fetch(this.endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(evento),
-      keepalive: true,
-    })
-    if (!resposta.ok) throw new Error(`tracker respondeu ${resposta.status}`)
+type OpcoesDoTransporteSupabase = {
+  url: string
+  chavePublicavel: string
+  requisitar?: Requisitar | undefined
+}
+
+/** Adaptador do contrato da migration SDR v2: POST RPC com envelope p_event. */
+export function criarTransporteSupabase({
+  url,
+  chavePublicavel,
+  requisitar = fetch,
+}: OpcoesDoTransporteSupabase): TransporteDoTracker {
+  const endpoint = `${url.replace(/\/$/, "")}/rest/v1/rpc/funnel_track_event`
+
+  return {
+    async enviar(evento: EventoDoTracker): Promise<void> {
+      const resposta = await requisitar(endpoint, {
+        method: "POST",
+        headers: {
+          apikey: chavePublicavel,
+          Authorization: `Bearer ${chavePublicavel}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ p_event: evento }),
+        keepalive: true,
+      })
+      if (!resposta.ok) throw new Error(`tracker respondeu ${resposta.status}`)
+    },
   }
 }
 
@@ -199,15 +222,15 @@ function armazenamentoDoNavegador(): Storage {
 }
 
 /**
- * Adaptador HTTP temporário: a Sessão 4 só precisa fornecer a URL pública em
- * VITE_SDR_TRACKER_ENDPOINT; a interface TransporteDoTracker permite trocar a
- * implementação sem tocar nas telas do formulário.
+ * A RPC usa a mesma URL e chave publicável já empregadas por `funil_salvar`.
+ * Nenhum segredo é colocado no navegador.
  */
 export function criarTrackerDoNavegador() {
-  const endpoint = import.meta.env["VITE_SDR_TRACKER_ENDPOINT"]
-  const transporte: TransporteDoTracker = endpoint
-    ? new TransporteHttpDoTracker(endpoint)
-    : { enviar: async () => Promise.reject(new Error("tracker sem endpoint configurado")) }
+  const transporte = criarTransporteSupabase({
+    url: import.meta.env["VITE_SUPABASE_URL"] ?? SUPABASE_URL,
+    chavePublicavel:
+      import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"] ?? SUPABASE_PUBLISHABLE,
+  })
   return criarTrackerDoFunil({ armazenamento: armazenamentoDoNavegador(), transporte })
 }
 
