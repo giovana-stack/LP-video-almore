@@ -594,6 +594,7 @@ export default function FormularioAlmore() {
           <div className="funil-tela funil-tela--larga">
             <Agendamento
               nota={respostas.multiplos_decisores ? NOTA_MULTIPLOS_DECISORES : undefined}
+              horarioPreferido={respostas.melhor_horario_contato}
               onConcluir={() =>
                 registrarEvento({ event_name: "booking_completed", ...PASSO_AGENDAMENTO })
               }

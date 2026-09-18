@@ -18,15 +18,44 @@ import { useEffect } from "react"
 const URL_AGENDA = "https://agendar.devantsolucoes.com.br/p/almore-inteligencia-contabil"
 const ORIGEM_AGENDA = new URL(URL_AGENDA).origin
 
+/**
+ * O período que o lead pediu, do jeito que a agenda espera no `?periodo=`.
+ *
+ * A agenda usa isso para mostrar só alguns horários daquele período, mais um
+ * de cada um dos outros dois — a tela precisa parecer um encaixe, e não uma
+ * semana inteira vazia. Sem o parâmetro ela mostra o dia todo, como faz para
+ * os outros clientes dela.
+ *
+ * A leitura é pela primeira palavra, sem acento: assim mudar o rótulo de
+ * "Manhã (8h-12h)" para "De manhã" não quebra o encaixe em silêncio.
+ */
+function periodoDaAgenda(horario: string | null): string | null {
+  if (!horario) return null
+  const limpo = horario
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .trim()
+    .toLowerCase()
+  if (limpo.startsWith("manha")) return "manha"
+  if (limpo.startsWith("tarde")) return "tarde"
+  if (limpo.startsWith("noite")) return "noite"
+  return null
+}
+
 type Props = {
   /** Quando há mais de um decisor, a nota do documento aparece acima da agenda. */
   // `| undefined` explícito porque o projeto usa exactOptionalPropertyTypes.
   nota?: string | undefined
+  /** O `melhor_horario_contato` do lead, como ele foi respondido na tela. */
+  horarioPreferido?: string | null | undefined
   /** A agenda cross-origin confirma por postMessage quando a reserva termina. */
   onConcluir?: (() => void) | undefined
 }
 
-export default function Agendamento({ nota, onConcluir }: Props) {
+export default function Agendamento({ nota, horarioPreferido, onConcluir }: Props) {
+  const periodo = periodoDaAgenda(horarioPreferido ?? null)
+  const src = periodo ? `${URL_AGENDA}?periodo=${periodo}` : URL_AGENDA
+
   useEffect(() => {
     if (!onConcluir) return
     const receberConclusao = (evento: MessageEvent<unknown>) => {
@@ -45,7 +74,7 @@ export default function Agendamento({ nota, onConcluir }: Props) {
 
       <div className="agenda-quadro">
         <iframe
-          src={URL_AGENDA}
+          src={src}
           title="Escolha um horário para a conversa com a especialista"
           // A agenda pede data, horário e dados de contato: o formulário
           // próprio dela precisa poder enviar, e a confirmação costuma
@@ -59,7 +88,7 @@ export default function Agendamento({ nota, onConcluir }: Props) {
       <p className="agenda-alternativa">
         {/* TEXTO FORA DO DOCUMENTO — aprovado em 28/08/2026. */}
         Não está carregando?{" "}
-        <a href={URL_AGENDA} target="_blank" rel="noopener noreferrer">
+        <a href={src} target="_blank" rel="noopener noreferrer">
           Abrir a agenda numa nova aba
         </a>
       </p>
