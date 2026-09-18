@@ -360,6 +360,23 @@ select pg_temp.assert_true(
 );
 
 select pg_temp.assert_true(
+  (
+    select item->'form_snapshot' @> jsonb_build_object(
+      'nome', 'Associacao tardia'
+    )
+    from jsonb_array_elements(
+      public.sdr_bridge(
+        'test-token',
+        'tracker_pull',
+        jsonb_build_object('since', now() - interval '1 hour')
+      )
+    ) as items(item)
+    where item->>'lead_id' = '10000000-0000-4000-8000-000000000002'
+  ),
+  'tracker_pull devolve o snapshot das respostas já gravadas apenas pela ponte autenticada'
+);
+
+select pg_temp.assert_true(
   (public.sdr_bridge('test-token', 'ping', '{}'::jsonb)->>'ok')::boolean,
   'acoes antigas de sdr_bridge continuam funcionando'
 );
